@@ -15,14 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,9 @@ public class Activities extends AppCompatActivity
     FutureCallback<Response<String>> getAllActivitiesCallback;
     FutureCallback<Response<String>> createActivityCallback;
     FutureCallback<Response<String>> deleteActivityCallback;
+    FutureCallback<Response<String>> editActivityCallback;
     Globals appState;
+    private ManualActivity editActivity;    // server does not send whole object as payload if the activity is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,11 @@ public class Activities extends AppCompatActivity
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         ManualActivity item = (ManualActivity) parent.getItemAtPosition(position);
-                        Toast.makeText(Activities.this, item.getName(), Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(view.getContext(), ManualActivityAdd.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("act", Parcels.wrap(item));
+                        intent.putExtras(bundle);
+                        startActivityForResult(intent, 102);
                     }
                 }
         );
@@ -103,7 +109,6 @@ public class Activities extends AppCompatActivity
         getAllActivitiesCallback = new FutureCallback<Response<String>>() {
             @Override
             public void onCompleted(Exception e, Response<String> result) {
-                Log.d("ManAct", "Result Header = " + result.getHeaders().toString());
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
                     Log.d("ManAct", "Element = " + element.toString());
@@ -117,14 +122,10 @@ public class Activities extends AppCompatActivity
                         int id = activity.get("id").getAsInt();
                         String activityName = activity.get("name").getAsString();
                         int rewardiPerHour = activity.get("rewardiPerHour").getAsInt();
-
                         boolean isActive = false;
-                        try {
-                            String activeSince = activity.get("activeSince").getAsString();
-                            if (activeSince != null) {
-                                isActive = true;
-                            }
-                        } catch (Exception ex) { }
+                        if(activity.get("activeSince").isJsonNull() == false){
+                            isActive = true;
+                        }
 
                         ManualActivity manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive);
                         listAdapter.addItem(manualActivity);
@@ -153,12 +154,9 @@ public class Activities extends AppCompatActivity
                     String activityName = activityObj.get("name").getAsString();
                     int rewardiPerHour = activityObj.get("rewardiPerHour").getAsInt();
                     boolean isActive = false;
-                    try {
-                        String activeSince = activityObj.get("activeSince").getAsString();
-                        if(activeSince != null){
-                            isActive = true;
-                        }
-                    }catch(Exception ex){ }
+                    if(activityObj.get("activeSince").isJsonNull() == false){
+                        isActive = true;
+                    }
 
                     ManualActivity act = new ManualActivity(id, activityName, rewardiPerHour, isActive);
                     listAdapter.addItem(act);
@@ -177,7 +175,7 @@ public class Activities extends AppCompatActivity
                 Log.d("ManAct", "deleteActivityCallback called!");
                 Log.d("ManAct", "Server Response = " + res.toString());
                 if(e == null){
-                   // HN-CHECK -> check if response is 200 -> when remove activity from list
+                   // HN-CHECK -> check if response is 200 -> then remove activity from list
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("ManAct", "Element = " + element.toString());
                     JsonObject activityObj = element.getAsJsonObject();
@@ -185,6 +183,24 @@ public class Activities extends AppCompatActivity
                     listAdapter.removeActivity(activityObj.get("id").getAsInt());
                     listAdapter.notifyDataSetChanged();
                     showDeleteMenu(false);
+                }
+                else{
+                    Log.d("ManAct", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        editActivityCallback = new FutureCallback<Response<String>>() {
+
+            @Override
+            public void onCompleted(Exception e, Response<String> res) {
+                Log.d("ManAct", "editActivityCallback called!");
+                Log.d("ManAct", "Server Response = " + res.toString());
+                if(e == null){
+                    if(res.getHeaders().code() == 204){         // edit list item if server confirms the change with HTTP STATUS 204
+                        listAdapter.setItem(editActivity);
+                        listAdapter.notifyDataSetChanged();
+                    }
                 }
                 else{
                     Log.d("ManAct", "Error = %s" + e.toString());
@@ -216,15 +232,10 @@ public class Activities extends AppCompatActivity
                 new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-
                         List<ManualActivity> deleteList = listAdapter.getListActivitiesSelected();
                         for(int i = 0; i<deleteList.size(); ++i){
                             appState.sendMessageToServer(Globals.messageID.ACTIVITY_DELETE, deleteList.get(i).getId(),null, deleteActivityCallback);
                         }
-
-                        //listAdapter.removeSelectedActivities();
-                        //listAdapter.notifyDataSetChanged();
-                        //showDeleteMenu(false);
                         return true;
                     }
                 }
@@ -274,11 +285,19 @@ public class Activities extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 101 && resultCode == RESULT_OK){
+        if(resultCode == RESULT_OK){
+            Bundle bundle = data.getExtras();
+            ManualActivity act = Parcels.unwrap(bundle.getParcelable("act"));
             JsonObject dataObj = new JsonObject();
-            dataObj.addProperty("name", data.getStringExtra("name"));
-            dataObj.addProperty("rewardiPerHour",data.getStringExtra("rewardiPerHour"));
-            appState.sendMessageToServer(Globals.messageID.ACTIVITY_CREATE, 0,dataObj, createActivityCallback);
+            dataObj.addProperty("name", act.getName());
+            dataObj.addProperty("rewardiPerHour",act.getRewardiPerHour());
+            if(requestCode == 101){     // 101 = RESULT_ADD -> add new manual activity
+                appState.sendMessageToServer(Globals.messageID.ACTIVITY_CREATE, 0,dataObj, createActivityCallback);
+            }
+            else if(requestCode == 102){    // 102 = RESULT_EDIT -> edit existing manual activity
+                appState.sendMessageToServer(Globals.messageID.ACTIVITY_EDIT, act.getId(),dataObj, editActivityCallback);
+                editActivity = act;
+            }
         }
     }
 }

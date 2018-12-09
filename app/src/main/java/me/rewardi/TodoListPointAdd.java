@@ -9,10 +9,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.parceler.Parcels;
+
 public class TodoListPointAdd extends AppCompatActivity {
 
     private EditText editTextName;
     private EditText editTextRewardi;
+    private TodoListPoint point;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +32,17 @@ public class TodoListPointAdd extends AppCompatActivity {
                     public void onClick(View view) {
                         if (isValid()) {
                             Intent intent = new Intent();
-                            intent.putExtra("name", editTextName.getText().toString());
-                            intent.putExtra("rewardi", editTextRewardi.getText().toString());
+                            if(hasExtras()){    // edit existing todo list point
+                                point.setName(editTextName.getText().toString());
+                                point.setRewardi(Integer.parseInt(editTextRewardi.getText().toString()));
+                            }
+                            else{   // create new todo list point
+                                point = new TodoListPoint(0, editTextName.getText().toString(), Integer.parseInt(editTextRewardi.getText().toString()), false);
+                            }
+
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable("todoListPoint", Parcels.wrap(point));
+                            intent.putExtras(bundle);
                             setResult(RESULT_OK, intent);
                             finish();
                         } else {
@@ -38,6 +50,8 @@ public class TodoListPointAdd extends AppCompatActivity {
                         }
                     }
                 });
+
+        checkExtras();
     }
 
     private void showAlertDialog(){
@@ -76,5 +90,17 @@ public class TodoListPointAdd extends AppCompatActivity {
         }
 
         return editText.getText().toString().length() == 0;
+    }
+
+    private void checkExtras(){
+        if(hasExtras()){
+            point = Parcels.unwrap(getIntent().getExtras().getParcelable("todoListPoint"));
+            editTextName.setText(point.getName());
+            editTextRewardi.setText(Integer.toString(point.getRewardi()));
+        }
+    }
+
+    private boolean hasExtras(){
+        return getIntent().getExtras() != null;
     }
 }

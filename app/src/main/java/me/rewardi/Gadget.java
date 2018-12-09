@@ -1,8 +1,13 @@
 package me.rewardi;
 
+import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
+
+@Parcel(Parcel.Serialization.BEAN)
 public class Gadget {
     private int id;
     private String trustNumber;
+
     private String name;
 
     public Gadget(){
@@ -11,6 +16,7 @@ public class Gadget {
         this.name = null;
     }
 
+    @ParcelConstructor
     public Gadget(int id, String trustNumber, String name){
         this.id = id;
         this.trustNumber = trustNumber;
@@ -26,4 +32,6 @@ public class Gadget {
     public void setTrustNumber(String trustNumber) { this.trustNumber = trustNumber; }
 
     public String getName() { return name; }
+
+    public void setName(String name) { this.name = name; }
 }

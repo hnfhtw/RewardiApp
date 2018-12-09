@@ -16,13 +16,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,12 @@ public class Gadgets extends AppCompatActivity
     private MenuItem menuItemDelete;
     private CustomListAdapterGadgets listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
-    FutureCallback<Response<String>> serverResponseCallback;
+    FutureCallback<Response<String>> getAllGadgetsCallback;
+    FutureCallback<Response<String>> createGadgetCallback;
+    FutureCallback<Response<String>> deleteGadgetCallback;
+    FutureCallback<Response<String>> editGadgetCallback;
     Globals appState;
+    private Gadget editGadget;    // server does not send whole object as payload if the gadget is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +81,20 @@ public class Gadgets extends AppCompatActivity
                 {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(view.getContext(), GadgetAdd.class);
+                        Bundle bundle = new Bundle();
+
                         Gadget item = (Gadget) parent.getItemAtPosition(position);
-                        Toast.makeText(Gadgets.this, item.getName(), Toast.LENGTH_LONG).show();
+                        if(item.getTrustNumber().charAt(0) == '2') {        // SocketBoard
+                            SocketBoard socketBoardItem = (SocketBoard) parent.getItemAtPosition(position);
+                            bundle.putParcelable("socketBoard", Parcels.wrap(socketBoardItem));
+                        }
+                        else if(item.getTrustNumber().charAt(0) == '1') {    // Box
+                            Box boxItem = (Box) parent.getItemAtPosition(position);
+                            bundle.putParcelable("box", Parcels.wrap(boxItem));
+                        }
+                        intent.putExtras(bundle);
+                        startActivityForResult(intent, 102);
                     }
                 }
         );
@@ -98,7 +115,7 @@ public class Gadgets extends AppCompatActivity
                 }
         );
 
-        serverResponseCallback = new FutureCallback<Response<String>>() {
+        getAllGadgetsCallback = new FutureCallback<Response<String>>() {
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 Log.d("Gadgets", "Result Header = " + result.getHeaders().toString());
@@ -118,17 +135,12 @@ public class Gadgets extends AppCompatActivity
                         if(trustNumber.charAt(0) == '2') {        // SocketBoard
                             int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
                             int maxTime = gadget.get("maxTime").getAsInt();
-
                             boolean isActive = false;
-                            try {
-                                String usedSince = gadget.get("usedSince").getAsString();
-                                if(usedSince != null){
-                                    isActive = true;
-                                }
-                            }catch(Exception ex){
-
+                            if(gadget.get("usedSince").isJsonNull() == false){
+                                isActive = true;
                             }
-                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime);
+
+                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive);
                             listAdapter.addItem(socketBoard);
                             listAdapter.notifyDataSetChanged();
                         }
@@ -147,9 +159,88 @@ public class Gadgets extends AppCompatActivity
             }
         };
 
+        createGadgetCallback = new FutureCallback<Response<String>>() {
+
+            @Override
+            public void onCompleted(Exception e, Response<String> res) {
+                Log.d("Gadgets", "createGadgetCallback called!");
+                Log.d("Gadgets", "Server Response = " + res.toString());
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(res.getResult());
+                    Log.d("Gadgets", "Element = " + element.toString());
+                    JsonObject gadget = element.getAsJsonObject();
+
+                    int id = gadget.get("id").getAsInt();
+                    String trustNumber = gadget.get("trustNo").getAsString();
+                    String name = gadget.get("name").getAsString();
+                    if(trustNumber.charAt(0) == '2') {        // SocketBoard
+                        int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
+                        int maxTime = gadget.get("maxTime").getAsInt();
+                        boolean isActive = false;
+                        if(gadget.get("usedSince").isJsonNull() == false){
+                            isActive = true;
+                        }
+                        SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive);
+                        listAdapter.addItem(socketBoard);
+                        listAdapter.notifyDataSetChanged();
+                    }
+                    else if(trustNumber.charAt(0) == '1') {   // Box
+                        int rewardiPerOpen = gadget.get("rewardiPerOpen").getAsInt();
+                        boolean isLocked = gadget.get("getIsLocked").getAsBoolean();
+                        Box box = new Box(id, trustNumber, name, rewardiPerOpen, isLocked);
+                        listAdapter.addItem(box);
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }
+                else{
+                    Log.d("Gadgets", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        deleteGadgetCallback = new FutureCallback<Response<String>>() {
+
+            @Override
+            public void onCompleted(Exception e, Response<String> res) {
+                Log.d("Gadgets", "deleteGadgetCallback called!");
+                Log.d("Gadgets", "Server Response = " + res.toString());
+                if(e == null){
+                    // HN-CHECK -> check if response is 200 -> then remove activity from list
+                    JsonElement element = new JsonParser().parse(res.getResult());
+                    Log.d("Gadgets", "Element = " + element.toString());
+                    JsonObject activityObj = element.getAsJsonObject();
+
+                    listAdapter.removeGadget(activityObj.get("id").getAsInt());
+                    listAdapter.notifyDataSetChanged();
+                    showDeleteMenu(false);
+                }
+                else{
+                    Log.d("Gadgets", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        editGadgetCallback = new FutureCallback<Response<String>>() {
+
+            @Override
+            public void onCompleted(Exception e, Response<String> res) {
+                Log.d("Gadgets", "editGadgetCallback called!");
+                Log.d("Gadgets", "Server Response = " + res.toString());
+                if(e == null){
+                    if(res.getHeaders().code() == 204){         // edit list item if server confirms the change with HTTP STATUS 204
+                        listAdapter.setItem(editGadget);
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }
+                else{
+                    Log.d("Gadgets", "Error = %s" + e.toString());
+                }
+            }
+        };
+
         appState = ((Globals)getApplicationContext());
-        appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, serverResponseCallback);
-        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, serverResponseCallback);
+        appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
+        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
     }
 
     @Override
@@ -172,9 +263,15 @@ public class Gadgets extends AppCompatActivity
                 new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        listAdapter.removeSelectedGadgets();
-                        listAdapter.notifyDataSetChanged();
-                        showDeleteMenu(false);
+                        List<Gadget> deleteList = listAdapter.getListGadgetsSelected();
+                        for(int i = 0; i<deleteList.size(); ++i){
+                            if(deleteList.get(i).getTrustNumber().charAt(0) == '2') {        // SocketBoard
+                                appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_DELETE, deleteList.get(i).getId(), null, deleteGadgetCallback);
+                            }
+                            else if(deleteList.get(i).getTrustNumber().charAt(0) == '1') {    // Box
+                                appState.sendMessageToServer(Globals.messageID.BOX_DELETE, deleteList.get(i).getId(), null, deleteGadgetCallback);
+                            }
+                        }
                         return true;
                     }
                 }
@@ -223,19 +320,37 @@ public class Gadgets extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 101 && resultCode == RESULT_OK){
-
+        if(resultCode == RESULT_OK){
+            Bundle bundle = data.getExtras();
             String type = data.getStringExtra("gadgetType");
-            if(type.equals("SocketBoard")){
-                Gadget gadget = new SocketBoard(3, data.getStringExtra("trustNumber"), data.getStringExtra("name"), data.getIntExtra("rewardiPerHour", 0), data.getIntExtra("maxTimeSec", 0));
-                listAdapter.addItem(gadget);
-                listAdapter.notifyDataSetChanged();
+            if(type.equals("SocketBoard")) {
+                SocketBoard socketBoard = Parcels.unwrap(bundle.getParcelable("socketBoard"));
+                JsonObject dataObj = new JsonObject();
+                dataObj.addProperty("trustNo", socketBoard.getTrustNumber());
+                dataObj.addProperty("name", socketBoard.getName());
+                dataObj.addProperty("rewardiPerHour", socketBoard.getRewardiPerHour());
+                dataObj.addProperty("maxTime", socketBoard.getMaxTimeSec());
+                if (requestCode == 101) {     // 101 = RESULT_ADD -> add new socket board
+                    appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_CREATE, 0, dataObj, createGadgetCallback);
+                } else if (requestCode == 102) {    // 102 = RESULT_EDIT -> edit existing socket board
+                    appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_EDIT, socketBoard.getId(), dataObj, editGadgetCallback);
+                    editGadget = socketBoard;
+                }
             }
             else if(type.equals("Box")){
-                Gadget gadget = new Box(3, data.getStringExtra("trustNumber"), data.getStringExtra("name"), data.getIntExtra("rewardiPerOpen", 0), false);
-                listAdapter.addItem(gadget);
-                listAdapter.notifyDataSetChanged();
+                Box box = Parcels.unwrap(bundle.getParcelable("box"));
+                JsonObject dataObj = new JsonObject();
+                dataObj.addProperty("trustNo", box.getTrustNumber());
+                dataObj.addProperty("name", box.getName());
+                dataObj.addProperty("rewardiPerOpen", box.getRewardiPerOpen());
+                if (requestCode == 101) {     // 101 = RESULT_ADD -> add new box
+                    appState.sendMessageToServer(Globals.messageID.BOX_CREATE, 0, dataObj, createGadgetCallback);
+                } else if (requestCode == 102) {    // 102 = RESULT_EDIT -> edit existing box
+                    appState.sendMessageToServer(Globals.messageID.BOX_EDIT, box.getId(), dataObj, editGadgetCallback);
+                    editGadget = box;
+                }
             }
+
         }
     }
 }

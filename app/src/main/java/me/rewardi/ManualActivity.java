@@ -1,11 +1,18 @@
 package me.rewardi;
 
+import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
+
+@Parcel(Parcel.Serialization.BEAN)
 public class ManualActivity {
     private int id;
     private String name;
     private int rewardiPerHour;
     private boolean isActive;
 
+    public ManualActivity(){}
+
+    @ParcelConstructor
     public ManualActivity(int id, String name, int rewardiPerHour, boolean isActive){
         this.id = id;
         this.name = name;
@@ -37,7 +44,7 @@ public class ManualActivity {
         this.id = id;
     }
 
-    public boolean isActive() { return isActive; }
+    public boolean getIsActive() { return isActive; }
 
-    public void setActive(boolean active) { isActive = active; }
+    public void setIsActive(boolean active) { isActive = active; }
 }

@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+
+import org.parceler.Parcels;
 
 public class ManualActivityAdd extends AppCompatActivity {
 
     private EditText editTextName;
     private EditText editTextRewardiPerHour;
+    private ManualActivity act;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +32,17 @@ public class ManualActivityAdd extends AppCompatActivity {
                     public void onClick(View view) {
                         if (isValid()) {
                             Intent intent = new Intent();
-                            intent.putExtra("name", editTextName.getText().toString());
-                            intent.putExtra("rewardiPerHour", editTextRewardiPerHour.getText().toString());
+                            if(hasExtras()){    // edit existing manual activity
+                                act.setName(editTextName.getText().toString());
+                                act.setRewardiPerHour(Integer.parseInt(editTextRewardiPerHour.getText().toString()));
+                            }
+                            else{   // create new manual activity
+                                act = new ManualActivity(0, editTextName.getText().toString(), Integer.parseInt(editTextRewardiPerHour.getText().toString()), false);
+                            }
+
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable("act", Parcels.wrap(act));
+                            intent.putExtras(bundle);
                             setResult(RESULT_OK, intent);
                             finish();
                         } else {
@@ -39,6 +50,8 @@ public class ManualActivityAdd extends AppCompatActivity {
                         }
                     }
                 });
+
+        checkExtras();
     }
 
     private void showAlertDialog(){
@@ -77,5 +90,17 @@ public class ManualActivityAdd extends AppCompatActivity {
         }
 
         return editText.getText().toString().length() == 0;
+    }
+
+    private void checkExtras(){
+        if(hasExtras()){
+            act = Parcels.unwrap(getIntent().getExtras().getParcelable("act"));
+            editTextName.setText(act.getName());
+            editTextRewardiPerHour.setText(Integer.toString(act.getRewardiPerHour()));
+        }
+    }
+
+    private boolean hasExtras(){
+        return getIntent().getExtras() != null;
     }
 }

@@ -8,13 +8,26 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Response;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+
+    FutureCallback<Response<String>> getUserDataCallback;
+    Globals appState;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +47,35 @@ public class Home extends AppCompatActivity
 
         Button btnDebug = (Button) findViewById(R.id.btnDebug);
         btnDebug.setOnClickListener(this); // calling onClick() method
+
+        final TextView textViewRewardiAccountBalance = (TextView) findViewById(R.id.textViewRewardiAccountBalance);
+
+        getUserDataCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    Log.d("Home", "Element = " + element.toString());
+                    JsonObject object = element.getAsJsonObject();
+
+                    int userId = object.get("id").getAsInt();
+                    String firebaseDeviceId = object.get("deviceId").getAsString();
+                    int rewardi = object.get("totalRewardi").getAsInt();        // HN-CHECK -> change to double...?
+                    int fkPartnerUserId = 0;
+                    if(object.get("fkPartnerUserId").isJsonNull() == false){
+                        fkPartnerUserId = object.get("fkPartnerUserId").getAsInt();
+                    }
+                    user = new User(userId, firebaseDeviceId, rewardi,fkPartnerUserId);
+                    textViewRewardiAccountBalance.setText(Integer.toString(user.getTotalRewardi()));
+                  }
+                else{
+                    Log.d("Home", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        appState = ((Globals)getApplicationContext());
+        appState.sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
     }
 
     @Override

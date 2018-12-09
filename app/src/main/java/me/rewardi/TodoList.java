@@ -9,12 +9,22 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Response;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +35,12 @@ public class TodoList extends AppCompatActivity
     private MenuItem menuItemDelete;
     private CustomListAdapterTodoList listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
+    FutureCallback<Response<String>> getAllTodoListPointsCallback;
+    FutureCallback<Response<String>> createTodoListPointCallback;
+    FutureCallback<Response<String>> deleteTodoListPointCallback;
+    FutureCallback<Response<String>> editTodoListPointCallback;
+    Globals appState;
+    private TodoListPoint editTodoListPoint;    // server does not send whole object as payload if the todo list point is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +70,6 @@ public class TodoList extends AppCompatActivity
                 });
 
         List<TodoListPoint> items = new ArrayList<TodoListPoint>();
-        items.add(new TodoListPoint("rewardi app fertig machen",10, 0, false));
-        items.add(new TodoListPoint("auto waschen",7, 0, false));
 
         // ListAdapter is resonsible for conversion between java code and list items that can be used
         listAdapter = new CustomListAdapterTodoList(this, items);
@@ -69,7 +83,11 @@ public class TodoList extends AppCompatActivity
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         TodoListPoint item = (TodoListPoint) parent.getItemAtPosition(position);
-                        Toast.makeText(TodoList.this, item.getName(), Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(view.getContext(), TodoListPointAdd.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("todoListPoint", Parcels.wrap(item));
+                        intent.putExtras(bundle);
+                        startActivityForResult(intent, 102);
                     }
                 }
         );
@@ -90,6 +108,105 @@ public class TodoList extends AppCompatActivity
                     }
                 }
         );
+
+        getAllTodoListPointsCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    Log.d("TodoList", "Element = " + element.toString());
+                    JsonArray array = element.getAsJsonArray();
+                    int nrOfTodoListPoints = array.size();
+                    Log.d("TodoList", "Number of Todo List Points = " + nrOfTodoListPoints);
+                    JsonObject dataObj = null;
+                    for (int i = 0; i < nrOfTodoListPoints; ++i) {
+                        dataObj = array.get(i).getAsJsonObject();
+                        Log.d("TodoList", "Todo List Point " + i + " = " + dataObj.toString());
+                        int id = dataObj.get("id").getAsInt();
+                        String pointName = dataObj.get("name").getAsString();
+                        int rewardi = dataObj.get("rewardi").getAsInt();
+                        boolean done = dataObj.get("done").getAsBoolean();
+
+                        TodoListPoint todoListPoint = new TodoListPoint(id, pointName, rewardi, done);
+                        listAdapter.addItem(todoListPoint);
+                        listAdapter.notifyDataSetChanged();
+                    }
+
+                }
+                else{
+                    Log.d("TodoList", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        createTodoListPointCallback = new FutureCallback<Response<String>>() {
+
+            @Override
+            public void onCompleted(Exception e, Response<String> res) {
+                Log.d("TodoList", "createTodoListPointCallback called!");
+                Log.d("TodoList", "Server Response Code = " + res.getHeaders().code());
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(res.getResult());
+                    Log.d("TodoList", "Element = " + element.toString());
+                    JsonObject dataObj = element.getAsJsonObject();
+
+                    int id = dataObj.get("id").getAsInt();
+                    String pointName = dataObj.get("name").getAsString();
+                    int rewardi = dataObj.get("rewardi").getAsInt();
+                    boolean isDone = dataObj.get("done").getAsBoolean();
+
+                    TodoListPoint todoListPoint = new TodoListPoint(id, pointName, rewardi, isDone);
+                    listAdapter.addItem(todoListPoint);
+                    listAdapter.notifyDataSetChanged();
+                }
+                else{
+                    Log.d("TodoList", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        deleteTodoListPointCallback = new FutureCallback<Response<String>>() {
+
+            @Override
+            public void onCompleted(Exception e, Response<String> res) {
+                Log.d("TodoList", "deleteTodoListPointCallback called!");
+                Log.d("TodoList", "Server Response = " + res.toString());
+                if(e == null){
+                    // HN-CHECK -> check if response is 200 -> then remove todo list point from list
+                    JsonElement element = new JsonParser().parse(res.getResult());
+                    Log.d("TodoList", "Element = " + element.toString());
+                    JsonObject dataObj = element.getAsJsonObject();
+
+                    listAdapter.removeTodoListPoint(dataObj.get("id").getAsInt());
+                    listAdapter.notifyDataSetChanged();
+                    showDeleteMenu(false);
+                }
+                else{
+                    Log.d("TodoList", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        editTodoListPointCallback = new FutureCallback<Response<String>>() {
+
+            @Override
+            public void onCompleted(Exception e, Response<String> res) {
+                Log.d("TodoList", "editTodoListPointCallback called!");
+                Log.d("TodoList", "Server Response = " + res.toString());
+                if(e == null){
+                    if(res.getHeaders().code() == 204){         // edit list item if server confirms the change with HTTP STATUS 204
+                        listAdapter.setItem(editTodoListPoint);
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }
+                else{
+                    Log.d("TodoList", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        appState = ((Globals)getApplicationContext());
+        appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
     }
 
     @Override
@@ -112,9 +229,10 @@ public class TodoList extends AppCompatActivity
                 new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        listAdapter.removeSelectedTodoListPoints();
-                        listAdapter.notifyDataSetChanged();
-                        showDeleteMenu(false);
+                        List<TodoListPoint> deleteList = listAdapter.getListTodoListPointsSelected();
+                        for(int i = 0; i<deleteList.size(); ++i){
+                            appState.sendMessageToServer(Globals.messageID.TODO_DELETE, deleteList.get(i).getId(),null, deleteTodoListPointCallback);
+                        }
                         return true;
                     }
                 }
@@ -163,10 +281,19 @@ public class TodoList extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 101 && resultCode == RESULT_OK){
-            TodoListPoint point = new TodoListPoint(data.getStringExtra("name"), data.getIntExtra("rewardi", 0), 0, false);
-            listAdapter.addItem(point);
-            listAdapter.notifyDataSetChanged();
+        if(resultCode == RESULT_OK){
+            Bundle bundle = data.getExtras();
+            TodoListPoint point = Parcels.unwrap(bundle.getParcelable("todoListPoint"));
+            JsonObject dataObj = new JsonObject();
+            dataObj.addProperty("name", point.getName());
+            dataObj.addProperty("rewardi",point.getRewardi());
+            if(requestCode == 101){     // 101 = RESULT_ADD -> add new todo list point
+                appState.sendMessageToServer(Globals.messageID.TODO_CREATE, 0,dataObj, createTodoListPointCallback);
+            }
+            else if(requestCode == 102){    // 102 = RESULT_EDIT -> edit existing todo list point
+                appState.sendMessageToServer(Globals.messageID.TODO_EDIT, point.getId(),dataObj, editTodoListPointCallback);
+                editTodoListPoint = point;
+            }
         }
     }
 }

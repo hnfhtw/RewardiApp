@@ -4,12 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
@@ -20,6 +16,7 @@ class CustomListAdapterActivities extends BaseAdapter {
     private List<View> listSelectedRows;//keep track of selected rows
     private List<ManualActivity> listActivities;
     private Context context;
+    Globals appState;
 
     public CustomListAdapterActivities(Context context, List<ManualActivity> listActivities) {
         this.listActivities = listActivities;
@@ -50,23 +47,30 @@ class CustomListAdapterActivities extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_activities, null);
-        //LayoutInflater inflater1 = LayoutInflater.from(getContext());
-        //View customView = inflater1.inflate(R.layout.custom_row_activities, parent, false);
-
         final ManualActivity activity = listActivities.get(position);
         TextView text1 = (TextView) convertView.findViewById(R.id.text1);
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
+
+        if(activity.getIsActive()){
+            btnStartStop.setChecked(true);
+        }
+
+        appState = ((Globals)context.getApplicationContext());
         btnStartStop.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                //do something
-                //btnStartStop.setTextOff(activity.getName());
+                if(btnStartStop.isChecked()){
+                    appState.sendMessageToServer(Globals.messageID.ACTIVITY_START,activity.getId(),null, null);
+                    activity.setIsActive(true);
+                }
+                else{
+                    appState.sendMessageToServer(Globals.messageID.ACTIVITY_STOP, activity.getId(),null, null);
+                    activity.setIsActive(false);
+                }
             }
         });
 
-
         text1.setText(activity.getName());
-        //image1.setImageResource(R.drawable.test);;
 
         return convertView;
     }
@@ -117,6 +121,23 @@ class CustomListAdapterActivities extends BaseAdapter {
             listActivitiesSelected.remove(i);
             listSelectedRows.get(i).setBackgroundResource(R.color.colorWhite);
             listSelectedRows.remove(i);
+        }
+    }
+
+    public void setItem(ManualActivity act){
+        int i = 0;
+        boolean activityFound = false;
+        for(i = 0; i<listActivities.size(); ++i){
+            if(listActivities.get(i).getId() == act.getId()){
+                activityFound = true;
+                break;
+            }
+        }
+        if(activityFound == false){
+            return;
+        }
+        else{
+            listActivities.set(i, act);
         }
     }
 }

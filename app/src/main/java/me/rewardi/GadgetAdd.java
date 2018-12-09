@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.parceler.Parcels;
+
 public class GadgetAdd extends AppCompatActivity {
 
     private EditText editTextTrustNumber;
@@ -22,6 +24,8 @@ public class GadgetAdd extends AppCompatActivity {
     private TextView textViewMaxTime;
     private TextView textViewGadgetName;
 
+    private SocketBoard socketBoard;
+    private Box box;
     private String gadgetType;
 
     @Override
@@ -50,12 +54,33 @@ public class GadgetAdd extends AppCompatActivity {
                     public void onClick(View view) {
                         if (isValid()) {
                             Intent intent = new Intent();
-                            intent.putExtra("trustNumber", editTextTrustNumber.getText().toString());
-                            intent.putExtra("name", editTextGadgetName.getText().toString());
-                            intent.putExtra("rewardi", editTextRewardi.getText().toString());
+                            Bundle bundle = new Bundle();
                             if(gadgetType.equals("SocketBoard")){
-                                intent.putExtra("maxTimeSec", editTextMaxTime.getText().toString());
+                                if(hasExtras()) {
+                                    socketBoard.setName(editTextGadgetName.getText().toString());
+                                    socketBoard.setRewardiPerHour(Integer.parseInt(editTextRewardi.getText().toString()));
+                                    socketBoard.setMaxTimeSec(Integer.parseInt(editTextMaxTime.getText().toString()));
+                                    bundle.putParcelable("socketBoard", Parcels.wrap(socketBoard));
+                                }
+                                else{
+                                    SocketBoard newSocketBoard = new SocketBoard(0, editTextTrustNumber.getText().toString(), editTextGadgetName.getText().toString(), Integer.parseInt(editTextRewardi.getText().toString()), Integer.parseInt(editTextMaxTime.getText().toString()), false);
+                                    bundle.putParcelable("socketBoard", Parcels.wrap(newSocketBoard));
+                                }
+
                             }
+                            else if(gadgetType.equals("Box")){
+                                if(hasExtras()) {
+                                    box.setName(editTextGadgetName.getText().toString());
+                                    box.setRewardiPerOpen(Integer.parseInt(editTextRewardi.getText().toString()));
+                                    bundle.putParcelable("box", Parcels.wrap(box));
+                                }
+                                else{
+                                    Box newBox = new Box(0, editTextTrustNumber.getText().toString(), editTextGadgetName.getText().toString(), Integer.parseInt(editTextRewardi.getText().toString()), false);
+                                    bundle.putParcelable("box", Parcels.wrap(newBox));
+                                }
+                            }
+
+                            intent.putExtras(bundle);
                             intent.putExtra("gadgetType", gadgetType);
                             setResult(RESULT_OK, intent);
                             finish();
@@ -64,6 +89,8 @@ public class GadgetAdd extends AppCompatActivity {
                         }
                     }
                 });
+
+        checkExtras();
     }
 
 
@@ -146,5 +173,33 @@ public class GadgetAdd extends AppCompatActivity {
         }
 
         return editText.getText().toString().length() == 0;
+    }
+
+    private void checkExtras(){
+        if(hasExtras()){
+            boolean isSocketBoard = false;
+            try{
+                socketBoard = (SocketBoard) Parcels.unwrap(getIntent().getExtras().getParcelable("socketBoard"));
+                isSocketBoard = true;
+                editTextGadgetName.setText(socketBoard.getName());
+                editTextTrustNumber.setText(socketBoard.getTrustNumber());
+                editTextRewardi.setText(socketBoard.getRewardiPerHour());
+                editTextMaxTime.setText(socketBoard.getMaxTimeSec());
+                return;
+            }catch(Exception ex){
+
+            }
+
+            if(isSocketBoard == false){
+                box = (Box) Parcels.unwrap(getIntent().getExtras().getParcelable("box"));
+                editTextGadgetName.setText(box.getName());
+                editTextTrustNumber.setText(box.getTrustNumber());
+                editTextRewardi.setText(box.getRewardiPerOpen());
+            }
+        }
+    }
+
+    private boolean hasExtras(){
+        return getIntent().getExtras() != null;
     }
 }
