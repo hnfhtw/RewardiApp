@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -178,23 +179,22 @@ public class GadgetAdd extends AppCompatActivity {
     private void checkExtras(){
         if(hasExtras()){
             boolean isSocketBoard = false;
-            try{
+            if(getIntent().getExtras().containsKey("socketBoard")){
+                Log.d("GadgetAdd", "SocketBoard!");
                 socketBoard = (SocketBoard) Parcels.unwrap(getIntent().getExtras().getParcelable("socketBoard"));
                 isSocketBoard = true;
                 editTextGadgetName.setText(socketBoard.getName());
                 editTextTrustNumber.setText(socketBoard.getTrustNumber());
-                editTextRewardi.setText(socketBoard.getRewardiPerHour());
-                editTextMaxTime.setText(socketBoard.getMaxTimeSec());
+                editTextRewardi.setText(Integer.toString(socketBoard.getRewardiPerHour()));
+                editTextMaxTime.setText(Integer.toString(socketBoard.getMaxTimeSec()));
                 return;
-            }catch(Exception ex){
-
             }
-
             if(isSocketBoard == false){
+                Log.d("GadgetAdd", "Box!");
                 box = (Box) Parcels.unwrap(getIntent().getExtras().getParcelable("box"));
                 editTextGadgetName.setText(box.getName());
                 editTextTrustNumber.setText(box.getTrustNumber());
-                editTextRewardi.setText(box.getRewardiPerOpen());
+                editTextRewardi.setText(Integer.toString(box.getRewardiPerOpen()));
             }
         }
     }
