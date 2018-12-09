@@ -7,11 +7,10 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <application android:name=".Globals"
+    <application
+        android:name=".Globals"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -23,7 +22,37 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ApiTestActivity"></activity>
+        <activity android:name=".ApiTestActivity" />
+        <activity
+            android:name=".Home"
+            android:label="@string/title_activity_home"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".TodoList"
+            android:label="@string/title_activity_todo_list"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activities"
+            android:label="@string/title_activity_activities"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Fitbit"
+            android:label="@string/title_activity_fitbit"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".History"
+            android:label="@string/title_activity_history"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Gadgets"
+            android:label="@string/title_activity_gadgets"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ManualActivityAdd"
+            android:label="@string/title_activity_manualactivityadd"></activity>
+        <activity android:name=".TodoListPointAdd"
+            android:label="@string/title_activity_todolistpointadd"></activity>
+        <activity android:name=".GadgetAdd"
+            android:label="@string/title_activity_gadgetadd"></activity>
     </application>
 
 </manifest>

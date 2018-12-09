@@ -1,5 +1,6 @@
 package me.rewardi;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,10 +10,11 @@ import android.widget.TextView;
 
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Response;
 
 public class ApiTestActivity extends AppCompatActivity implements View.OnClickListener {
 
-    FutureCallback<String> myCallback;
+    FutureCallback<Response<String>> myCallback;
     Globals appState;
     TextView debugText;
 
@@ -31,17 +33,19 @@ public class ApiTestActivity extends AppCompatActivity implements View.OnClickLi
         btnActivateSocket.setOnClickListener(this);
         Button btnDeactivateSocket = (Button) findViewById(R.id.buttonDeactivateSocket);
         btnDeactivateSocket.setOnClickListener(this);
+        Button btnHome = (Button) findViewById(R.id.buttonHome);
+        btnHome.setOnClickListener(this);
 
         debugText = (TextView) findViewById(R.id.debugText);
 
         appState = ((Globals)getApplicationContext());
 
 
-       myCallback = new FutureCallback<String>() {
+       myCallback = new FutureCallback<Response<String>>() {
             @Override
-            public void onCompleted(Exception e, String result) {
+            public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
-                    debugText.setText(result);
+                    debugText.setText(result.getHeaders().toString() + "\n\n" + result.getResult().toString());
                     Log.d("ApiTestActivity", "Result = %s" + result);
                 }
                 else{
@@ -54,29 +58,34 @@ public class ApiTestActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         // default method for handling onClick Events..
+
         switch (v.getId()) {
 
             case R.id.buttonGetBoxes:
-                appState.sendMessageToServer(Globals.messageID.GET_BOXES, null, myCallback);
+                appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, myCallback);
                 break;
 
             case R.id.buttonGetSockets:
-                appState.sendMessageToServer(Globals.messageID.GET_SOCKETS, null, myCallback);
+                appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0, null, myCallback);
                 break;
 
             case R.id.buttonLockBox:
-                JsonObject emptyObj = new JsonObject();
-                appState.sendMessageToServer(Globals.messageID.LOCK_BOX, emptyObj, myCallback);
+                appState.sendMessageToServer(Globals.messageID.BOX_LOCK, 3, null, myCallback);
                 break;
 
             case R.id.buttonActivateSocket:
                 JsonObject dataObj = new JsonObject();
                 dataObj.addProperty("maxTime", 3600);
-                appState.sendMessageToServer(Globals.messageID.DEACTIVATE_SOCKET, dataObj, myCallback);
+                appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_STOP, 1, dataObj, myCallback);
                 break;
 
             case R.id.buttonDeactivateSocket:
-                appState.sendMessageToServer(Globals.messageID.DEACTIVATE_SOCKET, null, myCallback);
+                appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_START, 1, null, myCallback);
+                break;
+
+            case R.id.buttonHome:
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
                 break;
 
             default:

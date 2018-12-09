@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textViewTrustNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Trust Number" />
+
+    <EditText
+        android:id="@+id/editTextTrustNumber"
+        style="@style/editText"/>
+
+    <TextView
+        android:id="@+id/textViewGadgetName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gadget Name" />
+
+    <EditText
+        android:id="@+id/editTextGadgetName"
+        style="@style/editText"/>
+
+    <TextView
+        android:id="@+id/textViewRewardi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rewardi per Open" />
+
+    <EditText
+        android:id="@+id/editTextRewardi"
+        style="@style/editText"/>
+
+    <TextView
+        android:id="@+id/textViewMaxTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Maximum Switch On Time [sec]" />
+
+    <EditText
+        android:id="@+id/editTextMaxTime"
+        style="@style/editText"/>
+
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="Add"/>
+
+</LinearLayout>

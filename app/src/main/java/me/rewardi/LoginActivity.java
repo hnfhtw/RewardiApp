@@ -137,10 +137,10 @@ public class LoginActivity extends AppCompatActivity {
                                 String token =  result.get("token").getAsString();
                                 Globals appState = ((Globals)getApplicationContext());      // save sessionToken to global object - it will be accessible from all Activities
                                 appState.setSessionToken(token);
-                                Log.d("Login", "Token = %s" + token);
+                                Log.d("Login", "Token = " + token);
 
-
-
+                                Intent intent = new Intent(getApplicationContext(), Home.class);
+                                startActivity(intent);
 
                             } else {
                                 Snackbar.make(mEmailView,
@@ -151,9 +151,6 @@ public class LoginActivity extends AppCompatActivity {
                             showProgress(false);
                         }
                     });
-
-            Intent intent = new Intent(this, ApiTestActivity.class);
-            startActivity(intent);
         }
     }
 
