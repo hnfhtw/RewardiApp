@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/show_gadget_history"
+        android:title="Gadgets"
+        app:showAsAction="collapseActionView|always"/>
+
+    <item android:id="@+id/show_activity_history"
+        android:title="Activities"
+        app:showAsAction="collapseActionView|always"/>
+
+    <item android:id="@+id/show_todolist_history"
+        android:title="Todo List"
+        app:showAsAction="collapseActionView|always"/>
 </menu>

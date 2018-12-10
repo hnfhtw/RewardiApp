@@ -47,6 +47,7 @@ public class Home extends AppCompatActivity
 
         Button btnDebug = (Button) findViewById(R.id.btnDebug);
         btnDebug.setOnClickListener(this); // calling onClick() method
+        btnDebug.setVisibility(View.INVISIBLE);
 
         final TextView textViewRewardiAccountBalance = (TextView) findViewById(R.id.textViewRewardiAccountBalance);
 
