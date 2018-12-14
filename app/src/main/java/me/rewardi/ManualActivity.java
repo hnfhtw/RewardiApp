@@ -9,15 +9,17 @@ public class ManualActivity {
     private String name;
     private int rewardiPerHour;
     private boolean isActive;
+    private String activeSince;
 
     public ManualActivity(){}
 
     @ParcelConstructor
-    public ManualActivity(int id, String name, int rewardiPerHour, boolean isActive){
+    public ManualActivity(int id, String name, int rewardiPerHour, boolean isActive, String activeSince){
         this.id = id;
         this.name = name;
         this.rewardiPerHour = rewardiPerHour;
         this.isActive = isActive;
+        this.activeSince = activeSince;
     }
 
     public String getName() {
@@ -47,4 +49,12 @@ public class ManualActivity {
     public boolean getIsActive() { return isActive; }
 
     public void setIsActive(boolean active) { isActive = active; }
+
+    public String getActiveSince() {
+        return activeSince;
+    }
+
+    public void setActiveSince(String activeSince) {
+        this.activeSince = activeSince;
+    }
 }

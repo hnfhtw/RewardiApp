@@ -122,12 +122,18 @@ public class Activities extends AppCompatActivity
                         int id = activity.get("id").getAsInt();
                         String activityName = activity.get("name").getAsString();
                         int rewardiPerHour = activity.get("rewardiPerHour").getAsInt();
+                        ManualActivity manualActivity;
                         boolean isActive = false;
                         if(activity.get("activeSince").isJsonNull() == false){
                             isActive = true;
+                            String activeSince = activity.get("activeSince").getAsString();
+                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, activeSince);
+                        }
+                        else{
+                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
                         }
 
-                        ManualActivity manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive);
+
                         listAdapter.addItem(manualActivity);
                         listAdapter.notifyDataSetChanged();
                     }
@@ -158,7 +164,7 @@ public class Activities extends AppCompatActivity
                         isActive = true;
                     }
 
-                    ManualActivity act = new ManualActivity(id, activityName, rewardiPerHour, isActive);
+                    ManualActivity act = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
                     listAdapter.addItem(act);
                     listAdapter.notifyDataSetChanged();
                 }

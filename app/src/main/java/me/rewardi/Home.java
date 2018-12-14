@@ -61,13 +61,13 @@ public class Home extends AppCompatActivity
 
                     int userId = object.get("id").getAsInt();
                     String firebaseDeviceId = object.get("deviceId").getAsString();
-                    int rewardi = object.get("totalRewardi").getAsInt();        // HN-CHECK -> change to double...?
+                    double rewardi = object.get("totalRewardi").getAsDouble();
                     int fkPartnerUserId = 0;
                     if(object.get("fkPartnerUserId").isJsonNull() == false){
                         fkPartnerUserId = object.get("fkPartnerUserId").getAsInt();
                     }
                     user = new User(userId, firebaseDeviceId, rewardi,fkPartnerUserId);
-                    textViewRewardiAccountBalance.setText(Integer.toString(user.getTotalRewardi()));
+                    textViewRewardiAccountBalance.setText(Double.toString(user.getTotalRewardi()));
                   }
                 else{
                     Log.d("Home", "Error = %s" + e.toString());

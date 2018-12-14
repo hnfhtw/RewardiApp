@@ -37,7 +37,7 @@ public class ManualActivityAdd extends AppCompatActivity {
                                 act.setRewardiPerHour(Integer.parseInt(editTextRewardiPerHour.getText().toString()));
                             }
                             else{   // create new manual activity
-                                act = new ManualActivity(0, editTextName.getText().toString(), Integer.parseInt(editTextRewardiPerHour.getText().toString()), false);
+                                act = new ManualActivity(0, editTextName.getText().toString(), Integer.parseInt(editTextRewardiPerHour.getText().toString()), false, null);
                             }
 
                             Bundle bundle = new Bundle();

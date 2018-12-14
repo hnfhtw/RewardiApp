@@ -34,7 +34,9 @@
 
     <EditText
         android:id="@+id/editTextRewardi"
-        style="@style/editText"/>
+        style="@style/editText"
+        android:ems="10"
+        android:inputType="number" />
 
     <TextView
         android:id="@+id/textViewMaxTime"
@@ -44,7 +46,9 @@
 
     <EditText
         android:id="@+id/editTextMaxTime"
-        style="@style/editText"/>
+        style="@style/editText"
+        android:ems="10"
+        android:inputType="number" />
 
     <Button
         android:id="@+id/buttonAdd"

@@ -7,13 +7,13 @@ import org.parceler.ParcelConstructor;
 public class User {
     private int id;                 // UserID of User
     private String deviceId;           // Firebase Token
-    private int totalRewardi;       // Rewardi Account of User
+    private double totalRewardi;       // Rewardi Account of User
     private int fkPartnerUserId;    // UserID of Supervisor
 
     public User(){}
 
     @ParcelConstructor
-    public User(int id, String deviceId, int totalRewardi, int fkPartnerUserId){
+    public User(int id, String deviceId, double totalRewardi, int fkPartnerUserId){
         this.id = id;
         this.deviceId = deviceId;
         this.totalRewardi = totalRewardi;
@@ -28,9 +28,9 @@ public class User {
 
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
 
-    public int getTotalRewardi() { return totalRewardi; }
+    public double getTotalRewardi() { return totalRewardi; }
 
-    public void setTotalRewardi(int totalRewardi) { this.totalRewardi = totalRewardi; }
+    public void setTotalRewardi(double totalRewardi) { this.totalRewardi = totalRewardi; }
 
     public int getFkPartnerUserId() { return fkPartnerUserId; }
 

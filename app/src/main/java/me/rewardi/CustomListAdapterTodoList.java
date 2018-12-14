@@ -49,7 +49,9 @@ class CustomListAdapterTodoList extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_todolist, null);
         final TodoListPoint point = listTodoListPoints.get(position);
-        TextView text1 = (TextView) convertView.findViewById(R.id.text1);
+        TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
+        TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
+        TextView textViewRewardi2 = (TextView) convertView.findViewById(R.id.textViewRewardi2);
         final CheckBox cbDone = (CheckBox) convertView.findViewById(R.id.cbDone);
 
         appState = ((Globals)context.getApplicationContext());
@@ -65,8 +67,9 @@ class CustomListAdapterTodoList extends BaseAdapter {
             }
         });
 
-        text1.setText(point.getName());
-
+        textViewName.setText(point.getName());
+        textViewRewardi.setText("Earn "+Integer.toString(point.getRewardi())+" Rewardi");
+        textViewRewardi2.setText(Integer.toString(point.getRewardi()));
         return convertView;
     }
 

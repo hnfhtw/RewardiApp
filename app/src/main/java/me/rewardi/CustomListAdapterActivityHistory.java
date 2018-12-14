@@ -45,10 +45,10 @@ class CustomListAdapterActivityHistory extends BaseAdapter {
         TextView textViewDate = (TextView) convertView.findViewById(R.id.textViewDate);
         TextView textViewDuration = (TextView) convertView.findViewById(R.id.textViewDuration);
         TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
-        textViewName.setText("-NAME- " + Integer.toString(activityHistoryItem.getId()));
+        textViewName.setText(activityHistoryItem.getActivity().getName());
         textViewDate.setText(activityHistoryItem.getTimestamp());
         textViewDuration.setText(Integer.toString(activityHistoryItem.getDuration()/60) + "min");
-        textViewRewardi.setText(Integer.toString(activityHistoryItem.getAcquiredRewardi()));
+        textViewRewardi.setText(Double.toString(activityHistoryItem.getAcquiredRewardi()));
 
         return convertView;
     }

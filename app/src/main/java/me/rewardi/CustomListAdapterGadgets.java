@@ -58,7 +58,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
         final Gadget gadget = listGadgets.get(position);
         TextView textViewGadgetName = (TextView) convertView.findViewById(R.id.textViewGadgetName);
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
-        if(gadget.getTrustNumber().charAt(0) == '1') {       // Box
+        if(gadget instanceof Box) {
             btnStartStop.setText("Lock Box");
             btnStartStop.setTextOff("Lock Box");
             btnStartStop.setTextOn("Box Locked");
@@ -67,7 +67,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
                 btnStartStop.setEnabled(false);
             }
         }
-        else if(gadget.getTrustNumber().charAt(0) == '2'){  // SocketBoard
+        else if(gadget instanceof SocketBoard){
             btnStartStop.setText("Switch On");
             btnStartStop.setTextOff("Switch On");
             btnStartStop.setTextOn("Switch Off");
@@ -80,14 +80,14 @@ class CustomListAdapterGadgets extends BaseAdapter {
         btnStartStop.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                if(gadget.getTrustNumber().charAt(0) == '1') {       // Box
+                if(gadget instanceof Box) {
                     if(btnStartStop.isChecked()){
                         btnStartStop.setEnabled(false);
                         appState.sendMessageToServer(Globals.messageID.BOX_LOCK, ((Box)gadget).getId(),null, null);
                         ((Box)gadget).setIsLocked(true);
                     }
                 }
-                else if(gadget.getTrustNumber().charAt(0) == '2'){  // SocketBoard
+                else if(gadget instanceof SocketBoard){
                     if(btnStartStop.isChecked()){
                         JsonObject data = new JsonObject();
                         data.addProperty("maxTime", ((SocketBoard)gadget).getMaxTimeSec());

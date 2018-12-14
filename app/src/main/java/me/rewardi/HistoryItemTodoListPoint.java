@@ -6,15 +6,16 @@ import org.parceler.ParcelConstructor;
 @Parcel(Parcel.Serialization.BEAN)
 public class HistoryItemTodoListPoint {
     private int id;
-    private int fkToDoId;
+    private TodoListPoint todoListPoint;
     private String timestamp;
+    private int acquiredRewardi;
 
     public HistoryItemTodoListPoint() {}
 
     @ParcelConstructor
-    public HistoryItemTodoListPoint(int id, int fkToDoId, String timestamp){
+    public HistoryItemTodoListPoint(int id, TodoListPoint todoListPoint, String timestamp, int acquiredRewardi){
         this.id = id;
-        this.fkToDoId = fkToDoId;
+        this.todoListPoint = todoListPoint;
         this.timestamp = timestamp;
     }
 
@@ -26,12 +27,12 @@ public class HistoryItemTodoListPoint {
         this.id = id;
     }
 
-    public int getFkToDoId() {
-        return fkToDoId;
+    public TodoListPoint getTodoListPoint() {
+        return todoListPoint;
     }
 
-    public void setFkToDoId(int fkToDoId) {
-        this.fkToDoId = fkToDoId;
+    public void setTodoListPoint(TodoListPoint todoListPoint) {
+        this.todoListPoint = todoListPoint;
     }
 
     public String getTimestamp() {
@@ -40,5 +41,13 @@ public class HistoryItemTodoListPoint {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getAcquiredRewardi() {
+        return acquiredRewardi;
+    }
+
+    public void setAcquiredRewardi(int acquiredRewardi) {
+        this.acquiredRewardi = acquiredRewardi;
     }
 }

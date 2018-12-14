@@ -4,48 +4,29 @@ import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
-public class HistoryItemSocketBoard {
-    private int id;
-    private int fkSocketId;
-    private String timestamp;
+public class HistoryItemSocketBoard extends HistoryItemGadget{
+    private SocketBoard socketBoard;
     private int duration;
     private boolean timeout;
-    private int usedRewardi;
+    private double usedRewardi;
 
     public HistoryItemSocketBoard() {}
 
     @ParcelConstructor
-    public HistoryItemSocketBoard(int id, int fkSocketId, String timestamp, int duration, boolean timeout, int usedRewardi){
-        this.id = id;
-        this.fkSocketId = fkSocketId;
-        this.timestamp = timestamp;
+    public HistoryItemSocketBoard(int id, SocketBoard socketBoard, String timestamp, int duration, boolean timeout, double usedRewardi){
+        super(id, timestamp);
+        this.socketBoard = socketBoard;
         this.duration = duration;
         this.timeout = timeout;
         this.usedRewardi = usedRewardi;
     }
 
-    public int getId() {
-        return id;
+    public SocketBoard getSocketBoard() {
+        return socketBoard;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getFkSocketId() {
-        return fkSocketId;
-    }
-
-    public void setFkSocketId(int fkSocketId) {
-        this.fkSocketId = fkSocketId;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setSocketBoard(SocketBoard socketBoard) {
+        this.socketBoard = socketBoard;
     }
 
     public int getDuration() {
@@ -64,11 +45,11 @@ public class HistoryItemSocketBoard {
         this.timeout = timeout;
     }
 
-    public int getUsedRewardi() {
+    public double getUsedRewardi() {
         return usedRewardi;
     }
 
-    public void setUsedRewardi(int usedRewardi) {
+    public void setUsedRewardi(double usedRewardi) {
         this.usedRewardi = usedRewardi;
     }
 }

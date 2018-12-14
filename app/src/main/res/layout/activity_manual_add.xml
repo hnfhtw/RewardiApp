@@ -24,7 +24,9 @@
 
     <EditText
         android:id="@+id/editTextRewardiPerHour"
-        style="@style/editText"/>
+        style="@style/editText"
+        android:ems="10"
+        android:inputType="number" />
     <Button
         android:id="@+id/buttonAdd"
         android:layout_width="match_parent"

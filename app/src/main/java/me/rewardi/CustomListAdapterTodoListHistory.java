@@ -46,9 +46,9 @@ class CustomListAdapterTodoListHistory extends BaseAdapter {
         TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
         TextView textViewDate = (TextView) convertView.findViewById(R.id.textViewDate);
         TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
-        textViewName.setText("-NAME- " + Integer.toString(todoListHistoryItem.getId()));
+        textViewName.setText(todoListHistoryItem.getTodoListPoint().getName());
         textViewDate.setText(todoListHistoryItem.getTimestamp());
-        textViewRewardi.setText("-R-");
+        textViewRewardi.setText(Integer.toString(todoListHistoryItem.getAcquiredRewardi()));
 
         return convertView;
     }

@@ -61,9 +61,9 @@ public class History extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        List<HistoryItemBox> historyItemBox = new ArrayList<HistoryItemBox>();
+        List<HistoryItemGadget> gadgetHistoryList = new ArrayList<HistoryItemGadget>();
         // ListAdapter is resonsible for conversion between java code and list items that can be used
-        listAdapterGadgets = new CustomListAdapterGadgetHistory(this, historyItemBox);
+        listAdapterGadgets = new CustomListAdapterGadgetHistory(this, gadgetHistoryList);
         listViewGadgets = (ListView) findViewById(R.id.listViewGadgetHistory);
         listViewGadgets.setAdapter(listAdapterGadgets);
 
@@ -91,19 +91,33 @@ public class History extends AppCompatActivity
                         gadget = array.get(i).getAsJsonObject();
                         int id = gadget.get("id").getAsInt();
                         String timestamp = gadget.get("timestamp").getAsString();
-                        int usedRewardi = gadget.get("usedRewardi").getAsInt();
-                        if(gadget.has("fkSocketId")) {        // SocketBoard
-                            int fkSocketId = gadget.get("fkSocketId").getAsInt();
+                        if(gadget.has("fkSocket")) {        // SocketBoard
+                            JsonObject socketObj = gadget.get("fkSocket").getAsJsonObject();
+                            int sockId = socketObj.get("id").getAsInt();
+                            String trustNum = socketObj.get("trustNo").getAsString();
+                            String name = socketObj.get("name").getAsString();
+                            int rewardiPerHour = socketObj.get("rewardiPerHour").getAsInt();
+                            int maxTime = socketObj.get("maxTime").getAsInt();
+
+                            SocketBoard socket = new SocketBoard(sockId, trustNum, name, rewardiPerHour, maxTime, false);
                             int duration = gadget.get("duration").getAsInt();
                             boolean timeout = gadget.get("timeout").getAsBoolean();
-
-                            HistoryItemSocketBoard historyItemSocketBoard = new HistoryItemSocketBoard(id, fkSocketId, timestamp, duration, timeout, usedRewardi);
-                            //listAdapterGadgets.addItem(historyItemSocketBoard);
-                            //listAdapterGadgets.notifyDataSetChanged();
+                            double usedRewardi = gadget.get("usedRewardi").getAsDouble();
+                            HistoryItemSocketBoard historyItemSocketBoard = new HistoryItemSocketBoard(id, socket, timestamp, duration, timeout, usedRewardi);
+                            listAdapterGadgets.addItem(historyItemSocketBoard);
+                            listAdapterGadgets.notifyDataSetChanged();
                         }
-                        else if(gadget.has("fkBoxId")) {   // Box
-                            int fkBoxId = gadget.get("fkBoxId").getAsInt();
-                            HistoryItemBox historyItemBox = new HistoryItemBox(id, fkBoxId, timestamp, usedRewardi);
+                        else if(gadget.has("fkBox")) {   // Box
+                            JsonObject boxObj = gadget.get("fkBox").getAsJsonObject();
+                            int boxId = boxObj.get("id").getAsInt();
+                            String trustNum = boxObj.get("trustNo").getAsString();
+                            String name = boxObj.get("name").getAsString();
+                            int rewardiPerOpen = boxObj.get("rewardiPerOpen").getAsInt();
+                            boolean isLocked = boxObj.get("isLocked").getAsBoolean();
+
+                            Box box = new Box(boxId, trustNum, name, rewardiPerOpen, isLocked);
+                            int usedRewardi = gadget.get("usedRewardi").getAsInt();
+                            HistoryItemBox historyItemBox = new HistoryItemBox(id, box, timestamp, usedRewardi);
                             listAdapterGadgets.addItem(historyItemBox);
                             listAdapterGadgets.notifyDataSetChanged();
                         }
@@ -112,6 +126,9 @@ public class History extends AppCompatActivity
                 else{
                     Log.d("Gadgets", "Error = %s" + e.toString());
                 }
+                // Sort list according to timestamp
+                listAdapterGadgets.sortItems();
+                listAdapterGadgets.notifyDataSetChanged();
             }
         };
 
@@ -126,12 +143,16 @@ public class History extends AppCompatActivity
                     for (int i = 0; i < nrOfActivities; ++i) {
                         activityHistory = array.get(i).getAsJsonObject();
                         int id = activityHistory.get("id").getAsInt();
-                        int fkActivityId = activityHistory.get("fkActivityId").getAsInt();
+                        JsonObject activityObj = activityHistory.get("fkActivity").getAsJsonObject();
+                        int activityId = activityObj.get("id").getAsInt();
+                        String name = activityObj.get("name").getAsString();
+                        int rewardiPerHour = activityObj.get("rewardiPerHour").getAsInt();
+                        ManualActivity act = new ManualActivity(activityId, name, rewardiPerHour, false, null);
                         String timestamp = activityHistory.get("timestamp").getAsString();
                         int duration = activityHistory.get("duration").getAsInt();
-                        int acquiredRewardi = activityHistory.get("acquiredRewardi").getAsInt();
+                        double acquiredRewardi = activityHistory.get("acquiredRewardi").getAsDouble();
 
-                        HistoryItemManualActivity historyItemManualActivity = new HistoryItemManualActivity(id, fkActivityId, timestamp, duration, acquiredRewardi);
+                        HistoryItemManualActivity historyItemManualActivity = new HistoryItemManualActivity(id, act, timestamp, duration, acquiredRewardi);
                         listAdapterActivities.addItem(historyItemManualActivity);
                         listAdapterActivities.notifyDataSetChanged();
                     }
@@ -153,10 +174,14 @@ public class History extends AppCompatActivity
                     for (int i = 0; i < nrOfTodoListPoints; ++i) {
                         dataObj = array.get(i).getAsJsonObject();
                         int id = dataObj.get("id").getAsInt();
-                        int fkToDoId = dataObj.get("fkToDoId").getAsInt();
+                        JsonObject todoListPointObj = dataObj.get("fkToDo").getAsJsonObject();
+                        String name = todoListPointObj.get("name").getAsString();
+                        int todoListPointId = todoListPointObj.get("id").getAsInt();
+                        int rewardi = todoListPointObj.get("rewardi").getAsInt();
+                        TodoListPoint todoListPoint = new TodoListPoint(todoListPointId, name, rewardi, true);
                         String timestamp = dataObj.get("timestamp").getAsString();
-
-                        HistoryItemTodoListPoint historyItemTodoListPoint = new HistoryItemTodoListPoint(id, fkToDoId, timestamp);
+                        int acquiredRewardi = dataObj.get("acquiredRewardi").getAsInt();
+                        HistoryItemTodoListPoint historyItemTodoListPoint = new HistoryItemTodoListPoint(id, todoListPoint, timestamp, acquiredRewardi);
                         listAdapterTodoList.addItem(historyItemTodoListPoint);
                         listAdapterTodoList.notifyDataSetChanged();
                     }

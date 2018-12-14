@@ -6,17 +6,17 @@ import org.parceler.ParcelConstructor;
 @Parcel(Parcel.Serialization.BEAN)
 public class HistoryItemManualActivity {
     private int id;
-    private int fkActivityId;
+    private ManualActivity activity;
     private String timestamp;
     private int duration;
-    private int acquiredRewardi;
+    private double acquiredRewardi;
 
     public HistoryItemManualActivity(){}
 
     @ParcelConstructor
-    public HistoryItemManualActivity(int id, int fkActivityId, String timestamp, int duration, int acquiredRewardi){
+    public HistoryItemManualActivity(int id, ManualActivity activity, String timestamp, int duration, double acquiredRewardi){
         this.id = id;
-        this.fkActivityId = fkActivityId;
+        this.activity = activity;
         this.timestamp = timestamp;
         this.duration = duration;
         this.acquiredRewardi = acquiredRewardi;
@@ -30,12 +30,12 @@ public class HistoryItemManualActivity {
         this.id = id;
     }
 
-    public int getFkActivityId() {
-        return fkActivityId;
+    public ManualActivity getActivity() {
+        return activity;
     }
 
-    public void setFkActivityId(int fkActivityId) {
-        this.fkActivityId = fkActivityId;
+    public void setActivity(ManualActivity activity) {
+        this.activity = activity;
     }
 
     public String getTimestamp() {
@@ -54,11 +54,11 @@ public class HistoryItemManualActivity {
         this.duration = duration;
     }
 
-    public int getAcquiredRewardi() {
+    public double getAcquiredRewardi() {
         return acquiredRewardi;
     }
 
-    public void setAcquiredRewardi(int acquiredRewardi) {
+    public void setAcquiredRewardi(double acquiredRewardi) {
         this.acquiredRewardi = acquiredRewardi;
     }
 }

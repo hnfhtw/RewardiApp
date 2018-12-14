@@ -48,7 +48,9 @@ class CustomListAdapterActivities extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_activities, null);
         final ManualActivity activity = listActivities.get(position);
-        TextView text1 = (TextView) convertView.findViewById(R.id.text1);
+        TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
+        TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
+        TextView textViewActive = (TextView) convertView.findViewById(R.id.textViewActive);
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
 
         if(activity.getIsActive()){
@@ -70,8 +72,14 @@ class CustomListAdapterActivities extends BaseAdapter {
             }
         });
 
-        text1.setText(activity.getName());
-
+        textViewName.setText(activity.getName());
+        textViewRewardi.setText("Earn "+Integer.toString(activity.getRewardiPerHour())+" Rewardi per Hour");
+        if(activity.getIsActive()) {
+            textViewActive.setText("Active since: " + activity.getActiveSince());
+        }
+        else{
+            textViewActive.setText("Not active");
+        }
         return convertView;
     }
 
