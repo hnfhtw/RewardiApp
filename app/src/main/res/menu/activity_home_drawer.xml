@@ -6,31 +6,43 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_baseline_home_24px"
             android:title="Home" />
+    <group
+        android:id="@+id/menu_earn_rewardi"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_todolist"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_baseline_list_24px"
             android:title="Todo List" />
         <item
             android:id="@+id/nav_activity"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Activity" />
-        <item
-            android:id="@+id/nav_fitbit"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Fitbit" />
-        <item
-            android:id="@+id/nav_history"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="History" />
+            android:icon="@drawable/ic_baseline_timer_24px"
+            android:title="Activities" />
+    </group>
+    <group
+        android:id="@+id/menu_spend_rewardi"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_gadgets"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_baseline_sentiment_very_satisfied_24px"
             android:title="Gadgets" />
+    </group>
+    <group
+        android:id="@+id/menu_misc"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_baseline_history_24px"
+            android:title="History" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Settings" />
+    </group>
         <item
             android:id="@+id/nav_logout"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_baseline_power_settings_new_24px"
             android:title="Logout" />
     </group>
 </menu>

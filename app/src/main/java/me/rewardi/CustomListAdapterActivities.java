@@ -17,12 +17,14 @@ class CustomListAdapterActivities extends BaseAdapter {
     private List<ManualActivity> listActivities;
     private Context context;
     Globals appState;
+    private int layoutResId;
 
-    public CustomListAdapterActivities(Context context, List<ManualActivity> listActivities) {
+    public CustomListAdapterActivities(Context context, List<ManualActivity> listActivities, int layoutResId) {
         this.listActivities = listActivities;
         this.context = context;
         listActivitiesSelected = new ArrayList<>();
         listSelectedRows = new ArrayList<>();
+        this.layoutResId = layoutResId;
     }
 
     @Override
@@ -46,11 +48,14 @@ class CustomListAdapterActivities extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_activities, null);
+        convertView = LayoutInflater.from(context).inflate(layoutResId, null);
         final ManualActivity activity = listActivities.get(position);
         TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
         TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
-        TextView textViewActive = (TextView) convertView.findViewById(R.id.textViewActive);
+        TextView textViewActive = null;
+        if(layoutResId == R.layout.custom_row_activities){
+            textViewActive = (TextView) convertView.findViewById(R.id.textViewActive);
+        }
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
 
         if(activity.getIsActive()){
@@ -73,12 +78,13 @@ class CustomListAdapterActivities extends BaseAdapter {
         });
 
         textViewName.setText(activity.getName());
-        textViewRewardi.setText("Earn "+Integer.toString(activity.getRewardiPerHour())+" Rewardi per Hour");
-        if(activity.getIsActive()) {
-            textViewActive.setText("Active since: " + activity.getActiveSince());
-        }
-        else{
-            textViewActive.setText("Not active");
+        textViewRewardi.setText("Earn: "+Integer.toString(activity.getRewardiPerHour())+" Rewardi per Hour");
+        if(layoutResId == R.layout.custom_row_activities) {
+            if (activity.getIsActive()) {
+                textViewActive.setText("Active since: " + activity.getActiveSince());
+            } else {
+                textViewActive.setText("Not active");
+            }
         }
         return convertView;
     }

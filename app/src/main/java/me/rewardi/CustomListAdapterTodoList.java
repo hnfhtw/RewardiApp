@@ -18,12 +18,14 @@ class CustomListAdapterTodoList extends BaseAdapter {
     private List<TodoListPoint> listTodoListPoints;
     private Context context;
     Globals appState;
+    private int layoutResId;
 
-    public CustomListAdapterTodoList(Context context, List<TodoListPoint> listTodoListPoints) {
+    public CustomListAdapterTodoList(Context context, List<TodoListPoint> listTodoListPoints, int layoutResId) {
         this.listTodoListPoints = listTodoListPoints;
         this.context = context;
         listTodoListPointsSelected = new ArrayList<>();
         listSelectedRows = new ArrayList<>();
+        this.layoutResId = layoutResId;
     }
 
     @Override
@@ -47,10 +49,13 @@ class CustomListAdapterTodoList extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_todolist, null);
+        convertView = LayoutInflater.from(context).inflate(layoutResId, null);
         final TodoListPoint point = listTodoListPoints.get(position);
         TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
-        TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
+        TextView textViewRewardi = null;
+        if(layoutResId == R.layout.custom_row_todolist) {
+            textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
+        }
         TextView textViewRewardi2 = (TextView) convertView.findViewById(R.id.textViewRewardi2);
         final CheckBox cbDone = (CheckBox) convertView.findViewById(R.id.cbDone);
 
@@ -68,7 +73,9 @@ class CustomListAdapterTodoList extends BaseAdapter {
         });
 
         textViewName.setText(point.getName());
-        textViewRewardi.setText("Earn "+Integer.toString(point.getRewardi())+" Rewardi");
+        if(layoutResId == R.layout.custom_row_todolist) {
+            textViewRewardi.setText("Earn: " + Integer.toString(point.getRewardi()) + " Rewardi");
+        }
         textViewRewardi2.setText(Integer.toString(point.getRewardi()));
         return convertView;
     }

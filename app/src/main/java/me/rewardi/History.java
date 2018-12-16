@@ -1,7 +1,6 @@
 package me.rewardi;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,8 +23,6 @@ import com.koushikdutta.ion.Response;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.view.View.VISIBLE;
 
 public class History extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -274,8 +270,8 @@ public class History extends AppCompatActivity
         } else if (id == R.id.nav_activity) {
             Intent intent = new Intent(this, Activities.class);
             startActivity(intent);
-        } else if (id == R.id.nav_fitbit) {
-            Intent intent = new Intent(this, Fitbit.class);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
         } else if (id == R.id.nav_history) {
             Intent intent = new Intent(this, History.class);

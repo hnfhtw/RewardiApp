@@ -57,22 +57,35 @@ class CustomListAdapterGadgets extends BaseAdapter {
         convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_gadgets, null);
         final Gadget gadget = listGadgets.get(position);
         TextView textViewGadgetName = (TextView) convertView.findViewById(R.id.textViewGadgetName);
+        TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
+        TextView textViewActive = (TextView) convertView.findViewById(R.id.textViewActive);
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
         if(gadget instanceof Box) {
             btnStartStop.setText("Lock Box");
             btnStartStop.setTextOff("Lock Box");
             btnStartStop.setTextOn("Box Locked");
+            textViewRewardi.setText("Cost: " + Integer.toString(((Box)gadget).getRewardiPerOpen()) + " Rewardi to Open Box");
+
             if(((Box)gadget).getIsLocked()){
                 btnStartStop.setChecked(true);
                 btnStartStop.setEnabled(false);
+                textViewActive.setText("Box locked!");
+            }
+            else{
+                textViewActive.setText("Box unlocked!");
             }
         }
         else if(gadget instanceof SocketBoard){
             btnStartStop.setText("Switch On");
             btnStartStop.setTextOff("Switch On");
             btnStartStop.setTextOn("Switch Off");
+            textViewRewardi.setText("Cost: " + Integer.toString(((SocketBoard)gadget).getRewardiPerHour()) + " Rewardi per Hour");
             if(((SocketBoard)gadget).getIsActive()){
                 btnStartStop.setChecked(true);
+                textViewActive.setText("Socket Board switched ON");
+            }
+            else{
+                textViewActive.setText("Socket Board switched OFF");
             }
         }
 
@@ -100,6 +113,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
                         ((SocketBoard)gadget).setIsActive(false);
                     }
                 }
+                notifyDataSetChanged();
             }
         });
 

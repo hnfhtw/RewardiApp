@@ -3,6 +3,7 @@ package me.rewardi;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,8 +13,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -22,12 +26,32 @@ import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
 
+import org.parceler.Parcels;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     FutureCallback<Response<String>> getUserDataCallback;
     Globals appState;
-    User user;
+    GridView androidGridView;
+    private CustomListAdapterTodoList listAdapterTodoList;
+    private CustomListAdapterActivities listAdapterActivities;
+    private CustomGridViewActivity adapterViewAndroid;
+    FutureCallback<Response<String>> getAllGadgetsCallback;
+    FutureCallback<Response<String>> getAllTodoListPointsCallback;
+    FutureCallback<Response<String>> getAllActivitiesCallback;
+
+    String[] gridViewString = {
+            "Alarm", "Android", "Mobile",
+            "Alarm", "Android", "Mobile",
+    } ;
+    int[] gridViewImageId = {
+            R.mipmap.ic_rewardi_socket, R.mipmap.ic_rewardi_socket, R.mipmap.ic_rewardi_socket,
+            R.mipmap.ic_rewardi_box, R.mipmap.ic_rewardi_box, R.mipmap.ic_rewardi_box,
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +59,7 @@ public class Home extends AppCompatActivity
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -45,11 +69,35 @@ public class Home extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Button btnDebug = (Button) findViewById(R.id.btnDebug);
-        btnDebug.setOnClickListener(this); // calling onClick() method
-        btnDebug.setVisibility(View.INVISIBLE);
-
         final TextView textViewRewardiAccountBalance = (TextView) findViewById(R.id.textViewRewardiAccountBalance);
+
+        final List<Gadget> gadgetItems = new ArrayList<Gadget>();
+        adapterViewAndroid = new CustomGridViewActivity(this, gadgetItems);
+        androidGridView = (GridView)findViewById(R.id.grid_view_image_text);
+        androidGridView.setAdapter(adapterViewAndroid);
+        androidGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
+                Gadget gadget = gadgetItems.get(i);
+                if(gadget instanceof SocketBoard){
+                    showSocketBoardDialogFragment((SocketBoard)gadget);
+                }
+                else if(gadget instanceof Box){
+                    showBoxDialogFragment((Box)gadget);
+                }
+            }
+        });
+
+        List<TodoListPoint> todoListItems = new ArrayList<TodoListPoint>();
+        listAdapterTodoList = new CustomListAdapterTodoList(this, todoListItems, R.layout.custom_row_todolist_home);
+        ListView listViewTodoList = (ListView) findViewById(R.id.listviewTodoList);
+        listViewTodoList.setAdapter(listAdapterTodoList);
+
+        List<ManualActivity> activityItems = new ArrayList<ManualActivity>();
+        listAdapterActivities = new CustomListAdapterActivities(this, activityItems, R.layout.custom_row_activities_home);
+        ListView listViewActivities = (ListView) findViewById(R.id.listviewActivities);
+        listViewActivities.setAdapter(listAdapterActivities);
 
         getUserDataCallback = new FutureCallback<Response<String>>() {
             @Override
@@ -66,8 +114,10 @@ public class Home extends AppCompatActivity
                     if(object.get("fkPartnerUserId").isJsonNull() == false){
                         fkPartnerUserId = object.get("fkPartnerUserId").getAsInt();
                     }
-                    user = new User(userId, firebaseDeviceId, rewardi,fkPartnerUserId);
+                    User user = new User(userId, firebaseDeviceId, rewardi,fkPartnerUserId);
+                    appState.setUser(user);
                     textViewRewardiAccountBalance.setText(Double.toString(user.getTotalRewardi()));
+                    toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
                   }
                 else{
                     Log.d("Home", "Error = %s" + e.toString());
@@ -75,8 +125,124 @@ public class Home extends AppCompatActivity
             }
         };
 
+        getAllGadgetsCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    Log.d("Gadgets", "Element = " + element.toString());
+                    JsonArray array = element.getAsJsonArray();
+                    int nrOfGadgets = array.size();
+                    Log.d("Gadgets", "Number of Gadgets = " + nrOfGadgets);
+                    JsonObject gadget = null;
+                    for(int i = 0; i<nrOfGadgets; ++i){
+                        gadget = array.get(i).getAsJsonObject();
+                        Log.d("Gadgets", "Gadget"+i+" = " + gadget.toString());
+                        int id = gadget.get("id").getAsInt();
+                        String trustNumber = gadget.get("trustNo").getAsString();
+                        String name = gadget.get("name").getAsString();
+                        if(trustNumber.charAt(0) == '2') {        // SocketBoard
+                            int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
+                            int maxTime = gadget.get("maxTime").getAsInt();
+                            boolean isActive = false;
+                            if(gadget.get("usedSince").isJsonNull() == false){
+                                isActive = true;
+                            }
+
+                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive);
+                            adapterViewAndroid.addItem(socketBoard);
+                            adapterViewAndroid.notifyDataSetChanged();
+                        }
+                        else if(trustNumber.charAt(0) == '1') {   // Box
+                            int rewardiPerOpen = gadget.get("rewardiPerOpen").getAsInt();
+                            boolean isLocked = gadget.get("isLocked").getAsBoolean();
+                            Box box = new Box(id, trustNumber, name, rewardiPerOpen, isLocked);
+                            adapterViewAndroid.addItem(box);
+                            adapterViewAndroid.notifyDataSetChanged();
+                        }
+                    }
+                }
+                else{
+                    Log.d("Gadgets", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        getAllTodoListPointsCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    Log.d("TodoList", "Element = " + element.toString());
+                    JsonArray array = element.getAsJsonArray();
+                    int nrOfTodoListPoints = array.size();
+                    Log.d("TodoList", "Number of Todo List Points = " + nrOfTodoListPoints);
+                    JsonObject dataObj = null;
+                    for (int i = 0; i < nrOfTodoListPoints; ++i) {
+                        dataObj = array.get(i).getAsJsonObject();
+                        Log.d("TodoList", "Todo List Point " + i + " = " + dataObj.toString());
+                        int id = dataObj.get("id").getAsInt();
+                        String pointName = dataObj.get("name").getAsString();
+                        int rewardi = dataObj.get("rewardi").getAsInt();
+                        boolean done = dataObj.get("done").getAsBoolean();
+
+                        TodoListPoint todoListPoint = new TodoListPoint(id, pointName, rewardi, done);
+                        listAdapterTodoList.addItem(todoListPoint);
+                        listAdapterTodoList.notifyDataSetChanged();
+                    }
+
+                }
+                else{
+                    Log.d("TodoList", "Error = %s" + e.toString());
+                }
+            }
+        };
+
+        getAllActivitiesCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    Log.d("ManAct", "Element = " + element.toString());
+                    JsonArray array = element.getAsJsonArray();
+                    int nrOfActivities = array.size();
+                    Log.d("ManAct", "Number of Activities = " + nrOfActivities);
+                    JsonObject activity = null;
+                    for (int i = 0; i < nrOfActivities; ++i) {
+                        activity = array.get(i).getAsJsonObject();
+                        Log.d("ManAct", "Activities" + i + " = " + activity.toString());
+                        int id = activity.get("id").getAsInt();
+                        String activityName = activity.get("name").getAsString();
+                        int rewardiPerHour = activity.get("rewardiPerHour").getAsInt();
+                        ManualActivity manualActivity;
+                        boolean isActive = false;
+                        if(activity.get("activeSince").isJsonNull() == false){
+                            isActive = true;
+                            String activeSince = activity.get("activeSince").getAsString();
+                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, activeSince);
+                        }
+                        else{
+                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
+                        }
+
+
+                        listAdapterActivities.addItem(manualActivity);
+                        listAdapterActivities.notifyDataSetChanged();
+                    }
+
+                }
+                else{
+                    Log.d("ManAct", "Error = %s" + e.toString());
+                }
+            }
+        };
+
         appState = ((Globals)getApplicationContext());
         appState.sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
+        appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
+        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
+        appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
+        appState.sendMessageToServer(Globals.messageID.ACTIVITY_GET_ALL, 0,null, getAllActivitiesCallback);
     }
 
     @Override
@@ -111,8 +277,8 @@ public class Home extends AppCompatActivity
         } else if (id == R.id.nav_activity) {
             Intent intent = new Intent(this, Activities.class);
             startActivity(intent);
-        } else if (id == R.id.nav_fitbit) {
-            Intent intent = new Intent(this, Fitbit.class);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
         } else if (id == R.id.nav_history) {
             Intent intent = new Intent(this, History.class);
@@ -136,13 +302,26 @@ public class Home extends AppCompatActivity
 
         switch (v.getId()) {
 
-            case R.id.btnDebug:
-                Intent intent = new Intent(this, ApiTestActivity.class);
-                startActivity(intent);
-                break;
-
+            //case R.id.btnDebug:
+                //break;
             default:
                 break;
         }
+    }
+
+    public void showSocketBoardDialogFragment(SocketBoard socketBoard) {
+        DialogFragment newFragment = new SocketBoardDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("socketboard", Parcels.wrap(socketBoard));
+        newFragment.setArguments(bundle);
+        newFragment.show(getSupportFragmentManager(), "socketboarddialog");
+    }
+
+    public void showBoxDialogFragment(Box box) {
+        DialogFragment newFragment = new BoxDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("box", Parcels.wrap(box));
+        newFragment.setArguments(bundle);
+        newFragment.show(getSupportFragmentManager(), "boxdialog");
     }
 }

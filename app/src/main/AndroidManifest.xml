@@ -37,8 +37,8 @@
             android:label="@string/title_activity_activities"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Fitbit"
-            android:label="@string/title_activity_fitbit"
+            android:name=".Settings"
+            android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".History"

@@ -15,7 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -47,7 +48,7 @@ public class Gadgets extends AppCompatActivity
         setContentView(R.layout.activity_gadgets);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -241,6 +242,7 @@ public class Gadgets extends AppCompatActivity
         appState = ((Globals)getApplicationContext());
         appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
         appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
+        toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
     }
 
     @Override
@@ -294,8 +296,8 @@ public class Gadgets extends AppCompatActivity
         } else if (id == R.id.nav_activity) {
             Intent intent = new Intent(this, Activities.class);
             startActivity(intent);
-        } else if (id == R.id.nav_fitbit) {
-            Intent intent = new Intent(this, Fitbit.class);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
         } else if (id == R.id.nav_history) {
             Intent intent = new Intent(this, History.class);

@@ -15,7 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -48,6 +48,7 @@ public class TodoList extends AppCompatActivity
         setContentView(R.layout.activity_todo_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -72,7 +73,7 @@ public class TodoList extends AppCompatActivity
         List<TodoListPoint> items = new ArrayList<TodoListPoint>();
 
         // ListAdapter is resonsible for conversion between java code and list items that can be used
-        listAdapter = new CustomListAdapterTodoList(this, items);
+        listAdapter = new CustomListAdapterTodoList(this, items, R.layout.custom_row_todolist);
         ListView listview1 = (ListView) findViewById(R.id.listview1);
         listview1.setAdapter(listAdapter);
 
@@ -207,6 +208,7 @@ public class TodoList extends AppCompatActivity
 
         appState = ((Globals)getApplicationContext());
         appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
+        toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
     }
 
     @Override
@@ -255,8 +257,8 @@ public class TodoList extends AppCompatActivity
         } else if (id == R.id.nav_activity) {
             Intent intent = new Intent(this, Activities.class);
             startActivity(intent);
-        } else if (id == R.id.nav_fitbit) {
-            Intent intent = new Intent(this, Fitbit.class);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
         } else if (id == R.id.nav_history) {
             Intent intent = new Intent(this, History.class);

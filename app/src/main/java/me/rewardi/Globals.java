@@ -17,12 +17,21 @@ import com.koushikdutta.ion.Response;
 
 public class Globals extends Application {
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     enum messageID {ACTIVITY_GET_ALL, ACTIVITY_GET, ACTIVITY_CREATE, ACTIVITY_EDIT, ACTIVITY_DELETE, ACTIVITY_START, ACTIVITY_STOP,
         ACTIVITY_HISTORY_GET_ALL, BOX_GET_ALL, BOX_GET, BOX_CREATE, BOX_EDIT, BOX_DELETE, BOX_LOCK, BOX_UNLOCK, BOX_HISTORY_GET_ALL,
         SOCKETBOARD_GET_ALL, SOCKETBOARD_GET, SOCKETBOARD_CREATE, SOCKETBOARD_EDIT, SOCKETBOARD_DELETE, SOCKETBOARD_START, SOCKETBOARD_STOP, SOCKETBOARD_RESET, SOCKETBOARD_HISSTORY_GET_ALL,
         TODO_GET_ALL, TODO_GET, TODO_CREATE, TODO_EDIT, TODO_DELETE, TODO_DONE, TODO_HISTORY_GET_ALL, USER_GET, USER_EDIT};
 
     private String sessionToken;
+    private User user;
 
     public String getSessionToken(){
         return sessionToken;
