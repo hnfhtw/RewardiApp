@@ -8,7 +8,10 @@ package me.rewardi;
 
 import android.app.Application;
 import android.util.Log;
+
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
@@ -25,15 +28,61 @@ public class Globals extends Application {
 
     private String sessionToken;
     private User user;
+    private UpdateUserdata userDataListener;
+    FutureCallback<Response<String>> getUserDataCallback = new FutureCallback<Response<String>>() {
+        @Override
+        public void onCompleted(Exception e, Response<String> result) {
+            if(e == null){
+                JsonElement element = new JsonParser().parse(result.getResult());
+                Log.d("Globals", "getUserDataCallback Server Response = " + element.toString());
+                JsonObject object = element.getAsJsonObject();
+
+                int userId = object.get("id").getAsInt();
+                String firebaseInstanceId = object.get("instanceId").getAsString();
+                double rewardi = object.get("totalRewardi").getAsDouble();
+                int fkPartnerUserId = 0;
+                String partnerUserName = "";
+                String partnerMailAddress = "";
+                User.supervisorStatusTypes supervisorStatus = User.supervisorStatusTypes.NONE;
+                if(object.get("fkSupervisorUserId").isJsonNull() == false){
+                    fkPartnerUserId = object.get("fkSupervisorUserId").getAsInt();
+                    partnerUserName = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+                    partnerMailAddress = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
+                    int status = object.get("supervisorStatus").getAsInt();
+                    switch(status){
+                        case 1: { supervisorStatus = User.supervisorStatusTypes.LINK_PENDING; break; }
+                        case 2: { supervisorStatus = User.supervisorStatusTypes.LINKED; break; }
+                        case 3: { supervisorStatus = User.supervisorStatusTypes.UNLINK_PENDING; break; }
+                        default:{ supervisorStatus = User.supervisorStatusTypes.NONE; break; }
+                    }
+                }
+                String userName = object.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+                String email = object.get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
+
+                User user = new User(userId, firebaseInstanceId, rewardi,fkPartnerUserId, userName, email, partnerUserName, partnerMailAddress, supervisorStatus);
+                setUser(user);
+                if(userDataListener != null){
+                    userDataListener.onUserDataUpdate(user);
+                }
+            }
+            else{
+                Log.d("Globals", "getUserDataCallback Server Response Error = " + e.toString());
+            }
+        }
+    };
 
     public String getSessionToken(){
         return sessionToken;
     }
-    public void setSessionToken(String token){
-        sessionToken = token;
-    }
+    public void setSessionToken(String token){ sessionToken = token; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    public UpdateUserdata getUserDataListener() { return userDataListener; }
+    public void setUserDataListener(UpdateUserdata userDataListener) { this.userDataListener = userDataListener; }
+
+    public void requestUserDataUpdate(){
+        sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
+    }
 
     public void sendMessageToServer(messageID msgID, int deviceId, JsonObject sendObj, FutureCallback<Response<String>> callBack){
         String endpoint;

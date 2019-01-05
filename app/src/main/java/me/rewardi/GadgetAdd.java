@@ -110,7 +110,7 @@ public class GadgetAdd extends AppCompatActivity {
                 }
                 else if(s.charAt(0) == '2'){   // trust number starting with '2' -> SOCKETBOARD
                     gadgetType = "SocketBoard";
-                    textViewRewardi.setText("Rewardi per Hour");
+                    textViewRewardi.setText("Rewardi / Hour");
                     textViewGadgetName.setText("Socket Board Name");
                     textViewRewardi.setVisibility(View.VISIBLE);
                     editTextRewardi.setVisibility(View.VISIBLE);

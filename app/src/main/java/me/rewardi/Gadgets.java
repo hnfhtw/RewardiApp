@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Gadgets extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
 
     Globals appState;
     private MenuItem menuItemDelete;
@@ -38,6 +38,7 @@ public class Gadgets extends AppCompatActivity
     FutureCallback<Response<String>> deleteGadgetCallback;
     FutureCallback<Response<String>> editGadgetCallback;
     private Gadget editGadget;    // server does not send whole object as payload if the gadget is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
+    private TextView toolbarRewardi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class Gadgets extends AppCompatActivity
         setContentView(R.layout.activity_gadgets);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
+        toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -230,6 +231,7 @@ public class Gadgets extends AppCompatActivity
         };
 
         appState = ((Globals)getApplicationContext());
+        appState.setUserDataListener(this);
         appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
         appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
         toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
@@ -346,6 +348,13 @@ public class Gadgets extends AppCompatActivity
                     editGadget = box;
                 }
             }
+        }
+    }
+
+    @Override
+    public void onUserDataUpdate(User user) {
+        if(toolbarRewardi != null){
+            toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
         }
     }
 }

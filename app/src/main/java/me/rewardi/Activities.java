@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Activities extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
 
-    Globals appState;
+    private Globals appState;
     private MenuItem menuItemDelete;
     private CustomListAdapterActivities listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
@@ -38,6 +38,7 @@ public class Activities extends AppCompatActivity
     FutureCallback<Response<String>> deleteActivityCallback;
     FutureCallback<Response<String>> editActivityCallback;
     private ManualActivity editActivity;    // server does not send whole object as payload if the activity is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
+    private TextView toolbarRewardi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class Activities extends AppCompatActivity
         setContentView(R.layout.activity_activities);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
+        toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -207,6 +208,7 @@ public class Activities extends AppCompatActivity
         };
 
         appState = ((Globals)getApplicationContext());
+        appState.setUserDataListener(this);
         appState.sendMessageToServer(Globals.messageID.ACTIVITY_GET_ALL, 0,null, getAllActivitiesCallback);
         toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
     }
@@ -300,6 +302,13 @@ public class Activities extends AppCompatActivity
                 appState.sendMessageToServer(Globals.messageID.ACTIVITY_EDIT, act.getId(),dataObj, editActivityCallback);
                 editActivity = act;
             }
+        }
+    }
+
+    @Override
+    public void onUserDataUpdate(User user) {
+        if(toolbarRewardi != null){
+            toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
         }
     }
 }

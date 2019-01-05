@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TodoList extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
 
-    Globals appState;
+    private Globals appState;
     private MenuItem menuItemDelete;
     private CustomListAdapterTodoList listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
@@ -38,6 +38,7 @@ public class TodoList extends AppCompatActivity
     FutureCallback<Response<String>> deleteTodoListPointCallback;
     FutureCallback<Response<String>> editTodoListPointCallback;
     private TodoListPoint editTodoListPoint;    // server does not send whole object as payload if the todo list point is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
+    private TextView toolbarRewardi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class TodoList extends AppCompatActivity
         setContentView(R.layout.activity_todo_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
+        toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -196,6 +197,7 @@ public class TodoList extends AppCompatActivity
         };
 
         appState = ((Globals)getApplicationContext());
+        appState.setUserDataListener(this);
         appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
         toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
     }
@@ -289,6 +291,13 @@ public class TodoList extends AppCompatActivity
                 appState.sendMessageToServer(Globals.messageID.TODO_EDIT, point.getId(),dataObj, editTodoListPointCallback);
                 editTodoListPoint = point;
             }
+        }
+    }
+
+    @Override
+    public void onUserDataUpdate(User user) {
+        if(toolbarRewardi != null){
+            toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
         }
     }
 }

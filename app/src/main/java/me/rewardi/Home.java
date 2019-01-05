@@ -36,24 +36,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Home extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
 
     Globals appState;
     private CustomListAdapterTodoList listAdapterTodoList;
     private CustomListAdapterActivities listAdapterActivities;
     private CustomGridViewActivity adapterViewAndroid;
-    FutureCallback<Response<String>> getUserDataCallback;
     FutureCallback<Response<String>> getAllGadgetsCallback;
     FutureCallback<Response<String>> getAllTodoListPointsCallback;
     FutureCallback<Response<String>> getAllActivitiesCallback;
-
+    private TextView toolbarRewardi;
+    private TextView textViewRewardiAccountBalance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
+        toolbarRewardi  = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -63,7 +63,7 @@ public class Home extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        final TextView textViewRewardiAccountBalance = (TextView) findViewById(R.id.textViewRewardiAccountBalance);
+        textViewRewardiAccountBalance = (TextView) findViewById(R.id.textViewRewardiAccountBalance);
 
         final List<Gadget> gadgetItems = new ArrayList<Gadget>();
         adapterViewAndroid = new CustomGridViewActivity(this, gadgetItems);
@@ -92,47 +92,6 @@ public class Home extends AppCompatActivity
         listAdapterActivities = new CustomListAdapterActivities(this, activityItems, R.layout.custom_row_activities_home);
         ListView listViewActivities = (ListView) findViewById(R.id.listviewActivities);
         listViewActivities.setAdapter(listAdapterActivities);
-
-        getUserDataCallback = new FutureCallback<Response<String>>() {
-            @Override
-            public void onCompleted(Exception e, Response<String> result) {
-                if(e == null){
-                    JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Home", "getUserDataCallback Server Response = " + element.toString());
-                    JsonObject object = element.getAsJsonObject();
-
-                    int userId = object.get("id").getAsInt();
-                    String firebaseInstanceId = object.get("instanceId").getAsString();
-                    double rewardi = object.get("totalRewardi").getAsDouble();
-                    int fkPartnerUserId = 0;
-                    String partnerUserName = "";
-                    String partnerMailAddress = "";
-                    User.supervisorStatusTypes supervisorStatus = User.supervisorStatusTypes.NONE;
-                    if(object.get("fkSupervisorUserId").isJsonNull() == false){
-                        fkPartnerUserId = object.get("fkSupervisorUserId").getAsInt();
-                        partnerUserName = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
-                        partnerMailAddress = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
-                        int status = object.get("supervisorStatus").getAsInt();
-                        switch(status){
-                            case 1: { supervisorStatus = User.supervisorStatusTypes.LINK_PENDING; break; }
-                            case 2: { supervisorStatus = User.supervisorStatusTypes.LINKED; break; }
-                            case 3: { supervisorStatus = User.supervisorStatusTypes.UNLINK_PENDING; break; }
-                            default:{ supervisorStatus = User.supervisorStatusTypes.NONE; break; }
-                        }
-                    }
-                    String userName = object.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
-                    String email = object.get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
-
-                    User user = new User(userId, firebaseInstanceId, rewardi,fkPartnerUserId, userName, email, partnerUserName, partnerMailAddress, supervisorStatus);
-                    appState.setUser(user);
-                    textViewRewardiAccountBalance.setText(Double.toString(user.getTotalRewardi()));
-                    toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
-                  }
-                else{
-                    Log.d("Home", "getUserDataCallback Server Response Error = " + e.toString());
-                }
-            }
-        };
 
         getAllGadgetsCallback = new FutureCallback<Response<String>>() {
             @Override
@@ -293,7 +252,8 @@ public class Home extends AppCompatActivity
                     }
                 });
 
-        appState.sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
+        appState.setUserDataListener(this);
+        appState.requestUserDataUpdate();
         appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
         appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
         appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
@@ -369,5 +329,15 @@ public class Home extends AppCompatActivity
         bundle.putParcelable("box", Parcels.wrap(box));
         newFragment.setArguments(bundle);
         newFragment.show(getSupportFragmentManager(), "boxdialog");
+    }
+
+    @Override
+    public void onUserDataUpdate(User user) {
+        if(toolbarRewardi != null){
+            toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
+        }
+        if(textViewRewardiAccountBalance != null){
+            textViewRewardiAccountBalance.setText(Double.toString(user.getTotalRewardi()));
+        }
     }
 }

@@ -100,6 +100,7 @@ class CustomListAdapterTodoList extends BaseAdapter {
                     int id = obj.get("id").getAsInt();
                     removeDoneTodoListPoint(id);
                     notifyDataSetChanged();
+                    appState.requestUserDataUpdate();
                 }
                 else{
 

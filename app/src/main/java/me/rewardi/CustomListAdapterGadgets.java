@@ -1,14 +1,25 @@
 package me.rewardi;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Response;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 class CustomListAdapterGadgets extends BaseAdapter {
@@ -17,6 +28,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
     private List<Gadget> listGadgets;
     private Context context;
     Globals appState;
+    FutureCallback<Response<String>> startStopSocketBoardCallback;
 
     public CustomListAdapterGadgets(Context context, List<Gadget> listGadgets) {
         this.listGadgets = listGadgets;
@@ -77,7 +89,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
             btnStartStop.setText("Switch On");
             btnStartStop.setTextOff("Switch On");
             btnStartStop.setTextOn("Switch Off");
-            textViewRewardi.setText("Cost: " + Integer.toString(((SocketBoard)gadget).getRewardiPerHour()) + " Rewardi per Hour");
+            textViewRewardi.setText("Cost: " + Integer.toString(((SocketBoard)gadget).getRewardiPerHour()) + " Rewardi / Hour");
             if(((SocketBoard)gadget).getIsActive()){
                 btnStartStop.setChecked(true);
                 textViewActive.setText("Socket Board switched ON");
@@ -102,12 +114,12 @@ class CustomListAdapterGadgets extends BaseAdapter {
                     if(btnStartStop.isChecked()){
                         JsonObject data = new JsonObject();
                         data.addProperty("maxTime", ((SocketBoard)gadget).getMaxTimeSec());
-                        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_START, ((SocketBoard)gadget).getId(),data, null);
+                        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_START, ((SocketBoard)gadget).getId(),data, startStopSocketBoardCallback);
                         ((SocketBoard)gadget).setIsActive(true);
                     }
                     else{
                         appState = ((Globals)context.getApplicationContext());
-                        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_STOP, ((SocketBoard)gadget).getId(),null, null);
+                        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_STOP, ((SocketBoard)gadget).getId(),null, startStopSocketBoardCallback);
                         ((SocketBoard)gadget).setIsActive(false);
                     }
                 }
@@ -116,6 +128,21 @@ class CustomListAdapterGadgets extends BaseAdapter {
         });
 
         textViewGadgetName.setText(gadget.getName());
+
+        startStopSocketBoardCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200) ) {
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    JsonObject obj = element.getAsJsonObject();
+                    if(!obj.has("maxTime")){    // this is a response to "stop socketboard" if no field "maxTime" present
+                        appState.requestUserDataUpdate();
+                    }
+                }
+                else{}
+            }
+        };
+
         return convertView;
     }
 

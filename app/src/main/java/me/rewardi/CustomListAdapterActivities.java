@@ -127,7 +127,7 @@ class CustomListAdapterActivities extends BaseAdapter {
         });
 
         textViewName.setText(activity.getName());
-        textViewRewardi.setText("Earn: "+Integer.toString(activity.getRewardiPerHour())+" Rewardi per Hour");
+        textViewRewardi.setText("Earn: "+Integer.toString(activity.getRewardiPerHour())+" Rewardi / Hour");
 
         startStopActivityCallback = new FutureCallback<Response<String>>() {
             @Override
@@ -139,6 +139,7 @@ class CustomListAdapterActivities extends BaseAdapter {
 
                     if(obj.has("fkActivity")){      // response to stop activity contains activity history object with embedded activity object
                         obj = obj.getAsJsonObject("fkActivity");
+                        appState.requestUserDataUpdate();
                     }
 
                     int id = obj.get("id").getAsInt();

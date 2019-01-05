@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="Cost X Rewardi per Hour"
+            android:text="Cost X Rewardi / Hour"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/colorRewardiMinus"
             android:textSize="18sp" />
