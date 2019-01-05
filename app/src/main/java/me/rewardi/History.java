@@ -1,6 +1,7 @@
 package me.rewardi;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,7 +13,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,19 +30,14 @@ import java.util.List;
 public class History extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private MenuItem menuItemGadgetHistory;
-    private MenuItem menuItemActivityHistory;
-    private MenuItem menuItemTodoListHistory;
     private CustomListAdapterGadgetHistory listAdapterGadgets;
-    private CustomListAdapterActivityHistory listAdapterActivities;
-    private CustomListAdapterTodoListHistory listAdapterTodoList;
+    private CustomListAdapterEarnedRewardiHistory listAdapterEarnedRewardiHistory;
     FutureCallback<Response<String>> getFullGadgetHistoryCallback;
     FutureCallback<Response<String>> getFullActivityHistoryCallback;
     FutureCallback<Response<String>> getFullTodoListHistoryCallback;
     Globals appState;
     private ListView listViewGadgets;
-    private ListView listViewActivities;
-    private ListView listViewTodoList;
+    private ListView listViewEarnedRewardi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +45,7 @@ public class History extends AppCompatActivity
         setContentView(R.layout.activity_history);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -57,23 +55,45 @@ public class History extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        final Button buttonEarnedRewardi = (Button) findViewById(R.id.buttonEarnedRewardi);
+        final Button buttonSpentRewardi = (Button) findViewById(R.id.buttonSpentRewardi);
+
+        appState = ((Globals)getApplicationContext());
+        toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+
+        buttonEarnedRewardi.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        listViewGadgets.setVisibility(View.INVISIBLE);
+                        listViewEarnedRewardi.setVisibility(View.VISIBLE);
+                        buttonEarnedRewardi.setBackgroundColor(Color.GREEN);
+                        buttonSpentRewardi.setBackgroundColor(Color.GRAY);
+                    }
+                });
+
+        buttonSpentRewardi.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        listViewGadgets.setVisibility(View.VISIBLE);
+                        listViewEarnedRewardi.setVisibility(View.INVISIBLE);
+                        buttonEarnedRewardi.setBackgroundColor(Color.GRAY);
+                        buttonSpentRewardi.setBackgroundColor(Color.GREEN);
+                    }
+                });
+
         List<HistoryItemGadget> gadgetHistoryList = new ArrayList<HistoryItemGadget>();
-        // ListAdapter is resonsible for conversion between java code and list items that can be used
+        // ListAdapter is responsible for conversion between java code and list items that can be used
         listAdapterGadgets = new CustomListAdapterGadgetHistory(this, gadgetHistoryList);
         listViewGadgets = (ListView) findViewById(R.id.listViewGadgetHistory);
         listViewGadgets.setAdapter(listAdapterGadgets);
 
-        List<HistoryItemManualActivity> activityHistoryList = new ArrayList<HistoryItemManualActivity>();
-        // ListAdapter is resonsible for conversion between java code and list items that can be used
-        listAdapterActivities = new CustomListAdapterActivityHistory(this, activityHistoryList);
-        listViewActivities = (ListView) findViewById(R.id.listViewActivities);
-        listViewActivities.setAdapter(listAdapterActivities);
-
-        List<HistoryItemTodoListPoint> todoListHistoryList = new ArrayList<HistoryItemTodoListPoint>();
-        // ListAdapter is resonsible for conversion between java code and list items that can be used
-        listAdapterTodoList = new CustomListAdapterTodoListHistory(this, todoListHistoryList);
-        listViewTodoList = (ListView) findViewById(R.id.listViewTodoList);
-        listViewTodoList.setAdapter(listAdapterTodoList);
+        List<HistoryItemEarnedRewardi> earnedRewardiHistoryList = new ArrayList<HistoryItemEarnedRewardi>();
+        // ListAdapter is responsible for conversion between java code and list items that can be used
+        listAdapterEarnedRewardiHistory = new CustomListAdapterEarnedRewardiHistory(this, earnedRewardiHistoryList);
+        listViewEarnedRewardi = (ListView) findViewById(R.id.listViewEarnedRewardiHistory);
+        listViewEarnedRewardi.setAdapter(listAdapterEarnedRewardiHistory);
 
         getFullGadgetHistoryCallback = new FutureCallback<Response<String>>() {
             @Override
@@ -135,27 +155,48 @@ public class History extends AppCompatActivity
                     JsonElement element = new JsonParser().parse(result.getResult());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfActivities = array.size();
-                    JsonObject activityHistory = null;
+                    JsonObject dataObj = null;
                     for (int i = 0; i < nrOfActivities; ++i) {
-                        activityHistory = array.get(i).getAsJsonObject();
-                        int id = activityHistory.get("id").getAsInt();
-                        JsonObject activityObj = activityHistory.get("fkActivity").getAsJsonObject();
+                        dataObj = array.get(i).getAsJsonObject();
+                        int id = dataObj.get("id").getAsInt();
+                        JsonObject activityObj = dataObj.get("fkActivity").getAsJsonObject();
                         int activityId = activityObj.get("id").getAsInt();
                         String name = activityObj.get("name").getAsString();
                         int rewardiPerHour = activityObj.get("rewardiPerHour").getAsInt();
                         ManualActivity act = new ManualActivity(activityId, name, rewardiPerHour, false, null);
-                        String timestamp = activityHistory.get("timestamp").getAsString();
-                        int duration = activityHistory.get("duration").getAsInt();
-                        double acquiredRewardi = activityHistory.get("acquiredRewardi").getAsDouble();
+                        String timestamp = dataObj.get("timestamp").getAsString();
+                        int duration = dataObj.get("duration").getAsInt();
+                        double acquiredRewardi = dataObj.get("acquiredRewardi").getAsDouble();
 
-                        HistoryItemManualActivity historyItemManualActivity = new HistoryItemManualActivity(id, act, timestamp, duration, acquiredRewardi);
-                        listAdapterActivities.addItem(historyItemManualActivity);
-                        listAdapterActivities.notifyDataSetChanged();
+                        boolean supervised = false;
+                        if(!dataObj.get("fkSupervisorId").isJsonNull()){    // user has a supervisor
+                            supervised = true;
+                        }
+
+                        boolean granted = true;
+                        String supervisorMessage = "";
+                        String supervisorName = "";
+                        if(supervised){
+                            if(!dataObj.get("granted").isJsonNull()){
+                                granted = dataObj.get("granted").getAsBoolean();
+                            }
+                            if(!dataObj.get("remark").isJsonNull()){
+                                supervisorMessage = dataObj.get("remark").getAsString();
+                            }
+                            supervisorName = dataObj.get("fkSupervisor").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+                        }
+
+                        HistoryItemManualActivity historyItemManualActivity = new HistoryItemManualActivity(id, act, timestamp, duration, acquiredRewardi, granted, supervisorMessage, supervisorName);
+                        listAdapterEarnedRewardiHistory.addItem(historyItemManualActivity);
+                        listAdapterEarnedRewardiHistory.notifyDataSetChanged();
                     }
                 }
                 else{
                     Log.d("ManAct", "Error = %s" + e.toString());
                 }
+                // Sort list according to timestamp
+                listAdapterEarnedRewardiHistory.sortItems();
+                listAdapterEarnedRewardiHistory.notifyDataSetChanged();
             }
         };
 
@@ -177,19 +218,48 @@ public class History extends AppCompatActivity
                         TodoListPoint todoListPoint = new TodoListPoint(todoListPointId, name, rewardi, true);
                         String timestamp = dataObj.get("timestamp").getAsString();
                         int acquiredRewardi = dataObj.get("acquiredRewardi").getAsInt();
-                        HistoryItemTodoListPoint historyItemTodoListPoint = new HistoryItemTodoListPoint(id, todoListPoint, timestamp, acquiredRewardi);
-                        listAdapterTodoList.addItem(historyItemTodoListPoint);
-                        listAdapterTodoList.notifyDataSetChanged();
+
+                        boolean supervised = false;
+                        if(!dataObj.get("fkSupervisorId").isJsonNull()){    // user has a supervisor
+                            supervised = true;
+                        }
+
+                        boolean granted = true;
+                        String supervisorMessage = "";
+                        String supervisorName = "";
+                        if(supervised){
+                            if(!dataObj.get("granted").isJsonNull()){
+                                granted = dataObj.get("granted").getAsBoolean();
+                            }else{
+                                granted = false;
+                            }
+                            if(!dataObj.get("remark").isJsonNull()){
+                                supervisorMessage = dataObj.get("remark").getAsString();
+                            }
+                            supervisorName = dataObj.get("fkSupervisor").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+                        }
+
+                        HistoryItemTodoListPoint historyItemTodoListPoint = new HistoryItemTodoListPoint(id, todoListPoint, timestamp, acquiredRewardi, granted, supervisorMessage, supervisorName);
+                        listAdapterEarnedRewardiHistory.addItem(historyItemTodoListPoint);
+                        listAdapterEarnedRewardiHistory.notifyDataSetChanged();
                     }
 
                 }
                 else{
                     Log.d("TodoList", "Error = %s" + e.toString());
                 }
+                // Sort list according to timestamp
+                listAdapterEarnedRewardiHistory.sortItems();
+                listAdapterEarnedRewardiHistory.notifyDataSetChanged();
             }
         };
 
-        appState = ((Globals)getApplicationContext());
+        // Default Ansicht -> Earned Rewardi History wird angezeigt
+        listViewGadgets.setVisibility(View.INVISIBLE);
+        listViewEarnedRewardi.setVisibility(View.VISIBLE);
+        buttonEarnedRewardi.setBackgroundColor(Color.GREEN);
+        buttonSpentRewardi.setBackgroundColor(Color.GRAY);
+
         appState.sendMessageToServer(Globals.messageID.BOX_HISTORY_GET_ALL, 0,null, getFullGadgetHistoryCallback);
         appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_HISSTORY_GET_ALL, 0,null, getFullGadgetHistoryCallback);
         appState.sendMessageToServer(Globals.messageID.ACTIVITY_HISTORY_GET_ALL, 0,null, getFullActivityHistoryCallback);
@@ -210,7 +280,7 @@ public class History extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.history, menu);
-        menuItemGadgetHistory = menu.findItem(R.id.show_gadget_history);
+        /*menuItemGadgetHistory = menu.findItem(R.id.show_gadget_history);
         menuItemGadgetHistory.setVisible(true);
         menuItemGadgetHistory.setOnMenuItemClickListener(
                 new MenuItem.OnMenuItemClickListener() {
@@ -250,7 +320,7 @@ public class History extends AppCompatActivity
                         return true;
                     }
                 }
-        );
+        );*/
 
         return true;
     }
@@ -273,6 +343,9 @@ public class History extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
+        } else if (id == R.id.nav_messages) {
+            Intent intent = new Intent(this, Messages.class);
+            startActivity(intent);
         } else if (id == R.id.nav_history) {
             Intent intent = new Intent(this, History.class);
             startActivity(intent);
@@ -281,6 +354,7 @@ public class History extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
             Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("logout", true);
             startActivity(intent);
         }
 

@@ -4,30 +4,19 @@ import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
-public class HistoryItemManualActivity {
-    private int id;
+public class HistoryItemManualActivity extends HistoryItemEarnedRewardi {
     private ManualActivity activity;
-    private String timestamp;
     private int duration;
     private double acquiredRewardi;
 
     public HistoryItemManualActivity(){}
 
     @ParcelConstructor
-    public HistoryItemManualActivity(int id, ManualActivity activity, String timestamp, int duration, double acquiredRewardi){
-        this.id = id;
+    public HistoryItemManualActivity(int id, ManualActivity activity, String timestamp, int duration, double acquiredRewardi, boolean granted, String supervisorMessage, String supervisorName){
+        super(id, timestamp, granted, supervisorMessage, supervisorName);
         this.activity = activity;
-        this.timestamp = timestamp;
         this.duration = duration;
         this.acquiredRewardi = acquiredRewardi;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public ManualActivity getActivity() {
@@ -36,14 +25,6 @@ public class HistoryItemManualActivity {
 
     public void setActivity(ManualActivity activity) {
         this.activity = activity;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
     }
 
     public int getDuration() {

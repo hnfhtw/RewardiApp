@@ -4,27 +4,17 @@ import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
-public class HistoryItemTodoListPoint {
-    private int id;
+public class HistoryItemTodoListPoint extends HistoryItemEarnedRewardi {
     private TodoListPoint todoListPoint;
-    private String timestamp;
     private int acquiredRewardi;
 
     public HistoryItemTodoListPoint() {}
 
     @ParcelConstructor
-    public HistoryItemTodoListPoint(int id, TodoListPoint todoListPoint, String timestamp, int acquiredRewardi){
-        this.id = id;
+    public HistoryItemTodoListPoint(int id, TodoListPoint todoListPoint, String timestamp, int acquiredRewardi, boolean granted, String supervisorMessage, String supervisorName){
+        super(id, timestamp, granted, supervisorMessage, supervisorName);
         this.todoListPoint = todoListPoint;
-        this.timestamp = timestamp;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        this.acquiredRewardi = acquiredRewardi;
     }
 
     public TodoListPoint getTodoListPoint() {
@@ -33,14 +23,6 @@ public class HistoryItemTodoListPoint {
 
     public void setTodoListPoint(TodoListPoint todoListPoint) {
         this.todoListPoint = todoListPoint;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
     }
 
     public int getAcquiredRewardi() {

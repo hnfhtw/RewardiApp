@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="5dp"
-                android:text="Set or Change Rewardi Partner"
+                android:text="Set or Change Rewardi Supervisor"
                 android:textAlignment="center" />
 
             <View
@@ -32,32 +32,63 @@
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray" />
 
-            <TextView
-                android:id="@+id/textView6"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="5dp"
-                android:text="Current Partner: not set" />
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewSupervisorStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Current Supervisor: " />
+
+                <TextView
+                    android:id="@+id/textViewPartner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="not set"
+                    android:textColor="@color/colorAndroidGreen"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/textView7"
+                android:id="@+id/textViewSupervisorTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Set new Partner ID / Mail" />
+                android:text="Request new Rewardi Supervisor" />
 
             <EditText
-                android:id="@+id/editText"
+                android:id="@+id/editTextPartnerUserName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Partner Mail" />
+                android:text="Enter New Supervisor Mail Address" />
 
-            <Button
-                android:id="@+id/button"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Set / Change Partner" />
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonSetPartner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Request Supervisor" />
+
+                <Button
+                    android:id="@+id/buttonRemovePartner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Remove Supervisor" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -90,7 +121,7 @@
                 android:text="Old Password" />
 
             <EditText
-                android:id="@+id/editText3"
+                android:id="@+id/editTextOldPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -103,7 +134,7 @@
                 android:text="New Password" />
 
             <EditText
-                android:id="@+id/editText4"
+                android:id="@+id/editTextNewPassword1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -116,14 +147,14 @@
                 android:text="New Password (repeat)" />
 
             <EditText
-                android:id="@+id/editText5"
+                android:id="@+id/editTextNewPassword2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPassword" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/buttonChangePassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Change Password" />

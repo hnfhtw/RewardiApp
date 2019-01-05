@@ -1,7 +1,11 @@
 package me.rewardi;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
@@ -17,8 +21,11 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,6 +35,7 @@ import com.koushikdutta.ion.Response;
 
 import org.parceler.Parcels;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +51,7 @@ public class Home extends AppCompatActivity
     FutureCallback<Response<String>> getAllGadgetsCallback;
     FutureCallback<Response<String>> getAllTodoListPointsCallback;
     FutureCallback<Response<String>> getAllActivitiesCallback;
+    FutureCallback<Response<String>> testCallback;
 
     String[] gridViewString = {
             "Alarm", "Android", "Mobile",
@@ -108,13 +117,40 @@ public class Home extends AppCompatActivity
                     JsonObject object = element.getAsJsonObject();
 
                     int userId = object.get("id").getAsInt();
-                    String firebaseDeviceId = object.get("deviceId").getAsString();
+                    String firebaseInstanceId = object.get("instanceId").getAsString();
                     double rewardi = object.get("totalRewardi").getAsDouble();
                     int fkPartnerUserId = 0;
-                    if(object.get("fkPartnerUserId").isJsonNull() == false){
-                        fkPartnerUserId = object.get("fkPartnerUserId").getAsInt();
+                    String partnerUserName = "";
+                    String partnerMailAddress = "";
+                    User.supervisorStatusTypes supervisorStatus = User.supervisorStatusTypes.NONE;
+                    if(object.get("fkSupervisorUserId").isJsonNull() == false){
+                        fkPartnerUserId = object.get("fkSupervisorUserId").getAsInt();
+                        partnerUserName = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+                        partnerMailAddress = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
+                        int status = object.get("supervisorStatus").getAsInt();
+                        switch(status){
+                            case 1: {
+                                supervisorStatus = User.supervisorStatusTypes.LINK_PENDING;
+                                break;
+                            }
+                            case 2: {
+                                supervisorStatus = User.supervisorStatusTypes.LINKED;
+                                break;
+                            }
+                            case 3: {
+                                supervisorStatus = User.supervisorStatusTypes.UNLINK_PENDING;
+                                break;
+                            }
+                            default: {
+                                supervisorStatus = User.supervisorStatusTypes.NONE;
+                                break;
+                            }
+                        }
                     }
-                    User user = new User(userId, firebaseDeviceId, rewardi,fkPartnerUserId);
+                    String userName = object.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+                    String email = object.get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
+
+                    User user = new User(userId, firebaseInstanceId, rewardi,fkPartnerUserId, userName, email, partnerUserName, partnerMailAddress, supervisorStatus);
                     appState.setUser(user);
                     textViewRewardiAccountBalance.setText(Double.toString(user.getTotalRewardi()));
                     toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
@@ -238,6 +274,67 @@ public class Home extends AppCompatActivity
         };
 
         appState = ((Globals)getApplicationContext());
+
+        // FCM Messaging Stuff
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            String channelId  = "fcm_default_channel";
+            String channelName = "Rewardi";
+            NotificationManager notificationManager =
+                    getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                    channelName, NotificationManager.IMPORTANCE_LOW));
+        }
+
+        // If a notification message is tapped, any data accompanying the notification
+        // message is available in the intent extras. In this sample the launcher
+        // intent is fired when the notification is tapped, so any accompanying data would
+        // be handled here. If you want a different intent fired, set the click_action
+        // field of the notification message to the desired intent. The launcher intent
+        // is used when no click_action is specified.
+        //
+        // Handle possible data accompanying notification message.
+        // [START handle_data_extras]
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d("Home", "Key: " + key + " Value: " + value);
+            }
+        }
+        // [END handle_data_extras]
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.d("Firebase", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        // Log and send firebase token (instanceID) to server
+                        JsonObject dataObj = new JsonObject();
+                        dataObj.addProperty("instanceId", token);           // firebase instance ID
+                        appState.sendMessageToServer(Globals.messageID.USER_EDIT, 0,dataObj, testCallback);
+                        Log.d("Firebase", token);
+                    }
+                });
+
+        testCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if(e == null){
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    Log.d("TestCallback", "Server Response = " + element.toString());
+                }
+                else{
+                    Log.d("TestCallback", "Error = %s" + e.toString());
+                }
+            }
+        };
+
         appState.sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
         appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
         appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
@@ -280,6 +377,9 @@ public class Home extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
+        } else if (id == R.id.nav_messages) {
+            Intent intent = new Intent(this, Messages.class);
+            startActivity(intent);
         } else if (id == R.id.nav_history) {
             Intent intent = new Intent(this, History.class);
             startActivity(intent);
@@ -288,6 +388,7 @@ public class Home extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
             Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("logout", true);
             startActivity(intent);
         }
 

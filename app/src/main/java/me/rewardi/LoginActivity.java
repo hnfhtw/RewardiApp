@@ -3,36 +3,47 @@ package me.rewardi;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.Response;
+
+import org.w3c.dom.Text;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mUserNameView;
+    private AutoCompleteTextView mMailAddressView;
     private EditText mPasswordView;
+    private EditText mPassword2View;
     private View mProgressView;
     private View mLoginFormView;
-    private Button mEmailSignInButton;
+    private Button mLoginRegisterButton;
+    private TextInputLayout textInputLayoutMailAddress;
+    private TextInputLayout textInputLayoutPassword2;
+    private TextView textViewRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,73 +54,124 @@ public class LoginActivity extends AppCompatActivity {
         selfSignedSSL.setSelfSignedSSL(this,null);
 
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView)
-                findViewById(R.id.email);
-        mEmailView.setText("");   // HN-DEBUG
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setText("");    // HN-DEBUG
-        mPasswordView.setOnEditorActionListener(
-                new TextView.OnEditorActionListener() {
-                    @Override
-                    public boolean onEditorAction(TextView textView,
-                                                  int id, KeyEvent keyEvent) {
-                        if (id == R.id.password || id == EditorInfo.IME_NULL) {
-                            attemptLogin();
-                            return true;
-                        }
-                        return false;
-                    }
-                });
+        mUserNameView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextViewUserName);
+        mUserNameView.setText("");
+        mPasswordView = (EditText) findViewById(R.id.editTextPassword);
+        mPasswordView.setText("");
 
-        mEmailSignInButton = (Button)
-                findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(
-                new OnClickListener() {
+        // Set up the registration form.
+        mMailAddressView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextViewMailAddress);
+        mMailAddressView.setText("");
+        mPassword2View = (EditText) findViewById(R.id.editTextPassword2);
+        mPassword2View.setText("");
+
+        mLoginRegisterButton = (Button) findViewById(R.id.login_register_button);
+        mLoginRegisterButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        attemptLogin();
+                        if(mLoginRegisterButton.getText().equals("Sign in")){
+                            attemptLogin("","",false);
+                        }
+                        else{
+                            attemptRegister();
+                        }
+
                     }
                 });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        SharedPreferences sharedPref = LoginActivity.this.getPreferences(Context.MODE_PRIVATE);
+        String userName = "";
+        String password = "";
+
+        Intent intent = getIntent();
+        boolean isLogout = intent.getBooleanExtra("logout", false);
+
+        if(isLogout){
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("userName", "");   // delete stored value
+            editor.putString("password", "");   // delete stored value
+            editor.commit();
+        }
+        else{
+            userName = sharedPref.getString("userName", userName);
+            password = sharedPref.getString("password", password);
+        }
+
+        if(userName.length() > 0 && password.length() > 0){
+            attemptLogin(userName, password, true);       // use stored credentials to login
+        }
+
+        // hide the input elements used for registration of new user
+        textInputLayoutMailAddress = (TextInputLayout) findViewById(R.id.textInputLayoutMailAddress);
+        textInputLayoutMailAddress.setVisibility(View.GONE);
+
+        textInputLayoutPassword2 = (TextInputLayout) findViewById(R.id.textInputLayoutPassword2);
+        textInputLayoutPassword2.setVisibility(View.GONE);
+
+        textViewRegister = (TextView) findViewById(R.id.textViewRegister);
+        textViewRegister.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(textViewRegister.getText().equals("Register New Rewardi Account")){
+                    textInputLayoutMailAddress.setVisibility(View.VISIBLE);
+                    textInputLayoutPassword2.setVisibility(View.VISIBLE);
+                    mLoginRegisterButton.setText("Register");
+                    textViewRegister.setText("Back to Login");
+                }
+                else{
+                    textInputLayoutMailAddress.setVisibility(View.GONE);
+                    textInputLayoutPassword2.setVisibility(View.GONE);
+                    mLoginRegisterButton.setText("Sign in");
+                    textViewRegister.setText("Register New Rewardi Account");
+                }
+            }
+        });
     }
 
-    private void attemptLogin() {
-        if (!mEmailSignInButton.isEnabled()) {
+    private void attemptLogin(String user, String pw, boolean silentLogin) {
+        if (!mLoginRegisterButton.isEnabled()) {
             return;
         }
 
         // Reset errors.
-        mEmailView.setError(null);
+        mUserNameView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String userName = "";
+        String password = "";
+        if(silentLogin){
+            userName = user;
+            password = pw;
+        }
+        else{
+            userName = mUserNameView.getText().toString();
+            password = mPasswordView.getText().toString();
+
+            SharedPreferences sharedPref = LoginActivity.this.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("userName", userName);   // store value
+            editor.putString("password", password);   // store value
+            editor.commit();
+        }
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) &&
-                !isPasswordValid(password)) {
-            mPasswordView.setError(
-                    getString(R.string.error_invalid_password));
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(
-                    getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(
-                    getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        // Check for a valid user name
+        if (TextUtils.isEmpty(userName)) {
+            mUserNameView.setError(getString(R.string.error_field_required));
+            focusView = mUserNameView;
             cancel = true;
         }
 
@@ -120,21 +182,27 @@ public class LoginActivity extends AppCompatActivity {
             Log.d("Login", "Create POST");
 
             JsonObject loginObject = new JsonObject();
-            loginObject.addProperty("EMailAddress", mEmailView.getText().toString());
-            loginObject.addProperty("Password", mPasswordView.getText().toString());
+            loginObject.addProperty("userName", userName);
+            loginObject.addProperty("password", password);
 
             Ion.with(this)
                     .load("POST", "https://37.60.168.102:443/api/auth/authenticate")
                     .setJsonObjectBody(loginObject)
-                    .asJsonObject()
+                    .asString()
+                    .withResponse()
 
-                    .setCallback(new FutureCallback<JsonObject>() {
+                    .setCallback(new FutureCallback<Response<String>>() {
                         @Override
-                        public void onCompleted(Exception e, JsonObject result) {
+                        public void onCompleted(Exception e, Response<String> result) {
                             Log.d("Login", "onCompleted called");
+                            Log.d("Login", "Result = " + result.getHeaders().code() + ", Body = " + result.getResult());
                             Log.e("Login", "Error: ", e);
-                            if (e == null) {
-                                String token =  result.get("token").getAsString();
+                            if (e == null && result.getHeaders().code() == 200) {
+                                JsonElement element = new JsonParser().parse(result.getResult());
+                                Log.d("Login", "Element = " + element.toString());
+                                JsonObject object = element.getAsJsonObject();
+
+                                String token =  object.get("token").getAsString();
                                 Globals appState = ((Globals)getApplicationContext());      // save sessionToken to global object - it will be accessible from all Activities
                                 appState.setSessionToken(token);
                                 Log.d("Login", "Token = " + token);
@@ -143,7 +211,7 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
 
                             } else {
-                                Snackbar.make(mEmailView,
+                                Snackbar.make(mUserNameView,
                                         "ERROR",
                                         Snackbar.LENGTH_SHORT)
                                         .show();
@@ -154,12 +222,104 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isEmailValid(String email) {
-        return email.contains("@");
+    private void attemptRegister() {
+        // Reset errors.
+        mUserNameView.setError(null);
+        mMailAddressView.setError(null);
+        mPasswordView.setError(null);
+        mPassword2View.setError(null);
+
+        // Store values at the time of the login attempt.
+        String userName = mUserNameView.getText().toString();
+        String mailAddress = mMailAddressView.getText().toString();
+        String password = mPasswordView.getText().toString();
+        String password2 = mPassword2View.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid password, if the user entered one. error_password_match
+        if(!password.equals(password2)){
+            mPasswordView.setError(getString(R.string.error_password_match));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        // Check for a valid user name
+        if (TextUtils.isEmpty(userName)) {
+            mUserNameView.setError(getString(R.string.error_field_required));
+            focusView = mUserNameView;
+            cancel = true;
+        }
+
+        // Check for a valid mail address
+        if (TextUtils.isEmpty(mailAddress) || !mailAddress.contains("@") ) {
+            mMailAddressView.setError(getString(R.string.error_invalid_email));
+            focusView = mUserNameView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+        } else {
+            showProgress(true);
+            Log.d("Register Account", "Create POST");
+
+            JsonObject registerObject = new JsonObject();
+            registerObject.addProperty("userName", userName);
+            registerObject.addProperty("emailAddress", mailAddress);
+            registerObject.addProperty("password", password);
+
+            Ion.with(this)
+                    .load("POST", "https://37.60.168.102:443/api/auth/register")
+                    .setJsonObjectBody(registerObject)
+                    .asString()
+                    .withResponse()
+
+                    .setCallback(new FutureCallback<Response<String>>() {
+                        @Override
+                        public void onCompleted(Exception e, Response<String> result) {
+                            Log.d("Register Account", "onCompleted called");
+                            Log.d("Register Account", "Result = " + result.getHeaders().code() + ", Body = " + result.getResult());
+                            Log.e("Register Account", "Error: ", e);
+                            if (e == null && result.getHeaders().code() == 200) {
+                                JsonElement element = new JsonParser().parse(result.getResult());
+                                Log.d("Register Account", "Element = " + element.toString());
+                                JsonObject object = element.getAsJsonObject();
+                                Log.d("Register Account", "Object = " + object.toString());
+                                Snackbar.make(mUserNameView,
+                                        "Please check yor mailbox to verify the mail address!",
+                                        Snackbar.LENGTH_LONG)
+                                        .show();
+
+                            } else {
+                                Snackbar.make(mUserNameView,
+                                        "ERROR",
+                                        Snackbar.LENGTH_SHORT)
+                                        .show();
+                            }
+                            textInputLayoutMailAddress.setVisibility(View.GONE);
+                            textInputLayoutPassword2.setVisibility(View.GONE);
+                            mLoginRegisterButton.setText("Sign in");
+                            textViewRegister.setText("Register New Rewardi Account");
+
+                            showProgress(false);
+                        }
+                    });
+        }
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length() > 4;
+        boolean valid = true;
+        if(password.length() < 6){
+            valid = false;
+        }
+        return valid;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)

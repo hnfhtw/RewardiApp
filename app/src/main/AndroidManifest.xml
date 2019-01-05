@@ -41,6 +41,10 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Messages"
+            android:label="@string/title_activity_messages"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".History"
             android:label="@string/title_activity_history"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -54,6 +58,12 @@
             android:label="@string/title_activity_todolistpointadd"></activity>
         <activity android:name=".GadgetAdd"
             android:label="@string/title_activity_gadgetadd"></activity>
+
+        <service android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

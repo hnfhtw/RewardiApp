@@ -8,22 +8,49 @@
     tools:context=".History"
     tools:showIn="@layout/app_bar_history">
 
-    <ListView
-        android:id="@+id/listViewGadgetHistory"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"></ListView>
+        android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/listViewActivities"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"></ListView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <ListView
-        android:id="@+id/listViewTodoList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"></ListView>
+            <Button
+                android:id="@+id/buttonEarnedRewardi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Earned Rewardi" />
+
+            <Button
+                android:id="@+id/buttonSpentRewardi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Spent Rewardi" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/listViewGadgetHistory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible"></ListView>
+
+            <ListView
+                android:id="@+id/listViewEarnedRewardiHistory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible"></ListView>
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

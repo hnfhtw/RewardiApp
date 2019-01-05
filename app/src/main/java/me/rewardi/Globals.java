@@ -7,7 +7,6 @@ package me.rewardi;
 
 
 import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
@@ -28,7 +27,10 @@ public class Globals extends Application {
     enum messageID {ACTIVITY_GET_ALL, ACTIVITY_GET, ACTIVITY_CREATE, ACTIVITY_EDIT, ACTIVITY_DELETE, ACTIVITY_START, ACTIVITY_STOP,
         ACTIVITY_HISTORY_GET_ALL, BOX_GET_ALL, BOX_GET, BOX_CREATE, BOX_EDIT, BOX_DELETE, BOX_LOCK, BOX_UNLOCK, BOX_HISTORY_GET_ALL,
         SOCKETBOARD_GET_ALL, SOCKETBOARD_GET, SOCKETBOARD_CREATE, SOCKETBOARD_EDIT, SOCKETBOARD_DELETE, SOCKETBOARD_START, SOCKETBOARD_STOP, SOCKETBOARD_RESET, SOCKETBOARD_HISSTORY_GET_ALL,
-        TODO_GET_ALL, TODO_GET, TODO_CREATE, TODO_EDIT, TODO_DELETE, TODO_DONE, TODO_HISTORY_GET_ALL, USER_GET, USER_EDIT};
+        TODO_GET_ALL, TODO_GET, TODO_CREATE, TODO_EDIT, TODO_DELETE, TODO_DONE, TODO_HISTORY_GET_ALL, USER_GET, USER_EDIT, USER_SET_SUPERVISOR, USER_REMOVE_SUPERVISOR,
+        SOCKETBOARD_EXTEND_MAXTIME, SUPERVISOR_LINK_REQUEST_REPLY, SUPERVISOR_UNLINK_REQUEST_REPLY, SUPERVISOR_ACTIVITY_HISTORY_GRANT_REQUEST, SUPERVISOR_TODO_HISTORY_GRANT_REQUEST,
+        SUPERVISOR_TODO_HISTORY_PENDING_GET_ALL, SUPERVISOR_ACTIVITY_HISTORY_PENDING_GET_ALL, SUPERVISOR_LINK_REQUEST_PENDING_GET_ALL, SUPERVISOR_UNLINK_REQUEST_PENDING_GET_ALL,
+        SUPERVISOR_SUBORDINATES_GET_ALL};    // messages for response to FCM messages obtained from server
 
     private String sessionToken;
     private User user;
@@ -212,6 +214,66 @@ public class Globals extends Application {
             case USER_EDIT:{
                 endpoint = "https://37.60.168.102:443/api/User";
                 method = "PUT";
+                break;
+            }
+            case USER_SET_SUPERVISOR:{
+                endpoint = "https://37.60.168.102:443/api/User/supervisor";
+                method = "POST";
+                break;
+            }
+            case USER_REMOVE_SUPERVISOR:{
+                endpoint = "https://37.60.168.102:443/api/User/supervisor";
+                method = "DELETE";
+                break;
+            }
+            case SOCKETBOARD_EXTEND_MAXTIME:{
+                endpoint = "https://37.60.168.102:443/api/Sockets/" + deviceId + "/extend";
+                method = "PUT";
+                break;
+            }
+            case SUPERVISOR_LINK_REQUEST_REPLY:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor/" + deviceId;
+                method = "PUT";
+                break;
+            }
+            case SUPERVISOR_UNLINK_REQUEST_REPLY:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor/" + deviceId;
+                method = "DELETE";
+                break;
+            }
+            case SUPERVISOR_ACTIVITY_HISTORY_GRANT_REQUEST:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor/ActivityHistory/" + deviceId;
+                method = "PUT";
+                break;
+            }
+            case SUPERVISOR_TODO_HISTORY_GRANT_REQUEST:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor/ToDoHistory/" + deviceId;
+                method = "PUT";
+                break;
+            }
+            case SUPERVISOR_TODO_HISTORY_PENDING_GET_ALL:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor/ToDoHistories?pending=true";
+                method = "GET";
+                break;
+            }
+            case SUPERVISOR_ACTIVITY_HISTORY_PENDING_GET_ALL:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor/ActivityHistories?pending=true";
+                method = "GET";
+                break;
+            }
+            case SUPERVISOR_LINK_REQUEST_PENDING_GET_ALL:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor?status=1";     // status = 1 -> LINK_PENDING
+                method = "GET";
+                break;
+            }
+            case SUPERVISOR_UNLINK_REQUEST_PENDING_GET_ALL:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor?status=3";     // status = 3 -> UNLINK_PENDING
+                method = "GET";
+                break;
+            }
+            case SUPERVISOR_SUBORDINATES_GET_ALL:{
+                endpoint = "https://37.60.168.102:443/api/Supervisor?pending=false";
+                method = "GET";
                 break;
             }
             default:{

@@ -30,4 +30,9 @@ dependencies {
     implementation 'com.koushikdutta.ion:ion:2.+'
     implementation 'org.parceler:parceler-api:1.1.9'
     annotationProcessor 'org.parceler:parceler:1.1.9'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 }
+
+apply plugin: 'com.google.gms.google-services'

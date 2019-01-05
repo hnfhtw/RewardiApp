@@ -299,6 +299,9 @@ public class Gadgets extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
+        } else if (id == R.id.nav_messages) {
+            Intent intent = new Intent(this, Messages.class);
+            startActivity(intent);
         } else if (id == R.id.nav_history) {
             Intent intent = new Intent(this, History.class);
             startActivity(intent);
@@ -307,6 +310,7 @@ public class Gadgets extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
             Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("logout", true);
             startActivity(intent);
         }
 
