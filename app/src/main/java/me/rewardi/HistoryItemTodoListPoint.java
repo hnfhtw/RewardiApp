@@ -20,15 +20,10 @@ public class HistoryItemTodoListPoint extends HistoryItemEarnedRewardi {
     public TodoListPoint getTodoListPoint() {
         return todoListPoint;
     }
-
-    public void setTodoListPoint(TodoListPoint todoListPoint) {
-        this.todoListPoint = todoListPoint;
-    }
-
+    public void setTodoListPoint(TodoListPoint todoListPoint) { this.todoListPoint = todoListPoint; }
     public int getAcquiredRewardi() {
         return acquiredRewardi;
     }
-
     public void setAcquiredRewardi(int acquiredRewardi) {
         this.acquiredRewardi = acquiredRewardi;
     }

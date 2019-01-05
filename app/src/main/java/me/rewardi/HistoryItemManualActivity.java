@@ -22,24 +22,17 @@ public class HistoryItemManualActivity extends HistoryItemEarnedRewardi {
     public ManualActivity getActivity() {
         return activity;
     }
-
     public void setActivity(ManualActivity activity) {
         this.activity = activity;
     }
-
     public int getDuration() {
         return duration;
     }
-
     public void setDuration(int duration) {
         this.duration = duration;
     }
-
     public double getAcquiredRewardi() {
         return acquiredRewardi;
     }
-
-    public void setAcquiredRewardi(double acquiredRewardi) {
-        this.acquiredRewardi = acquiredRewardi;
-    }
+    public void setAcquiredRewardi(double acquiredRewardi) { this.acquiredRewardi = acquiredRewardi; }
 }

@@ -29,22 +29,13 @@ public class Message {
     }
 
     public messageTypes getMessageType() { return messageType; }
-
     public void setMessageType(messageTypes messageType) { this.messageType = messageType; }
-
     public String getMessageTitle() { return messageTitle; }
-
     public void setMessageTitle(String messageTitle) { this.messageTitle = messageTitle; }
-
     public String getMessageText() { return messageText; }
-
     public void setMessageText(String messageText) { this.messageText = messageText; }
-
     public JsonObject getRawData() { return rawData; }
-
     public void setRawData(JsonObject rawData) { this.rawData = rawData; }
-
     public int getEndpointAnswerId() { return endpointAnswerId; }
-
     public void setEndpointAnswerId(int endpointAnswerId) { this.endpointAnswerId = endpointAnswerId; }
 }

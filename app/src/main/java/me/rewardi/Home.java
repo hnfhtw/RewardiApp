@@ -21,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -32,35 +31,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
-
 import org.parceler.Parcels;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Home extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    FutureCallback<Response<String>> getUserDataCallback;
     Globals appState;
-    GridView androidGridView;
     private CustomListAdapterTodoList listAdapterTodoList;
     private CustomListAdapterActivities listAdapterActivities;
     private CustomGridViewActivity adapterViewAndroid;
+    FutureCallback<Response<String>> getUserDataCallback;
     FutureCallback<Response<String>> getAllGadgetsCallback;
     FutureCallback<Response<String>> getAllTodoListPointsCallback;
     FutureCallback<Response<String>> getAllActivitiesCallback;
-    FutureCallback<Response<String>> testCallback;
-
-    String[] gridViewString = {
-            "Alarm", "Android", "Mobile",
-            "Alarm", "Android", "Mobile",
-    } ;
-    int[] gridViewImageId = {
-            R.mipmap.ic_rewardi_socket, R.mipmap.ic_rewardi_socket, R.mipmap.ic_rewardi_socket,
-            R.mipmap.ic_rewardi_box, R.mipmap.ic_rewardi_box, R.mipmap.ic_rewardi_box,
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +67,7 @@ public class Home extends AppCompatActivity
 
         final List<Gadget> gadgetItems = new ArrayList<Gadget>();
         adapterViewAndroid = new CustomGridViewActivity(this, gadgetItems);
-        androidGridView = (GridView)findViewById(R.id.grid_view_image_text);
+        GridView androidGridView = (GridView)findViewById(R.id.grid_view_image_text);
         androidGridView.setAdapter(adapterViewAndroid);
         androidGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -113,7 +98,7 @@ public class Home extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Home", "Element = " + element.toString());
+                    Log.d("Home", "getUserDataCallback Server Response = " + element.toString());
                     JsonObject object = element.getAsJsonObject();
 
                     int userId = object.get("id").getAsInt();
@@ -129,22 +114,10 @@ public class Home extends AppCompatActivity
                         partnerMailAddress = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
                         int status = object.get("supervisorStatus").getAsInt();
                         switch(status){
-                            case 1: {
-                                supervisorStatus = User.supervisorStatusTypes.LINK_PENDING;
-                                break;
-                            }
-                            case 2: {
-                                supervisorStatus = User.supervisorStatusTypes.LINKED;
-                                break;
-                            }
-                            case 3: {
-                                supervisorStatus = User.supervisorStatusTypes.UNLINK_PENDING;
-                                break;
-                            }
-                            default: {
-                                supervisorStatus = User.supervisorStatusTypes.NONE;
-                                break;
-                            }
+                            case 1: { supervisorStatus = User.supervisorStatusTypes.LINK_PENDING; break; }
+                            case 2: { supervisorStatus = User.supervisorStatusTypes.LINKED; break; }
+                            case 3: { supervisorStatus = User.supervisorStatusTypes.UNLINK_PENDING; break; }
+                            default:{ supervisorStatus = User.supervisorStatusTypes.NONE; break; }
                         }
                     }
                     String userName = object.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
@@ -156,7 +129,7 @@ public class Home extends AppCompatActivity
                     toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
                   }
                 else{
-                    Log.d("Home", "Error = %s" + e.toString());
+                    Log.d("Home", "getUserDataCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -166,10 +139,10 @@ public class Home extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Gadgets", "Element = " + element.toString());
+                    Log.d("Home", "getAllGadgetsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfGadgets = array.size();
-                    Log.d("Gadgets", "Number of Gadgets = " + nrOfGadgets);
+                    Log.d("Home", "getAllGadgetsCallback Server Response Number of Gadgets = " + nrOfGadgets);
                     JsonObject gadget = null;
                     for(int i = 0; i<nrOfGadgets; ++i){
                         gadget = array.get(i).getAsJsonObject();
@@ -192,6 +165,7 @@ public class Home extends AppCompatActivity
                         else if(trustNumber.charAt(0) == '1') {   // Box
                             int rewardiPerOpen = gadget.get("rewardiPerOpen").getAsInt();
                             boolean isLocked = gadget.get("isLocked").getAsBoolean();
+
                             Box box = new Box(id, trustNumber, name, rewardiPerOpen, isLocked);
                             adapterViewAndroid.addItem(box);
                             adapterViewAndroid.notifyDataSetChanged();
@@ -199,7 +173,7 @@ public class Home extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Gadgets", "Error = %s" + e.toString());
+                    Log.d("Home", "getAllGadgetsCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -209,10 +183,10 @@ public class Home extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("TodoList", "Element = " + element.toString());
+                    Log.d("Home", "getAllTodoListPointsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfTodoListPoints = array.size();
-                    Log.d("TodoList", "Number of Todo List Points = " + nrOfTodoListPoints);
+                    Log.d("Home", "getAllTodoListPointsCallback Server Response Number of Todo List Points = " + nrOfTodoListPoints);
                     JsonObject dataObj = null;
                     for (int i = 0; i < nrOfTodoListPoints; ++i) {
                         dataObj = array.get(i).getAsJsonObject();
@@ -229,7 +203,7 @@ public class Home extends AppCompatActivity
 
                 }
                 else{
-                    Log.d("TodoList", "Error = %s" + e.toString());
+                    Log.d("Home", "getAllTodoListPointsCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -239,10 +213,10 @@ public class Home extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("ManAct", "Element = " + element.toString());
+                    Log.d("Home", "getAllActivitiesCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfActivities = array.size();
-                    Log.d("ManAct", "Number of Activities = " + nrOfActivities);
+                    Log.d("Home", "getAllActivitiesCallback Server Response Number of Activities = " + nrOfActivities);
                     JsonObject activity = null;
                     for (int i = 0; i < nrOfActivities; ++i) {
                         activity = array.get(i).getAsJsonObject();
@@ -250,6 +224,7 @@ public class Home extends AppCompatActivity
                         int id = activity.get("id").getAsInt();
                         String activityName = activity.get("name").getAsString();
                         int rewardiPerHour = activity.get("rewardiPerHour").getAsInt();
+
                         ManualActivity manualActivity;
                         boolean isActive = false;
                         if(activity.get("activeSince").isJsonNull() == false){
@@ -260,15 +235,13 @@ public class Home extends AppCompatActivity
                         else{
                             manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
                         }
-
-
                         listAdapterActivities.addItem(manualActivity);
                         listAdapterActivities.notifyDataSetChanged();
                     }
 
                 }
                 else{
-                    Log.d("ManAct", "Error = %s" + e.toString());
+                    Log.d("Home", "getAllActivitiesCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -280,10 +253,8 @@ public class Home extends AppCompatActivity
             // Create channel to show notifications.
             String channelId  = "fcm_default_channel";
             String channelName = "Rewardi";
-            NotificationManager notificationManager =
-                    getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
-                    channelName, NotificationManager.IMPORTANCE_LOW));
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW));
         }
 
         // If a notification message is tapped, any data accompanying the notification
@@ -307,7 +278,7 @@ public class Home extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<InstanceIdResult> task) {
                         if (!task.isSuccessful()) {
-                            Log.d("Firebase", "getInstanceId failed", task.getException());
+                            Log.d("Home", "Firebase getInstanceId failed", task.getException());
                             return;
                         }
 
@@ -317,23 +288,10 @@ public class Home extends AppCompatActivity
                         // Log and send firebase token (instanceID) to server
                         JsonObject dataObj = new JsonObject();
                         dataObj.addProperty("instanceId", token);           // firebase instance ID
-                        appState.sendMessageToServer(Globals.messageID.USER_EDIT, 0,dataObj, testCallback);
-                        Log.d("Firebase", token);
+                        appState.sendMessageToServer(Globals.messageID.USER_EDIT, 0,dataObj, null);
+                        Log.d("Home", "Firebase Token (Instance ID) = " + token);
                     }
                 });
-
-        testCallback = new FutureCallback<Response<String>>() {
-            @Override
-            public void onCompleted(Exception e, Response<String> result) {
-                if(e == null){
-                    JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("TestCallback", "Server Response = " + element.toString());
-                }
-                else{
-                    Log.d("TestCallback", "Error = %s" + e.toString());
-                }
-            }
-        };
 
         appState.sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
         appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
@@ -395,19 +353,6 @@ public class Home extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @Override
-    public void onClick(View v) {
-        // default method for handling onClick Events..
-
-        switch (v.getId()) {
-
-            //case R.id.btnDebug:
-                //break;
-            default:
-                break;
-        }
     }
 
     public void showSocketBoardDialogFragment(SocketBoard socketBoard) {

@@ -3,7 +3,6 @@ package me.rewardi;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -11,12 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
 import com.google.gson.JsonObject;
-
 import org.parceler.Parcels;
-
-import java.net.Socket;
 
 public class SocketBoardDialogFragment extends DialogFragment {
 

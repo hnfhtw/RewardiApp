@@ -25,35 +25,26 @@ public class ManualActivity {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public int getRewardiPerHour() {
         return rewardiPerHour;
     }
-
     public void setRewardiPerHour(int rewardiPerHour) {
         this.rewardiPerHour = rewardiPerHour;
     }
-
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public boolean getIsActive() { return isActive; }
-
     public void setIsActive(boolean active) { isActive = active; }
-
     public String getActiveSince() {
         return activeSince;
     }
-
     public void setActiveSince(String activeSince) {
         this.activeSince = activeSince;
     }

@@ -20,15 +20,12 @@ public class HistoryItemBox extends HistoryItemGadget{
     public Box getBox() {
         return box;
     }
-
     public void setBox(Box box) {
         this.box = box;
     }
-
     public int getUsedRewardi() {
         return usedRewardi;
     }
-
     public void setUsedRewardi(int usedRewardi) {
         this.usedRewardi = usedRewardi;
     }

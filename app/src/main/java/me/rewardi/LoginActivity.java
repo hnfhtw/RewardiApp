@@ -19,15 +19,12 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
-
-import org.w3c.dom.Text;
 
 /**
  * A login screen that offers login via email/password.
@@ -179,7 +176,6 @@ public class LoginActivity extends AppCompatActivity {
             focusView.requestFocus();
         } else {
             showProgress(true);
-            Log.d("Login", "Create POST");
 
             JsonObject loginObject = new JsonObject();
             loginObject.addProperty("userName", userName);
@@ -199,13 +195,13 @@ public class LoginActivity extends AppCompatActivity {
                             Log.e("Login", "Error: ", e);
                             if (e == null && result.getHeaders().code() == 200) {
                                 JsonElement element = new JsonParser().parse(result.getResult());
-                                Log.d("Login", "Element = " + element.toString());
+                                Log.d("Login", "Server Response = " + element.toString());
                                 JsonObject object = element.getAsJsonObject();
 
                                 String token =  object.get("token").getAsString();
                                 Globals appState = ((Globals)getApplicationContext());      // save sessionToken to global object - it will be accessible from all Activities
                                 appState.setSessionToken(token);
-                                Log.d("Login", "Token = " + token);
+                                Log.d("Login", "Server Response Session Token = " + token);
 
                                 Intent intent = new Intent(getApplicationContext(), Home.class);
                                 startActivity(intent);
@@ -268,7 +264,6 @@ public class LoginActivity extends AppCompatActivity {
             focusView.requestFocus();
         } else {
             showProgress(true);
-            Log.d("Register Account", "Create POST");
 
             JsonObject registerObject = new JsonObject();
             registerObject.addProperty("userName", userName);

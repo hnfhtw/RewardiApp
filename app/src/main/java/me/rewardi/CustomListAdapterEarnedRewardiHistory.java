@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +62,7 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
             if(granted){
                 textViewRewardi.setText("+" + Integer.toString(acquiredRewardi));
                 if(supervisorMessage.length() > 0 ){
-                    textViewType.setText("Todo List Point / " + supervisorName + " (supervisor) confirmed");
+                    textViewType.setText("Todo List Point\n" + supervisorName + " (supervisor) confirmed");
                 }
                 else{
                     textViewType.setText("Todo List Point");
@@ -72,11 +71,11 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
             }
             else{
                 if(supervisorMessage.length() > 0 ){
-                    textViewType.setText("Todo List Point / \" + supervisorName + \" (supervisor) denied");
+                    textViewType.setText("Todo List Point\n" + supervisorName + " (supervisor) denied");
                     convertView.setBackgroundColor(Color.rgb(0xc0, 0xc0, 0xc0));        // grey
                 }
                 else{
-                    textViewType.setText("Todo List Point / \" + supervisorName + \" (supervisor) confirmation open");
+                    textViewType.setText("Todo List Point\n" + supervisorName + " (supervisor) confirmation open");
                     convertView.setBackgroundColor(Color.rgb(0xff, 0xe4, 0xe1));        // rosarot
                 }
                 textViewRewardi.setText("0");
@@ -95,7 +94,7 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
             if(granted){
                 textViewRewardi.setText("+" + Double.toString(acquiredRewardi));
                 if(supervisorMessage.length() > 0 ){
-                    textViewType.setText("Activity / " + supervisorName + " (supervisor) confirmed");
+                    textViewType.setText("Activity\n" + supervisorName + " (supervisor) confirmed");
                 }
                 else{
                     textViewType.setText("Activity");
@@ -103,11 +102,11 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
             }
             else{
                 if(supervisorMessage.length() > 0 ){
-                    textViewType.setText("Activity / \" + supervisorName + \" (supervisor) denied");
+                    textViewType.setText("Activity\n" + supervisorName + " (supervisor) denied");
                     convertView.setBackgroundColor(Color.rgb(0xc0, 0xc0, 0xc0));        // grey
                 }
                 else{
-                    textViewType.setText("Activity / \" + supervisorName + \" (supervisor) confirmation open");
+                    textViewType.setText("Activity\n" + supervisorName + " (supervisor) confirmation open");
                     convertView.setBackgroundColor(Color.rgb(0xff, 0xe4, 0xe1));        // rosarot
                 }
                 textViewRewardi.setText("0");

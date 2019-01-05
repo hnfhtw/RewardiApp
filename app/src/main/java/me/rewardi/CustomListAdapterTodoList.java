@@ -1,6 +1,7 @@
 package me.rewardi;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,17 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Response;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 class CustomListAdapterTodoList extends BaseAdapter {
@@ -19,6 +30,7 @@ class CustomListAdapterTodoList extends BaseAdapter {
     private Context context;
     Globals appState;
     private int layoutResId;
+    FutureCallback<Response<String>> doneTodoListPointCallback;
 
     public CustomListAdapterTodoList(Context context, List<TodoListPoint> listTodoListPoints, int layoutResId) {
         this.listTodoListPoints = listTodoListPoints;
@@ -64,8 +76,7 @@ class CustomListAdapterTodoList extends BaseAdapter {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b == true){       // checkbox is checked
-                    // HN-CHECK -> ask user if todo list point is really done
-                    appState.sendMessageToServer(Globals.messageID.TODO_DONE,point.getId(),null, null);
+                    appState.sendMessageToServer(Globals.messageID.TODO_DONE,point.getId(),null, doneTodoListPointCallback);
                     point.setDone(true);
                     cbDone.setEnabled(false);
                 }
@@ -77,6 +88,25 @@ class CustomListAdapterTodoList extends BaseAdapter {
             textViewRewardi.setText("Earn: " + Integer.toString(point.getRewardi()) + " Rewardi");
         }
         textViewRewardi2.setText(Integer.toString(point.getRewardi()));
+
+
+        doneTodoListPointCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200) ) {
+                    JsonElement element = new JsonParser().parse(result.getResult());
+                    JsonObject obj = element.getAsJsonObject().getAsJsonObject("fkToDo");
+                    Log.d("CustomListAdapterTodoList", "Object = " + obj.toString());
+                    int id = obj.get("id").getAsInt();
+                    removeDoneTodoListPoint(id);
+                    notifyDataSetChanged();
+                }
+                else{
+
+                }
+            }
+        };
+
         return convertView;
     }
 
@@ -124,6 +154,23 @@ class CustomListAdapterTodoList extends BaseAdapter {
             listTodoListPointsSelected.remove(i);
             listSelectedRows.get(i).setBackgroundResource(R.color.colorWhite);
             listSelectedRows.remove(i);
+        }
+    }
+
+    public void removeDoneTodoListPoint(int pointId){
+        boolean todoListPointFound = false;
+        int i = 0;
+        for(i = 0; i<listTodoListPoints.size(); ++i){
+            if(listTodoListPoints.get(i).getId() == pointId){
+                todoListPointFound = true;
+                break;
+            }
+        }
+        if(todoListPointFound == false){
+            return;
+        }
+        else{
+            listTodoListPoints.remove(i);
         }
     }
 

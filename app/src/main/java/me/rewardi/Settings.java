@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -85,7 +84,6 @@ public class Settings extends AppCompatActivity
             textViewSupervisorStatus.setText("Supervisor (pending): ");
         }
 
-
         appState = ((Globals)getApplicationContext());
 
         buttonSetPartner.setOnClickListener(
@@ -136,10 +134,10 @@ public class Settings extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("ChangePW", "Change Password Response = " + element.toString());
+                    Log.d("Settings", "changePasswordCallback Server Response = " + element.toString());
                 }
                 else{
-                    Log.d("ChangePW", "Error = %s" + e.toString());
+                    Log.d("Settings", "changePasswordCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -156,7 +154,7 @@ public class Settings extends AppCompatActivity
                     textViewSupervisorStatus.setText("Supervisor (pending): ");
                 }
                 else{
-                    Log.d("Settings", "Response Code = " + Integer.toString(result.getHeaders().code()));
+                    Log.d("Settings", "setSupervisorCallback Server Response Status Code = " + Integer.toString(result.getHeaders().code()));
                 }
             }
         };
@@ -173,7 +171,7 @@ public class Settings extends AppCompatActivity
                     textViewSupervisorStatus.setText("Current supervisor: ");
                 }
                 else{
-                    Log.d("Settings", "Response Code = " + Integer.toString(result.getHeaders().code()));
+                    Log.d("Settings", "removeSupervisorCallback Server Response Status Code = " + Integer.toString(result.getHeaders().code()));
                 }
             }
         };

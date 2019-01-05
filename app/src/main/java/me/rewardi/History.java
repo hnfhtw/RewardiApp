@@ -16,26 +16,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class History extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Globals appState;
     private CustomListAdapterGadgetHistory listAdapterGadgets;
     private CustomListAdapterEarnedRewardiHistory listAdapterEarnedRewardiHistory;
     FutureCallback<Response<String>> getFullGadgetHistoryCallback;
     FutureCallback<Response<String>> getFullActivityHistoryCallback;
     FutureCallback<Response<String>> getFullTodoListHistoryCallback;
-    Globals appState;
     private ListView listViewGadgets;
     private ListView listViewEarnedRewardi;
 
@@ -140,7 +138,7 @@ public class History extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Gadgets", "Error = %s" + e.toString());
+                    Log.d("History", "getFullGadgetHistoryCallback Server Response Error = " + e.toString());
                 }
                 // Sort list according to timestamp
                 listAdapterGadgets.sortItems();
@@ -153,11 +151,14 @@ public class History extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
+                    Log.d("History", "getFullActivityHistoryCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfActivities = array.size();
+                    Log.d("History", "getFullActivityHistoryCallback Server Response Number of Activities = " + nrOfActivities);
                     JsonObject dataObj = null;
                     for (int i = 0; i < nrOfActivities; ++i) {
                         dataObj = array.get(i).getAsJsonObject();
+                        Log.d("History", "getFullActivityHistoryCallback Server Response Activity" + i + " = " + dataObj.toString());
                         int id = dataObj.get("id").getAsInt();
                         JsonObject activityObj = dataObj.get("fkActivity").getAsJsonObject();
                         int activityId = activityObj.get("id").getAsInt();
@@ -179,6 +180,8 @@ public class History extends AppCompatActivity
                         if(supervised){
                             if(!dataObj.get("granted").isJsonNull()){
                                 granted = dataObj.get("granted").getAsBoolean();
+                            }else{
+                                granted = false;
                             }
                             if(!dataObj.get("remark").isJsonNull()){
                                 supervisorMessage = dataObj.get("remark").getAsString();
@@ -192,7 +195,7 @@ public class History extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("ManAct", "Error = %s" + e.toString());
+                    Log.d("History", "getFullActivityHistoryCallback Server Response Error = " + e.toString());
                 }
                 // Sort list according to timestamp
                 listAdapterEarnedRewardiHistory.sortItems();
@@ -243,10 +246,9 @@ public class History extends AppCompatActivity
                         listAdapterEarnedRewardiHistory.addItem(historyItemTodoListPoint);
                         listAdapterEarnedRewardiHistory.notifyDataSetChanged();
                     }
-
                 }
                 else{
-                    Log.d("TodoList", "Error = %s" + e.toString());
+                    Log.d("History", "getFullTodoListHistoryCallback Server Response Error = " + e.toString());
                 }
                 // Sort list according to timestamp
                 listAdapterEarnedRewardiHistory.sortItems();
@@ -280,48 +282,6 @@ public class History extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.history, menu);
-        /*menuItemGadgetHistory = menu.findItem(R.id.show_gadget_history);
-        menuItemGadgetHistory.setVisible(true);
-        menuItemGadgetHistory.setOnMenuItemClickListener(
-                new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        listViewGadgets.setVisibility(View.VISIBLE);
-                        listViewActivities.setVisibility(View.INVISIBLE);
-                        listViewTodoList.setVisibility(View.INVISIBLE);
-                        return true;
-                    }
-                }
-        );
-
-        menuItemActivityHistory = menu.findItem(R.id.show_activity_history);
-        menuItemActivityHistory.setVisible(true);
-        menuItemActivityHistory.setOnMenuItemClickListener(
-                new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        listViewGadgets.setVisibility(View.INVISIBLE);
-                        listViewActivities.setVisibility(View.VISIBLE);
-                        listViewTodoList.setVisibility(View.INVISIBLE);
-                        return true;
-                    }
-                }
-        );
-
-        menuItemTodoListHistory = menu.findItem(R.id.show_todolist_history);
-        menuItemTodoListHistory.setVisible(true);
-        menuItemTodoListHistory.setOnMenuItemClickListener(
-                new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        listViewGadgets.setVisibility(View.INVISIBLE);
-                        listViewActivities.setVisibility(View.INVISIBLE);
-                        listViewTodoList.setVisibility(View.VISIBLE);
-                        return true;
-                    }
-                }
-        );*/
-
         return true;
     }
 

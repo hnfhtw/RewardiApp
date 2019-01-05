@@ -10,9 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import com.google.gson.JsonObject;
-
 import org.parceler.Parcels;
 
 public class BoxDialogFragment extends DialogFragment {

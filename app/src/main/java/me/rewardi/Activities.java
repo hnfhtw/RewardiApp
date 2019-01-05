@@ -16,22 +16,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
-
 import org.parceler.Parcels;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Activities extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Globals appState;
     private MenuItem menuItemDelete;
     private CustomListAdapterActivities listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
@@ -39,7 +37,6 @@ public class Activities extends AppCompatActivity
     FutureCallback<Response<String>> createActivityCallback;
     FutureCallback<Response<String>> deleteActivityCallback;
     FutureCallback<Response<String>> editActivityCallback;
-    Globals appState;
     private ManualActivity editActivity;    // server does not send whole object as payload if the activity is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
 
     @Override
@@ -113,14 +110,14 @@ public class Activities extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("ManAct", "Element = " + element.toString());
+                    Log.d("ManAct", "getAllActivitiesCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfActivities = array.size();
-                    Log.d("ManAct", "Number of Activities = " + nrOfActivities);
+                    Log.d("ManAct", "getAllActivitiesCallback Server Response Number of Activities = " + nrOfActivities);
                     JsonObject activity = null;
                     for (int i = 0; i < nrOfActivities; ++i) {
                         activity = array.get(i).getAsJsonObject();
-                        Log.d("ManAct", "Activities" + i + " = " + activity.toString());
+                        Log.d("ManAct", "getAllActivitiesCallback Server Response Activity" + i + " = " + activity.toString());
                         int id = activity.get("id").getAsInt();
                         String activityName = activity.get("name").getAsString();
                         int rewardiPerHour = activity.get("rewardiPerHour").getAsInt();
@@ -135,14 +132,13 @@ public class Activities extends AppCompatActivity
                             manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
                         }
 
-
                         listAdapter.addItem(manualActivity);
                         listAdapter.notifyDataSetChanged();
                     }
 
                 }
                 else{
-                    Log.d("ManAct", "Error = %s" + e.toString());
+                    Log.d("ManAct", "getAllActivitiesCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -151,11 +147,9 @@ public class Activities extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("ManAct", "createActivityCallback called!");
-                Log.d("ManAct", "Server Response = " + res.toString());
                 if(e == null){
                     JsonElement element = new JsonParser().parse(res.getResult());
-                    Log.d("ManAct", "Element = " + element.toString());
+                    Log.d("ManAct", "createActivityCallback Server Response = " + element.toString());
                     JsonObject activityObj = element.getAsJsonObject();
 
                     int id = activityObj.get("id").getAsInt();
@@ -171,7 +165,7 @@ public class Activities extends AppCompatActivity
                     listAdapter.notifyDataSetChanged();
                 }
                 else{
-                    Log.d("ManAct", "Error = %s" + e.toString());
+                    Log.d("ManAct", "createActivityCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -180,12 +174,10 @@ public class Activities extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("ManAct", "deleteActivityCallback called!");
-                Log.d("ManAct", "Server Response = " + res.toString());
                 if(e == null){
                    // HN-CHECK -> check if response is 200 -> then remove activity from list
                     JsonElement element = new JsonParser().parse(res.getResult());
-                    Log.d("ManAct", "Element = " + element.toString());
+                    Log.d("ManAct", "deleteActivityCallback Server Response = " + element.toString());
                     JsonObject activityObj = element.getAsJsonObject();
 
                     listAdapter.removeActivity(activityObj.get("id").getAsInt());
@@ -193,7 +185,7 @@ public class Activities extends AppCompatActivity
                     showDeleteMenu(false);
                 }
                 else{
-                    Log.d("ManAct", "Error = %s" + e.toString());
+                    Log.d("ManAct", "deleteActivityCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -202,8 +194,6 @@ public class Activities extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("ManAct", "editActivityCallback called!");
-                Log.d("ManAct", "Server Response = " + res.toString());
                 if(e == null){
                     if(res.getHeaders().code() == 204){         // edit list item if server confirms the change with HTTP STATUS 204
                         listAdapter.setItem(editActivity);
@@ -211,7 +201,7 @@ public class Activities extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("ManAct", "Error = %s" + e.toString());
+                    Log.d("ManAct", "editActivityCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -251,7 +241,6 @@ public class Activities extends AppCompatActivity
         );
         return true;
     }
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

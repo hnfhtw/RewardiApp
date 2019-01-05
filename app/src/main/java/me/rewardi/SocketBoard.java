@@ -20,14 +20,9 @@ public class SocketBoard extends Gadget {
     }
 
     public int getRewardiPerHour() { return rewardiPerHour; }
-
     public void setRewardiPerHour(int rewardiPerHour) { this.rewardiPerHour = rewardiPerHour; }
-
     public int getMaxTimeSec() { return maxTimeSec; }
-
     public void setMaxTimeSec(int maxTimeSec) { this.maxTimeSec = maxTimeSec; }
-
     public boolean getIsActive() { return isActive; }
-
     public void setIsActive(boolean active) { isActive = active; }
 }

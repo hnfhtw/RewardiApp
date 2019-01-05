@@ -16,22 +16,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
-
 import org.parceler.Parcels;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Gadgets extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Globals appState;
     private MenuItem menuItemDelete;
     private CustomListAdapterGadgets listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
@@ -39,7 +37,6 @@ public class Gadgets extends AppCompatActivity
     FutureCallback<Response<String>> createGadgetCallback;
     FutureCallback<Response<String>> deleteGadgetCallback;
     FutureCallback<Response<String>> editGadgetCallback;
-    Globals appState;
     private Gadget editGadget;    // server does not send whole object as payload if the gadget is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
 
     @Override
@@ -119,13 +116,12 @@ public class Gadgets extends AppCompatActivity
         getAllGadgetsCallback = new FutureCallback<Response<String>>() {
             @Override
             public void onCompleted(Exception e, Response<String> result) {
-                Log.d("Gadgets", "Result Header = " + result.getHeaders().toString());
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Gadgets", "Element = " + element.toString());
+                    Log.d("Gadgets", "getAllGadgetsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfGadgets = array.size();
-                    Log.d("Gadgets", "Number of Gadgets = " + nrOfGadgets);
+                    Log.d("Gadgets", "getAllGadgetsCallback Server Response Number of Gadgets = " + nrOfGadgets);
                     JsonObject gadget = null;
                     for(int i = 0; i<nrOfGadgets; ++i){
                         gadget = array.get(i).getAsJsonObject();
@@ -155,7 +151,7 @@ public class Gadgets extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Gadgets", "Error = %s" + e.toString());
+                    Log.d("Gadgets", "getAllGadgetsCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -164,11 +160,9 @@ public class Gadgets extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("Gadgets", "createGadgetCallback called!");
-                Log.d("Gadgets", "Server Response = " + res.toString());
                 if(e == null){
                     JsonElement element = new JsonParser().parse(res.getResult());
-                    Log.d("Gadgets", "Element = " + element.toString());
+                    Log.d("Gadgets", "createGadgetCallback Server Response = " + element.toString());
                     JsonObject gadget = element.getAsJsonObject();
 
                     int id = gadget.get("id").getAsInt();
@@ -194,7 +188,7 @@ public class Gadgets extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Gadgets", "Error = %s" + e.toString());
+                    Log.d("Gadgets", "createGadgetCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -203,12 +197,10 @@ public class Gadgets extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("Gadgets", "deleteGadgetCallback called!");
-                Log.d("Gadgets", "Server Response = " + res.toString());
                 if(e == null){
                     // HN-CHECK -> check if response is 200 -> then remove activity from list
                     JsonElement element = new JsonParser().parse(res.getResult());
-                    Log.d("Gadgets", "Element = " + element.toString());
+                    Log.d("Gadgets", "deleteGadgetCallback Server Response = " + element.toString());
                     JsonObject activityObj = element.getAsJsonObject();
 
                     listAdapter.removeGadget(activityObj.get("id").getAsInt());
@@ -216,7 +208,7 @@ public class Gadgets extends AppCompatActivity
                     showDeleteMenu(false);
                 }
                 else{
-                    Log.d("Gadgets", "Error = %s" + e.toString());
+                    Log.d("Gadgets", "deleteGadgetCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -225,8 +217,6 @@ public class Gadgets extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("Gadgets", "editGadgetCallback called!");
-                Log.d("Gadgets", "Server Response = " + res.toString());
                 if(e == null){
                     if(res.getHeaders().code() == 204){         // edit list item if server confirms the change with HTTP STATUS 204
                         listAdapter.setItem(editGadget);
@@ -234,7 +224,7 @@ public class Gadgets extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Gadgets", "Error = %s" + e.toString());
+                    Log.d("Gadgets", "editGadgetCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -356,7 +346,6 @@ public class Gadgets extends AppCompatActivity
                     editGadget = box;
                 }
             }
-
         }
     }
 }

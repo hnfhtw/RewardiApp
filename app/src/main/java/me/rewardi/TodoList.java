@@ -16,22 +16,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
-
 import org.parceler.Parcels;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class TodoList extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Globals appState;
     private MenuItem menuItemDelete;
     private CustomListAdapterTodoList listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
@@ -39,7 +37,6 @@ public class TodoList extends AppCompatActivity
     FutureCallback<Response<String>> createTodoListPointCallback;
     FutureCallback<Response<String>> deleteTodoListPointCallback;
     FutureCallback<Response<String>> editTodoListPointCallback;
-    Globals appState;
     private TodoListPoint editTodoListPoint;    // server does not send whole object as payload if the todo list point is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
 
     @Override
@@ -48,7 +45,7 @@ public class TodoList extends AppCompatActivity
         setContentView(R.layout.activity_todo_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
+        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -93,7 +90,6 @@ public class TodoList extends AppCompatActivity
                 }
         );
 
-
         listview1.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener()
                 {
@@ -115,14 +111,14 @@ public class TodoList extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("TodoList", "Element = " + element.toString());
+                    Log.d("TodoList", "getAllTodoListPointsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfTodoListPoints = array.size();
-                    Log.d("TodoList", "Number of Todo List Points = " + nrOfTodoListPoints);
+                    Log.d("TodoList", "getAllTodoListPointsCallback Server Response Number of Todo List Points = " + nrOfTodoListPoints);
                     JsonObject dataObj = null;
                     for (int i = 0; i < nrOfTodoListPoints; ++i) {
                         dataObj = array.get(i).getAsJsonObject();
-                        Log.d("TodoList", "Todo List Point " + i + " = " + dataObj.toString());
+                        Log.d("TodoList", "getAllTodoListPointsCallback Server Response Todo List Point " + i + " = " + dataObj.toString());
                         int id = dataObj.get("id").getAsInt();
                         String pointName = dataObj.get("name").getAsString();
                         int rewardi = dataObj.get("rewardi").getAsInt();
@@ -132,10 +128,9 @@ public class TodoList extends AppCompatActivity
                         listAdapter.addItem(todoListPoint);
                         listAdapter.notifyDataSetChanged();
                     }
-
                 }
                 else{
-                    Log.d("TodoList", "Error = %s" + e.toString());
+                    Log.d("TodoList", "getAllTodoListPointsCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -144,11 +139,9 @@ public class TodoList extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("TodoList", "createTodoListPointCallback called!");
-                Log.d("TodoList", "Server Response Code = " + res.getHeaders().code());
                 if(e == null){
                     JsonElement element = new JsonParser().parse(res.getResult());
-                    Log.d("TodoList", "Element = " + element.toString());
+                    Log.d("TodoList", "createTodoListPointCallback Server Response = " + element.toString());
                     JsonObject dataObj = element.getAsJsonObject();
 
                     int id = dataObj.get("id").getAsInt();
@@ -161,7 +154,7 @@ public class TodoList extends AppCompatActivity
                     listAdapter.notifyDataSetChanged();
                 }
                 else{
-                    Log.d("TodoList", "Error = %s" + e.toString());
+                    Log.d("TodoList", "createTodoListPointCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -170,12 +163,10 @@ public class TodoList extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("TodoList", "deleteTodoListPointCallback called!");
-                Log.d("TodoList", "Server Response = " + res.toString());
                 if(e == null){
                     // HN-CHECK -> check if response is 200 -> then remove todo list point from list
                     JsonElement element = new JsonParser().parse(res.getResult());
-                    Log.d("TodoList", "Element = " + element.toString());
+                    Log.d("TodoList", "deleteTodoListPointCallback Server Response = " + element.toString());
                     JsonObject dataObj = element.getAsJsonObject();
 
                     listAdapter.removeTodoListPoint(dataObj.get("id").getAsInt());
@@ -183,7 +174,7 @@ public class TodoList extends AppCompatActivity
                     showDeleteMenu(false);
                 }
                 else{
-                    Log.d("TodoList", "Error = %s" + e.toString());
+                    Log.d("TodoList", "deleteTodoListPointCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -192,8 +183,6 @@ public class TodoList extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                Log.d("TodoList", "editTodoListPointCallback called!");
-                Log.d("TodoList", "Server Response = " + res.toString());
                 if(e == null){
                     if(res.getHeaders().code() == 204){         // edit list item if server confirms the change with HTTP STATUS 204
                         listAdapter.setItem(editTodoListPoint);
@@ -201,7 +190,7 @@ public class TodoList extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("TodoList", "Error = %s" + e.toString());
+                    Log.d("TodoList", "editTodoListPointCallback Server Response Error = " + e.toString());
                 }
             }
         };

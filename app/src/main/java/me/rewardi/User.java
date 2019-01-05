@@ -17,7 +17,6 @@ public class User {
     private String supervisorMailAddress;  // mail address of supervisor
     private supervisorStatusTypes supervisorStatus;
 
-
     public User(){}
 
     @ParcelConstructor
@@ -34,39 +33,21 @@ public class User {
     }
 
     public int getId() { return id; }
-
     public void setId(int id) { this.id = id; }
-
     public String getDeviceId() { return deviceId; }
-
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
-
     public double getTotalRewardi() { return totalRewardi; }
-
     public void setTotalRewardi(double totalRewardi) { this.totalRewardi = totalRewardi; }
-
     public int getFkPartnerUserId() { return fkPartnerUserId; }
-
     public void setFkPartnerUserId(int fkPartnerUserId) { this.fkPartnerUserId = fkPartnerUserId; }
-
     public String getUserName() { return userName; }
-
     public void setUserName(String userName) { this.userName = userName; }
-
     public String getEmail() { return email; }
-
     public void setEmail(String email) { this.email = email; }
-
     public String getSupervisorName() { return supervisorName; }
-
     public void setSupervisorName(String supervisorName) { this.supervisorName = supervisorName; }
-
     public String getSupervisorMailAddress() { return supervisorMailAddress; }
-
     public void setSupervisorMailAddress(String supervisorMailAddress) { this.supervisorMailAddress = supervisorMailAddress; }
-
     public supervisorStatusTypes getSupervisorStatus() { return supervisorStatus; }
-
     public void setSupervisorStatus(supervisorStatusTypes supervisorStatus) { this.supervisorStatus = supervisorStatus; }
-
 }

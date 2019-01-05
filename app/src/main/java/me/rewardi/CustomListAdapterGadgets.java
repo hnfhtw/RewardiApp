@@ -7,9 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
 import com.google.gson.JsonObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,7 +129,6 @@ class CustomListAdapterGadgets extends BaseAdapter {
             listSelectedRows.add(view);
             view.setBackgroundResource(R.color.colorDarkGray);
         }
-
     }
 
     public List<Gadget> getListGadgetsSelected() {

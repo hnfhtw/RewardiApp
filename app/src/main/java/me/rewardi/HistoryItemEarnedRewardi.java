@@ -25,33 +25,24 @@ public class HistoryItemEarnedRewardi implements Comparable<HistoryItemEarnedRew
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public String getTimestamp() {
         return timestamp;
     }
-
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
-
     public boolean getGranted() { return granted; }
-
     public void setGranted(boolean granted) { this.granted = granted; }
-
     public String getSupervisorMessage() { return supervisorMessage; }
-
     public void setSupervisorMessage(String supervisorMessage) { this.supervisorMessage = supervisorMessage; }
+    public String getSupervisorName() { return supervisorName; }
+    public void setSupervisorName(String supervisorName) { this.supervisorName = supervisorName; }
 
     @Override
     public int compareTo(HistoryItemEarnedRewardi historyItemEarnedRewardi) {
         return this.timestamp.compareTo(historyItemEarnedRewardi.getTimestamp());
     }
-
-    public String getSupervisorName() { return supervisorName; }
-
-    public void setSupervisorName(String supervisorName) { this.supervisorName = supervisorName; }
 }

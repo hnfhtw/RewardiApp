@@ -7,9 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-
 import com.google.gson.JsonObject;
-
 import java.util.List;
 
 class CustomListAdapterMessages extends BaseAdapter {

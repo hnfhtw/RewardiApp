@@ -2,7 +2,6 @@ package me.rewardi;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -12,32 +11,26 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
-
-import org.parceler.Parcels;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Messages extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Globals appState;
     private CustomListAdapterMessages listAdapter;
     FutureCallback<Response<String>> getPendingTodoListHistoryItemsCallback;
     FutureCallback<Response<String>> getPendingActivityHistoryItemsCallback;
     FutureCallback<Response<String>> getPendingLinkRequestsCallback;
     FutureCallback<Response<String>> getPendingUnlinkRequestsCallback;
-    Globals appState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,14 +60,14 @@ public class Messages extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Messages", "Element = " + element.toString());
+                    Log.d("Messages", "getPendingTodoListHistoryItemsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfMessages = array.size();
-                    Log.d("Messages", "Number of Pending Todo List Items = " + nrOfMessages);
+                    Log.d("Messages", "getPendingTodoListHistoryItemsCallback Server Response Number of Pending Todo List Items = " + nrOfMessages);
                     JsonObject pendingTodoListHistoryItem = null;
                     for (int i = 0; i < nrOfMessages; ++i) {
                         pendingTodoListHistoryItem = array.get(i).getAsJsonObject();
-                        Log.d("Messages", "Pending Todo List History Item " + i + " = " + pendingTodoListHistoryItem.toString());
+                        Log.d("Messages", "getPendingTodoListHistoryItemsCallback Server Response Pending Todo List History Item " + i + " = " + pendingTodoListHistoryItem.toString());
 
                         int id = pendingTodoListHistoryItem.get("Id").getAsInt();
                         String userName = pendingTodoListHistoryItem.get("FkToDo").getAsJsonObject().get("FkUser").getAsJsonObject().get("FkAspNetUsers").getAsJsonObject().get("UserName").getAsString();
@@ -91,7 +84,7 @@ public class Messages extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Messages", "Error = %s" + e.toString());
+                    Log.d("Messages", "getPendingTodoListHistoryItemsCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -101,14 +94,14 @@ public class Messages extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Messages", "Element = " + element.toString());
+                    Log.d("Messages", "getPendingActivityHistoryItemsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfMessages = array.size();
-                    Log.d("Messages", "Number of Pending Activity Items = " + nrOfMessages);
+                    Log.d("Messages", "getPendingActivityHistoryItemsCallback Server Response Number of Pending Activity Items = " + nrOfMessages);
                     JsonObject pendingActivityHistoryItem = null;
                     for (int i = 0; i < nrOfMessages; ++i) {
                         pendingActivityHistoryItem = array.get(i).getAsJsonObject();
-                        Log.d("Messages", "Pending Todo List History Item " + i + " = " + pendingActivityHistoryItem.toString());
+                        Log.d("Messages", "getPendingActivityHistoryItemsCallback Server Response Pending Todo List History Item " + i + " = " + pendingActivityHistoryItem.toString());
 
                         int id = pendingActivityHistoryItem.get("Id").getAsInt();
                         String userName = pendingActivityHistoryItem.get("FkActivity").getAsJsonObject().get("FkUser").getAsJsonObject().get("FkAspNetUsers").getAsJsonObject().get("UserName").getAsString();
@@ -126,7 +119,7 @@ public class Messages extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Messages", "Error = %s" + e.toString());
+                    Log.d("Messages", "getPendingActivityHistoryItemsCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -136,14 +129,14 @@ public class Messages extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Messages", "Element = " + element.toString());
+                    Log.d("Messages", "getPendingLinkRequestsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfMessages = array.size();
-                    Log.d("Messages", "Number of Pending Link Requests = " + nrOfMessages);
+                    Log.d("Messages", "getPendingLinkRequestsCallback Server Response Number of Pending Link Requests = " + nrOfMessages);
                     JsonObject pendingLinkRequest = null;
                     for (int i = 0; i < nrOfMessages; ++i) {
                         pendingLinkRequest = array.get(i).getAsJsonObject();
-                        Log.d("Messages", "Pending Link Request " + i + " = " + pendingLinkRequest.toString());
+                        Log.d("Messages", "getPendingLinkRequestsCallback Server Response Pending Link Request " + i + " = " + pendingLinkRequest.toString());
 
                         int id = pendingLinkRequest.get("id").getAsInt();
                         String userName = pendingLinkRequest.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
@@ -158,7 +151,7 @@ public class Messages extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Messages", "Error = %s" + e.toString());
+                    Log.d("Messages", "getPendingLinkRequestsCallback Server Response Error = " + e.toString());
                 }
             }
         };
@@ -168,14 +161,14 @@ public class Messages extends AppCompatActivity
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
                     JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("Messages", "Element = " + element.toString());
+                    Log.d("Messages", "getPendingUnlinkRequestsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfMessages = array.size();
-                    Log.d("Messages", "Number of Pending Unlink Requests = " + nrOfMessages);
+                    Log.d("Messages", "getPendingUnlinkRequestsCallback Server Response Number of Pending Unlink Requests = " + nrOfMessages);
                     JsonObject pendingUnlinkRequest = null;
                     for (int i = 0; i < nrOfMessages; ++i) {
                         pendingUnlinkRequest = array.get(i).getAsJsonObject();
-                        Log.d("Messages", "Pending Unlink Request " + i + " = " + pendingUnlinkRequest.toString());
+                        Log.d("Messages", "getPendingUnlinkRequestsCallback Server Response Pending Unlink Request " + i + " = " + pendingUnlinkRequest.toString());
 
                         int id = pendingUnlinkRequest.get("id").getAsInt();
                         String userName = pendingUnlinkRequest.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
@@ -190,11 +183,10 @@ public class Messages extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Messages", "Error = %s" + e.toString());
+                    Log.d("Messages", "getPendingUnlinkRequestsCallback Server Response Error = " + e.toString());
                 }
             }
         };
-
 
         appState = ((Globals)getApplicationContext());
         appState.sendMessageToServer(Globals.messageID.SUPERVISOR_TODO_HISTORY_PENDING_GET_ALL, 0,null, getPendingTodoListHistoryItemsCallback);

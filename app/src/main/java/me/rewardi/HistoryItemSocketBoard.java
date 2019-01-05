@@ -24,31 +24,24 @@ public class HistoryItemSocketBoard extends HistoryItemGadget{
     public SocketBoard getSocketBoard() {
         return socketBoard;
     }
-
     public void setSocketBoard(SocketBoard socketBoard) {
         this.socketBoard = socketBoard;
     }
-
     public int getDuration() {
         return duration;
     }
-
     public void setDuration(int duration) {
         this.duration = duration;
     }
-
     public boolean isTimeout() {
         return timeout;
     }
-
     public void setTimeout(boolean timeout) {
         this.timeout = timeout;
     }
-
     public double getUsedRewardi() {
         return usedRewardi;
     }
-
     public void setUsedRewardi(double usedRewardi) {
         this.usedRewardi = usedRewardi;
     }

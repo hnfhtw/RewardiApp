@@ -20,12 +20,9 @@ public class Box extends Gadget {
     public int getRewardiPerOpen() {
         return rewardiPerOpen;
     }
-
     public void setRewardiPerOpen(int rewardiPerOpen) {
         this.rewardiPerOpen = rewardiPerOpen;
     }
-
     public boolean getIsLocked() { return isLocked; }
-
     public void setIsLocked(boolean locked) { isLocked = locked; }
 }
