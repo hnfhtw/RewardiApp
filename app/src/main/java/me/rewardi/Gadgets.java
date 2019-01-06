@@ -134,11 +134,13 @@ public class Gadgets extends AppCompatActivity
                             int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
                             int maxTime = gadget.get("maxTime").getAsInt();
                             boolean isActive = false;
+                            String activeSince = null;
                             if(gadget.get("usedSince").isJsonNull() == false){
                                 isActive = true;
+                                activeSince = gadget.get("usedSince").getAsString();
                             }
 
-                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive);
+                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive, activeSince);
                             listAdapter.addItem(socketBoard);
                             listAdapter.notifyDataSetChanged();
                         }
@@ -173,10 +175,12 @@ public class Gadgets extends AppCompatActivity
                         int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
                         int maxTime = gadget.get("maxTime").getAsInt();
                         boolean isActive = false;
+                        String activeSince = null;
                         if(gadget.get("usedSince").isJsonNull() == false){
                             isActive = true;
+                            activeSince = gadget.get("usedSince").getAsString();
                         }
-                        SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive);
+                        SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive, activeSince);
                         listAdapter.addItem(socketBoard);
                         listAdapter.notifyDataSetChanged();
                     }

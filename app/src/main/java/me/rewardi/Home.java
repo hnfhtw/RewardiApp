@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Home extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
+        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata, SocketBoardDialogFragment.SocketBoardDialogListener {
 
     Globals appState;
     private CustomListAdapterTodoList listAdapterTodoList;
@@ -75,7 +75,8 @@ public class Home extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
                 Gadget gadget = gadgetItems.get(i);
                 if(gadget instanceof SocketBoard){
-                    showSocketBoardDialogFragment((SocketBoard)gadget);
+                    SocketBoard socketBoard = (SocketBoard)gadget;
+                    showSocketBoardDialogFragment(socketBoard);
                 }
                 else if(gadget instanceof Box){
                     showBoxDialogFragment((Box)gadget);
@@ -113,11 +114,13 @@ public class Home extends AppCompatActivity
                             int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
                             int maxTime = gadget.get("maxTime").getAsInt();
                             boolean isActive = false;
+                            String activeSince = null;
                             if(gadget.get("usedSince").isJsonNull() == false){
                                 isActive = true;
+                                activeSince = gadget.get("usedSince").getAsString();
                             }
 
-                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive);
+                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive, activeSince);
                             adapterViewAndroid.addItem(socketBoard);
                             adapterViewAndroid.notifyDataSetChanged();
                         }
@@ -320,6 +323,7 @@ public class Home extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putParcelable("socketboard", Parcels.wrap(socketBoard));
         newFragment.setArguments(bundle);
+        ((SocketBoardDialogFragment)newFragment).setListener(this);
         newFragment.show(getSupportFragmentManager(), "socketboarddialog");
     }
 
@@ -339,5 +343,11 @@ public class Home extends AppCompatActivity
         if(textViewRewardiAccountBalance != null){
             textViewRewardiAccountBalance.setText(Double.toString(user.getTotalRewardi()));
         }
+    }
+
+    @Override
+    public void onFinishSocketBoardDialog(SocketBoard socketBoard) {
+        adapterViewAndroid.setItem(socketBoard);
+        adapterViewAndroid.notifyDataSetChanged();
     }
 }

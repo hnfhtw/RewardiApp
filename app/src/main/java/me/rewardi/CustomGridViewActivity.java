@@ -46,6 +46,23 @@ public class CustomGridViewActivity extends BaseAdapter {
         listGadgets.add(socketBoard);
     }
 
+    public void setItem(Gadget gadget){
+        int i = 0;
+        boolean gadgetFound = false;
+        for(i = 0; i<listGadgets.size(); ++i){
+            if(listGadgets.get(i).getId() == gadget.getId()){
+                gadgetFound = true;
+                break;
+            }
+        }
+        if(gadgetFound == false){
+            return;
+        }
+        else{
+            listGadgets.set(i, gadget);
+        }
+    }
+
     @Override
     public View getView(int i, View convertView, ViewGroup parent) {
         Log.d("GridView", "getView called");

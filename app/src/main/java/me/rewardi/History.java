@@ -113,7 +113,7 @@ public class History extends AppCompatActivity
                             int rewardiPerHour = socketObj.get("rewardiPerHour").getAsInt();
                             int maxTime = socketObj.get("maxTime").getAsInt();
 
-                            SocketBoard socket = new SocketBoard(sockId, trustNum, name, rewardiPerHour, maxTime, false);
+                            SocketBoard socket = new SocketBoard(sockId, trustNum, name, rewardiPerHour, maxTime, false, null);
                             int duration = gadget.get("duration").getAsInt();
                             boolean timeout = gadget.get("timeout").getAsBoolean();
                             double usedRewardi = gadget.get("usedRewardi").getAsDouble();

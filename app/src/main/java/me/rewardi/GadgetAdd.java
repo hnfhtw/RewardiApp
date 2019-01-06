@@ -64,7 +64,7 @@ public class GadgetAdd extends AppCompatActivity {
                                     bundle.putParcelable("socketBoard", Parcels.wrap(socketBoard));
                                 }
                                 else{
-                                    SocketBoard newSocketBoard = new SocketBoard(0, editTextTrustNumber.getText().toString(), editTextGadgetName.getText().toString(), Integer.parseInt(editTextRewardi.getText().toString()), Integer.parseInt(editTextMaxTime.getText().toString()), false);
+                                    SocketBoard newSocketBoard = new SocketBoard(0, editTextTrustNumber.getText().toString(), editTextGadgetName.getText().toString(), Integer.parseInt(editTextRewardi.getText().toString()), Integer.parseInt(editTextMaxTime.getText().toString()), false, null);
                                     bundle.putParcelable("socketBoard", Parcels.wrap(newSocketBoard));
                                 }
 

@@ -57,6 +57,7 @@ class CustomListAdapterActivities extends BaseAdapter {
 
     public void addItem(ManualActivity activity){
         listActivities.add(activity);
+
         long startValueMilis = 0;
         if(activity.getIsActive()){
             String activeSince = activity.getActiveSince().substring(0,18);
@@ -73,7 +74,7 @@ class CustomListAdapterActivities extends BaseAdapter {
                 startValueMilis = 0;
             }
         }
-        listTimers.add(new ActivityTimer(6000000,1, startValueMilis));
+        listTimers.add(new ActivityTimer(6000000,1, startValueMilis, activity.getId()));
     }
 
     @Override
@@ -84,7 +85,10 @@ class CustomListAdapterActivities extends BaseAdapter {
         TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
 
         textViewActive = (TextView) convertView.findViewById(R.id.textViewActive);
-        listTimers.get(position).setOutputText(textViewActive);
+        final ActivityTimer timer = getTimer(activity.getId());
+        if(timer != null){
+            timer.setOutputText(textViewActive);
+        }
 
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
 
@@ -104,8 +108,8 @@ class CustomListAdapterActivities extends BaseAdapter {
             if(startValueMilis < 0){
                 startValueMilis = 0;
             }
-            listTimers.get(position).setStartValueMilis(startValueMilis);
-            listTimers.get(position).start();       // start timer as activity is already running!
+            timer.setStartValueMilis(startValueMilis);
+            timer.start();       // start timer as activity is already running!
         }
         else{
             textViewActive.setText("Not active");
@@ -153,6 +157,7 @@ class CustomListAdapterActivities extends BaseAdapter {
                     }
                     ManualActivity manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, activeSince);
                     int idx = setItem(manualActivity);
+                    ActivityTimer tim = getTimer(id);
 
                     if (manualActivity.getIsActive()) {       // true if activity was started by button click
 
@@ -172,14 +177,20 @@ class CustomListAdapterActivities extends BaseAdapter {
                         if(startValueMilis < 0){
                             startValueMilis = 0;
                         }
-                        listTimers.get(idx).setStartValueMilis(startValueMilis);
-                        listTimers.get(idx).start();
+
+                        if(tim != null){
+                            tim.setStartValueMilis(startValueMilis);
+                            tim.start();
+                        }
+
                     } else {
                         textViewActive.setText("Not active");
-                        listTimers.get(idx).cancel();
-                        listTimers.get(idx).setStartValueMilis(0);
-                    }
+                        if(tim != null){
+                            tim.cancel();
+                            tim.setStartValueMilis(0);
+                        }
 
+                    }
                     notifyDataSetChanged();
                 }
                 else{
@@ -235,7 +246,7 @@ class CustomListAdapterActivities extends BaseAdapter {
         else{
             int idx = listActivities.indexOf(listActivitiesSelected.get(i));
             listActivities.remove(listActivitiesSelected.get(i));
-            listTimers.remove(idx);
+            removeTimer(listActivitiesSelected.get(i).getId());
             listActivitiesSelected.remove(i);
             listSelectedRows.get(i).setBackgroundResource(R.color.colorWhite);
             listSelectedRows.remove(i);
@@ -257,6 +268,41 @@ class CustomListAdapterActivities extends BaseAdapter {
         else{
             listActivities.set(i, act);
             return i;
+        }
+    }
+
+    public ActivityTimer getTimer(int idOfActivity){
+        int i = 0;
+        boolean timerFound = false;
+        for(i = 0; i<listTimers.size(); ++i){
+            if(listTimers.get(i).getIdOfActivity() == idOfActivity){
+                timerFound = true;
+                break;
+            }
+        }
+        if(timerFound == false){
+            return null;
+        }
+        else{
+            return listTimers.get(i);
+        }
+    }
+
+    public boolean removeTimer(int idOfActivity){
+        int i = 0;
+        boolean timerFound = false;
+        for(i = 0; i<listTimers.size(); ++i){
+            if(listTimers.get(i).getIdOfActivity() == idOfActivity){
+                timerFound = true;
+                break;
+            }
+        }
+        if(timerFound == false){
+            return false;
+        }
+        else{
+            listTimers.remove(i);
+            return true;
         }
     }
 }
