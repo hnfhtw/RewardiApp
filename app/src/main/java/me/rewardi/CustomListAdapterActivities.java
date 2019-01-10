@@ -146,22 +146,13 @@ class CustomListAdapterActivities extends BaseAdapter {
                         appState.requestUserDataUpdate();
                     }
 
-                    int id = obj.get("id").getAsInt();
-                    String activityName = obj.get("name").getAsString();
-                    int rewardiPerHour = obj.get("rewardiPerHour").getAsInt();
-                    boolean isActive = false;
-                    String activeSince = null;
-                    if(obj.get("activeSince").isJsonNull() == false){
-                        isActive = true;
-                        activeSince = obj.get("activeSince").getAsString();
-                    }
-                    ManualActivity manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, activeSince);
+                    ManualActivity manualActivity = ManualActivity.parseObject(obj);
                     int idx = setItem(manualActivity);
-                    ActivityTimer tim = getTimer(id);
+                    ActivityTimer tim = getTimer(manualActivity.getId());
 
                     if (manualActivity.getIsActive()) {       // true if activity was started by button click
 
-                        String actSince = activeSince.substring(0,19);
+                        String actSince = manualActivity.getActiveSince().substring(0,19);
                         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         long startValueMilis = 0;
                         try {

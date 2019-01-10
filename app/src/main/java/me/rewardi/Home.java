@@ -103,35 +103,22 @@ public class Home extends AppCompatActivity
                     JsonArray array = element.getAsJsonArray();
                     int nrOfGadgets = array.size();
                     Log.d("Home", "getAllGadgetsCallback Server Response Number of Gadgets = " + nrOfGadgets);
-                    JsonObject gadget = null;
+                    JsonObject obj = null;
                     for(int i = 0; i<nrOfGadgets; ++i){
-                        gadget = array.get(i).getAsJsonObject();
-                        Log.d("Gadgets", "Gadget"+i+" = " + gadget.toString());
-                        int id = gadget.get("id").getAsInt();
-                        String trustNumber = gadget.get("trustNo").getAsString();
-                        String name = gadget.get("name").getAsString();
-                        if(trustNumber.charAt(0) == '2') {        // SocketBoard
-                            int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
-                            int maxTime = gadget.get("maxTime").getAsInt();
-                            boolean isActive = false;
-                            String activeSince = null;
-                            if(gadget.get("usedSince").isJsonNull() == false){
-                                isActive = true;
-                                activeSince = gadget.get("usedSince").getAsString();
-                            }
+                        obj = array.get(i).getAsJsonObject();
+                        Log.d("Gadgets", "Gadget"+i+" = " + obj.toString());
 
-                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive, activeSince);
+                        SocketBoard socketBoard = SocketBoard.parseObject(obj);
+                        if(socketBoard != null) {
                             adapterViewAndroid.addItem(socketBoard);
-                            adapterViewAndroid.notifyDataSetChanged();
                         }
-                        else if(trustNumber.charAt(0) == '1') {   // Box
-                            int rewardiPerOpen = gadget.get("rewardiPerOpen").getAsInt();
-                            boolean isLocked = gadget.get("isLocked").getAsBoolean();
-
-                            Box box = new Box(id, trustNumber, name, rewardiPerOpen, isLocked);
-                            adapterViewAndroid.addItem(box);
-                            adapterViewAndroid.notifyDataSetChanged();
+                        else {
+                            Box box = Box.parseObject(obj);
+                            if(box != null) {
+                                adapterViewAndroid.addItem(box);
+                            }
                         }
+                        adapterViewAndroid.notifyDataSetChanged();
                     }
                 }
                 else{
@@ -149,16 +136,11 @@ public class Home extends AppCompatActivity
                     JsonArray array = element.getAsJsonArray();
                     int nrOfTodoListPoints = array.size();
                     Log.d("Home", "getAllTodoListPointsCallback Server Response Number of Todo List Points = " + nrOfTodoListPoints);
-                    JsonObject dataObj = null;
+                    JsonObject obj = null;
                     for (int i = 0; i < nrOfTodoListPoints; ++i) {
-                        dataObj = array.get(i).getAsJsonObject();
-                        Log.d("TodoList", "Todo List Point " + i + " = " + dataObj.toString());
-                        int id = dataObj.get("id").getAsInt();
-                        String pointName = dataObj.get("name").getAsString();
-                        int rewardi = dataObj.get("rewardi").getAsInt();
-                        boolean done = dataObj.get("done").getAsBoolean();
-
-                        TodoListPoint todoListPoint = new TodoListPoint(id, pointName, rewardi, done);
+                        obj = array.get(i).getAsJsonObject();
+                        Log.d("TodoList", "Todo List Point " + i + " = " + obj.toString());
+                        TodoListPoint todoListPoint = TodoListPoint.parseObject(obj);
                         listAdapterTodoList.addItem(todoListPoint);
                         listAdapterTodoList.notifyDataSetChanged();
                     }
@@ -179,24 +161,11 @@ public class Home extends AppCompatActivity
                     JsonArray array = element.getAsJsonArray();
                     int nrOfActivities = array.size();
                     Log.d("Home", "getAllActivitiesCallback Server Response Number of Activities = " + nrOfActivities);
-                    JsonObject activity = null;
+                    JsonObject obj = null;
                     for (int i = 0; i < nrOfActivities; ++i) {
-                        activity = array.get(i).getAsJsonObject();
-                        Log.d("ManAct", "Activities" + i + " = " + activity.toString());
-                        int id = activity.get("id").getAsInt();
-                        String activityName = activity.get("name").getAsString();
-                        int rewardiPerHour = activity.get("rewardiPerHour").getAsInt();
-
-                        ManualActivity manualActivity;
-                        boolean isActive = false;
-                        if(activity.get("activeSince").isJsonNull() == false){
-                            isActive = true;
-                            String activeSince = activity.get("activeSince").getAsString();
-                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, activeSince);
-                        }
-                        else{
-                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
-                        }
+                        obj = array.get(i).getAsJsonObject();
+                        Log.d("ManAct", "Activities" + i + " = " + obj.toString());
+                        ManualActivity manualActivity = ManualActivity.parseObject(obj);
                         listAdapterActivities.addItem(manualActivity);
                         listAdapterActivities.notifyDataSetChanged();
                     }

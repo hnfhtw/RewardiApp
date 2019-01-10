@@ -177,7 +177,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
         startStopSocketBoardCallback = new FutureCallback<Response<String>>() {
             @Override
             public void onCompleted(Exception e, Response<String> result) {
-                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200) ) {
+                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {
                     JsonElement element = new JsonParser().parse(result.getResult());
 
                     if (element.isJsonNull()) {   // no data in STOP SOCKETBOARD message -> stop timer and set TextView appropriately - then return.
@@ -194,24 +194,12 @@ class CustomListAdapterGadgets extends BaseAdapter {
                         JsonObject obj = element.getAsJsonObject();
                         Log.d("SocketBoard", "startStopSocketBoardCallback Response Object = " + obj.toString());
 
-                        int id = obj.get("id").getAsInt();
-                        String trustNumber = obj.get("trustNo").getAsString();
-                        String socketBoardName = obj.get("name").getAsString();
-                        int rewardiPerHour = obj.get("rewardiPerHour").getAsInt();
-                        int maxTime = obj.get("maxTime").getAsInt();
-
-                        boolean isActive = false;
-                        String activeSince = null;
-                        if (obj.get("usedSince").isJsonNull() == false) {
-                            isActive = true;
-                            activeSince = obj.get("usedSince").getAsString();
-                        }
-                        SocketBoard socketBoard = new SocketBoard(id, trustNumber, socketBoardName, rewardiPerHour, maxTime, isActive, activeSince);
+                        SocketBoard socketBoard = SocketBoard.parseObject(obj);
                         setItem((Gadget) socketBoard);
-                        ActivityTimer tim = getTimer(id);
+                        ActivityTimer tim = getTimer(socketBoard.getId());
 
                         if (socketBoard.getIsActive()) {
-                            String actSince = activeSince.substring(0, 19);
+                            String actSince = socketBoard.getActiveSince().substring(0, 19);
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                             long startValueMilis = 0;
                             try {
@@ -244,7 +232,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
                     }
                 }
                 else{
-                    //Log.d("SocketBoard", "startStopSocketBoardCallback Response Header = " + result.getHeaders().code());
+
                 }
             }
         };

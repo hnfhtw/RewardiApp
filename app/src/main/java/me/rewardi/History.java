@@ -100,41 +100,20 @@ public class History extends AppCompatActivity
                     JsonElement element = new JsonParser().parse(result.getResult());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfGadgets = array.size();
-                    JsonObject gadget = null;
+                    JsonObject obj = null;
                     for(int i = 0; i<nrOfGadgets; ++i){
-                        gadget = array.get(i).getAsJsonObject();
-                        int id = gadget.get("id").getAsInt();
-                        String timestamp = gadget.get("timestamp").getAsString();
-                        if(gadget.has("fkSocket")) {        // SocketBoard
-                            JsonObject socketObj = gadget.get("fkSocket").getAsJsonObject();
-                            int sockId = socketObj.get("id").getAsInt();
-                            String trustNum = socketObj.get("trustNo").getAsString();
-                            String name = socketObj.get("name").getAsString();
-                            int rewardiPerHour = socketObj.get("rewardiPerHour").getAsInt();
-                            int maxTime = socketObj.get("maxTime").getAsInt();
-
-                            SocketBoard socket = new SocketBoard(sockId, trustNum, name, rewardiPerHour, maxTime, false, null);
-                            int duration = gadget.get("duration").getAsInt();
-                            boolean timeout = gadget.get("timeout").getAsBoolean();
-                            double usedRewardi = gadget.get("usedRewardi").getAsDouble();
-                            HistoryItemSocketBoard historyItemSocketBoard = new HistoryItemSocketBoard(id, socket, timestamp, duration, timeout, usedRewardi);
+                        obj = array.get(i).getAsJsonObject();
+                        HistoryItemSocketBoard historyItemSocketBoard = HistoryItemSocketBoard.parseObject(obj);
+                        if(historyItemSocketBoard != null) {
                             listAdapterGadgets.addItem(historyItemSocketBoard);
-                            listAdapterGadgets.notifyDataSetChanged();
                         }
-                        else if(gadget.has("fkBox")) {   // Box
-                            JsonObject boxObj = gadget.get("fkBox").getAsJsonObject();
-                            int boxId = boxObj.get("id").getAsInt();
-                            String trustNum = boxObj.get("trustNo").getAsString();
-                            String name = boxObj.get("name").getAsString();
-                            int rewardiPerOpen = boxObj.get("rewardiPerOpen").getAsInt();
-                            boolean isLocked = boxObj.get("isLocked").getAsBoolean();
-
-                            Box box = new Box(boxId, trustNum, name, rewardiPerOpen, isLocked);
-                            int usedRewardi = gadget.get("usedRewardi").getAsInt();
-                            HistoryItemBox historyItemBox = new HistoryItemBox(id, box, timestamp, usedRewardi);
-                            listAdapterGadgets.addItem(historyItemBox);
-                            listAdapterGadgets.notifyDataSetChanged();
+                        else {
+                            HistoryItemBox historyItemBox = HistoryItemBox.parseObject(obj);
+                            if(historyItemBox != null) {
+                                listAdapterGadgets.addItem(historyItemBox);
+                            }
                         }
+                        listAdapterGadgets.notifyDataSetChanged();
                     }
                 }
                 else{
@@ -155,41 +134,11 @@ public class History extends AppCompatActivity
                     JsonArray array = element.getAsJsonArray();
                     int nrOfActivities = array.size();
                     Log.d("History", "getFullActivityHistoryCallback Server Response Number of Activities = " + nrOfActivities);
-                    JsonObject dataObj = null;
+                    JsonObject obj = null;
                     for (int i = 0; i < nrOfActivities; ++i) {
-                        dataObj = array.get(i).getAsJsonObject();
-                        Log.d("History", "getFullActivityHistoryCallback Server Response Activity" + i + " = " + dataObj.toString());
-                        int id = dataObj.get("id").getAsInt();
-                        JsonObject activityObj = dataObj.get("fkActivity").getAsJsonObject();
-                        int activityId = activityObj.get("id").getAsInt();
-                        String name = activityObj.get("name").getAsString();
-                        int rewardiPerHour = activityObj.get("rewardiPerHour").getAsInt();
-                        ManualActivity act = new ManualActivity(activityId, name, rewardiPerHour, false, null);
-                        String timestamp = dataObj.get("timestamp").getAsString();
-                        int duration = dataObj.get("duration").getAsInt();
-                        double acquiredRewardi = dataObj.get("acquiredRewardi").getAsDouble();
-
-                        boolean supervised = false;
-                        if(!dataObj.get("fkSupervisorId").isJsonNull()){    // user has a supervisor
-                            supervised = true;
-                        }
-
-                        boolean granted = true;
-                        String supervisorMessage = "";
-                        String supervisorName = "";
-                        if(supervised){
-                            if(!dataObj.get("granted").isJsonNull()){
-                                granted = dataObj.get("granted").getAsBoolean();
-                            }else{
-                                granted = false;
-                            }
-                            if(!dataObj.get("remark").isJsonNull()){
-                                supervisorMessage = dataObj.get("remark").getAsString();
-                            }
-                            supervisorName = dataObj.get("fkSupervisor").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
-                        }
-
-                        HistoryItemManualActivity historyItemManualActivity = new HistoryItemManualActivity(id, act, timestamp, duration, acquiredRewardi, granted, supervisorMessage, supervisorName);
+                        obj = array.get(i).getAsJsonObject();
+                        Log.d("History", "getFullActivityHistoryCallback Server Response Activity" + i + " = " + obj.toString());
+                        HistoryItemManualActivity historyItemManualActivity = HistoryItemManualActivity.parseObject(obj);
                         listAdapterEarnedRewardiHistory.addItem(historyItemManualActivity);
                         listAdapterEarnedRewardiHistory.notifyDataSetChanged();
                     }
@@ -210,39 +159,10 @@ public class History extends AppCompatActivity
                     JsonElement element = new JsonParser().parse(result.getResult());
                     JsonArray array = element.getAsJsonArray();
                     int nrOfTodoListPoints = array.size();
-                    JsonObject dataObj = null;
+                    JsonObject obj = null;
                     for (int i = 0; i < nrOfTodoListPoints; ++i) {
-                        dataObj = array.get(i).getAsJsonObject();
-                        int id = dataObj.get("id").getAsInt();
-                        JsonObject todoListPointObj = dataObj.get("fkToDo").getAsJsonObject();
-                        String name = todoListPointObj.get("name").getAsString();
-                        int todoListPointId = todoListPointObj.get("id").getAsInt();
-                        int rewardi = todoListPointObj.get("rewardi").getAsInt();
-                        TodoListPoint todoListPoint = new TodoListPoint(todoListPointId, name, rewardi, true);
-                        String timestamp = dataObj.get("timestamp").getAsString();
-                        int acquiredRewardi = dataObj.get("acquiredRewardi").getAsInt();
-
-                        boolean supervised = false;
-                        if(!dataObj.get("fkSupervisorId").isJsonNull()){    // user has a supervisor
-                            supervised = true;
-                        }
-
-                        boolean granted = true;
-                        String supervisorMessage = "";
-                        String supervisorName = "";
-                        if(supervised){
-                            if(!dataObj.get("granted").isJsonNull()){
-                                granted = dataObj.get("granted").getAsBoolean();
-                            }else{
-                                granted = false;
-                            }
-                            if(!dataObj.get("remark").isJsonNull()){
-                                supervisorMessage = dataObj.get("remark").getAsString();
-                            }
-                            supervisorName = dataObj.get("fkSupervisor").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
-                        }
-
-                        HistoryItemTodoListPoint historyItemTodoListPoint = new HistoryItemTodoListPoint(id, todoListPoint, timestamp, acquiredRewardi, granted, supervisorMessage, supervisorName);
+                        obj = array.get(i).getAsJsonObject();
+                        HistoryItemTodoListPoint historyItemTodoListPoint = HistoryItemTodoListPoint.parseObject(obj);
                         listAdapterEarnedRewardiHistory.addItem(historyItemTodoListPoint);
                         listAdapterEarnedRewardiHistory.notifyDataSetChanged();
                     }

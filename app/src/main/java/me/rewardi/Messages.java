@@ -227,7 +227,7 @@ public class Messages extends AppCompatActivity
             Intent intent = new Intent(this, TodoList.class);
             startActivity(intent);
         } else if (id == R.id.nav_activity) {
-            Intent intent = new Intent(this, Messages.class);
+            Intent intent = new Intent(this, Activities.class);
             startActivity(intent);
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, Settings.class);

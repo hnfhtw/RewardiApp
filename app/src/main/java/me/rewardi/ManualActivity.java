@@ -1,5 +1,7 @@
 package me.rewardi;
 
+import com.google.gson.JsonObject;
+
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
@@ -47,5 +49,21 @@ public class ManualActivity {
     }
     public void setActiveSince(String activeSince) {
         this.activeSince = activeSince;
+    }
+
+    public static ManualActivity parseObject(JsonObject obj) {
+        int id = obj.get("id").getAsInt();
+        String activityName = obj.get("name").getAsString();
+        int rewardiPerHour = obj.get("rewardiPerHour").getAsInt();
+
+        boolean isActive = false;
+        String activeSince = null;
+        if(obj.get("activeSince").isJsonNull() == false){
+            isActive = true;
+            activeSince = obj.get("activeSince").getAsString();
+
+        }
+        ManualActivity manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, activeSince);
+        return manualActivity;
     }
 }

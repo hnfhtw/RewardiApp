@@ -1,5 +1,7 @@
 package me.rewardi;
 
+import com.google.gson.JsonObject;
+
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
@@ -40,4 +42,14 @@ public class TodoListPoint {
     }
     public boolean getDone() { return done; }
     public void setDone(boolean done) { this.done = done; }
+
+    public static TodoListPoint parseObject(JsonObject obj) {
+        int id = obj.get("id").getAsInt();
+        String pointName = obj.get("name").getAsString();
+        int rewardi = obj.get("rewardi").getAsInt();
+        boolean done = obj.get("done").getAsBoolean();
+
+        TodoListPoint todoListPoint = new TodoListPoint(id, pointName, rewardi, done);
+        return todoListPoint;
+    }
 }

@@ -1,5 +1,7 @@
 package me.rewardi;
 
+import com.google.gson.JsonObject;
+
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
@@ -44,5 +46,28 @@ public class HistoryItemSocketBoard extends HistoryItemGadget{
     }
     public void setUsedRewardi(double usedRewardi) {
         this.usedRewardi = usedRewardi;
+    }
+
+    public static HistoryItemSocketBoard parseObject(JsonObject obj) {
+        int id = obj.get("id").getAsInt();
+        String timestamp = obj.get("timestamp").getAsString();
+        if(obj.has("fkSocket")) {        // SocketBoard
+            JsonObject socketObj = obj.get("fkSocket").getAsJsonObject();
+            int sockId = socketObj.get("id").getAsInt();
+            String trustNum = socketObj.get("trustNo").getAsString();
+            String name = socketObj.get("name").getAsString();
+            int rewardiPerHour = socketObj.get("rewardiPerHour").getAsInt();
+            int maxTime = socketObj.get("maxTime").getAsInt();
+
+            SocketBoard socket = new SocketBoard(sockId, trustNum, name, rewardiPerHour, maxTime, false, null);
+            int duration = obj.get("duration").getAsInt();
+            boolean timeout = obj.get("timeout").getAsBoolean();
+            double usedRewardi = obj.get("usedRewardi").getAsDouble();
+            HistoryItemSocketBoard historyItemSocketBoard = new HistoryItemSocketBoard(id, socket, timestamp, duration, timeout, usedRewardi);
+            return historyItemSocketBoard;
+        }
+        else{
+            return null;
+        }
     }
 }

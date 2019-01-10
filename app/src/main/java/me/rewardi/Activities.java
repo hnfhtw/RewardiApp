@@ -115,23 +115,11 @@ public class Activities extends AppCompatActivity
                     JsonArray array = element.getAsJsonArray();
                     int nrOfActivities = array.size();
                     Log.d("ManAct", "getAllActivitiesCallback Server Response Number of Activities = " + nrOfActivities);
-                    JsonObject activity = null;
+                    JsonObject obj = null;
                     for (int i = 0; i < nrOfActivities; ++i) {
-                        activity = array.get(i).getAsJsonObject();
-                        Log.d("ManAct", "getAllActivitiesCallback Server Response Activity" + i + " = " + activity.toString());
-                        int id = activity.get("id").getAsInt();
-                        String activityName = activity.get("name").getAsString();
-                        int rewardiPerHour = activity.get("rewardiPerHour").getAsInt();
-                        ManualActivity manualActivity;
-                        boolean isActive = false;
-                        if(activity.get("activeSince").isJsonNull() == false){
-                            isActive = true;
-                            String activeSince = activity.get("activeSince").getAsString();
-                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, activeSince);
-                        }
-                        else{
-                            manualActivity = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
-                        }
+                        obj = array.get(i).getAsJsonObject();
+                        Log.d("ManAct", "getAllActivitiesCallback Server Response Activity" + i + " = " + obj.toString());
+                        ManualActivity manualActivity = ManualActivity.parseObject(obj);
 
                         listAdapter.addItem(manualActivity);
                         listAdapter.notifyDataSetChanged();
@@ -151,18 +139,10 @@ public class Activities extends AppCompatActivity
                 if(e == null){
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("ManAct", "createActivityCallback Server Response = " + element.toString());
-                    JsonObject activityObj = element.getAsJsonObject();
+                    JsonObject obj = element.getAsJsonObject();
+                    ManualActivity manualActivity = ManualActivity.parseObject(obj);
 
-                    int id = activityObj.get("id").getAsInt();
-                    String activityName = activityObj.get("name").getAsString();
-                    int rewardiPerHour = activityObj.get("rewardiPerHour").getAsInt();
-                    boolean isActive = false;
-                    if(activityObj.get("activeSince").isJsonNull() == false){
-                        isActive = true;
-                    }
-
-                    ManualActivity act = new ManualActivity(id, activityName, rewardiPerHour, isActive, null);
-                    listAdapter.addItem(act);
+                    listAdapter.addItem(manualActivity);
                     listAdapter.notifyDataSetChanged();
                 }
                 else{
@@ -179,9 +159,9 @@ public class Activities extends AppCompatActivity
                    // HN-CHECK -> check if response is 200 -> then remove activity from list
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("ManAct", "deleteActivityCallback Server Response = " + element.toString());
-                    JsonObject activityObj = element.getAsJsonObject();
+                    JsonObject obj = element.getAsJsonObject();
 
-                    listAdapter.removeActivity(activityObj.get("id").getAsInt());
+                    listAdapter.removeActivity(obj.get("id").getAsInt());
                     listAdapter.notifyDataSetChanged();
                     showDeleteMenu(false);
                 }

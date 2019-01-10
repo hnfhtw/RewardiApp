@@ -116,16 +116,12 @@ public class TodoList extends AppCompatActivity
                     JsonArray array = element.getAsJsonArray();
                     int nrOfTodoListPoints = array.size();
                     Log.d("TodoList", "getAllTodoListPointsCallback Server Response Number of Todo List Points = " + nrOfTodoListPoints);
-                    JsonObject dataObj = null;
+                    JsonObject obj = null;
                     for (int i = 0; i < nrOfTodoListPoints; ++i) {
-                        dataObj = array.get(i).getAsJsonObject();
-                        Log.d("TodoList", "getAllTodoListPointsCallback Server Response Todo List Point " + i + " = " + dataObj.toString());
-                        int id = dataObj.get("id").getAsInt();
-                        String pointName = dataObj.get("name").getAsString();
-                        int rewardi = dataObj.get("rewardi").getAsInt();
-                        boolean done = dataObj.get("done").getAsBoolean();
+                        obj = array.get(i).getAsJsonObject();
+                        Log.d("TodoList", "getAllTodoListPointsCallback Server Response Todo List Point " + i + " = " + obj.toString());
+                        TodoListPoint todoListPoint = TodoListPoint.parseObject(obj);
 
-                        TodoListPoint todoListPoint = new TodoListPoint(id, pointName, rewardi, done);
                         listAdapter.addItem(todoListPoint);
                         listAdapter.notifyDataSetChanged();
                     }
@@ -143,14 +139,9 @@ public class TodoList extends AppCompatActivity
                 if(e == null){
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("TodoList", "createTodoListPointCallback Server Response = " + element.toString());
-                    JsonObject dataObj = element.getAsJsonObject();
+                    JsonObject obj = element.getAsJsonObject();
+                    TodoListPoint todoListPoint = TodoListPoint.parseObject(obj);
 
-                    int id = dataObj.get("id").getAsInt();
-                    String pointName = dataObj.get("name").getAsString();
-                    int rewardi = dataObj.get("rewardi").getAsInt();
-                    boolean isDone = dataObj.get("done").getAsBoolean();
-
-                    TodoListPoint todoListPoint = new TodoListPoint(id, pointName, rewardi, isDone);
                     listAdapter.addItem(todoListPoint);
                     listAdapter.notifyDataSetChanged();
                 }
@@ -168,9 +159,9 @@ public class TodoList extends AppCompatActivity
                     // HN-CHECK -> check if response is 200 -> then remove todo list point from list
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("TodoList", "deleteTodoListPointCallback Server Response = " + element.toString());
-                    JsonObject dataObj = element.getAsJsonObject();
+                    JsonObject obj = element.getAsJsonObject();
 
-                    listAdapter.removeTodoListPoint(dataObj.get("id").getAsInt());
+                    listAdapter.removeTodoListPoint(obj.get("id").getAsInt());
                     listAdapter.notifyDataSetChanged();
                     showDeleteMenu(false);
                 }

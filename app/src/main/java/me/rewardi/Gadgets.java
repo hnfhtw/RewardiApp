@@ -123,34 +123,22 @@ public class Gadgets extends AppCompatActivity
                     JsonArray array = element.getAsJsonArray();
                     int nrOfGadgets = array.size();
                     Log.d("Gadgets", "getAllGadgetsCallback Server Response Number of Gadgets = " + nrOfGadgets);
-                    JsonObject gadget = null;
+                    JsonObject obj = null;
                     for(int i = 0; i<nrOfGadgets; ++i){
-                        gadget = array.get(i).getAsJsonObject();
-                        Log.d("Gadgets", "Gadget"+i+" = " + gadget.toString());
-                        int id = gadget.get("id").getAsInt();
-                        String trustNumber = gadget.get("trustNo").getAsString();
-                        String name = gadget.get("name").getAsString();
-                        if(trustNumber.charAt(0) == '2') {        // SocketBoard
-                            int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
-                            int maxTime = gadget.get("maxTime").getAsInt();
-                            boolean isActive = false;
-                            String activeSince = null;
-                            if(gadget.get("usedSince").isJsonNull() == false){
-                                isActive = true;
-                                activeSince = gadget.get("usedSince").getAsString();
-                            }
+                        obj = array.get(i).getAsJsonObject();
+                        Log.d("Gadgets", "Gadget"+i+" = " + obj.toString());
 
-                            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive, activeSince);
+                        SocketBoard socketBoard = SocketBoard.parseObject(obj);
+                        if(socketBoard != null) {
                             listAdapter.addItem(socketBoard);
-                            listAdapter.notifyDataSetChanged();
                         }
-                        else if(trustNumber.charAt(0) == '1') {   // Box
-                            int rewardiPerOpen = gadget.get("rewardiPerOpen").getAsInt();
-                            boolean isLocked = gadget.get("isLocked").getAsBoolean();
-                            Box box = new Box(id, trustNumber, name, rewardiPerOpen, isLocked);
-                            listAdapter.addItem(box);
-                            listAdapter.notifyDataSetChanged();
+                        else {
+                            Box box = Box.parseObject(obj);
+                            if(box != null) {
+                                listAdapter.addItem(box);
+                            }
                         }
+                        listAdapter.notifyDataSetChanged();
                     }
                 }
                 else{
@@ -166,31 +154,19 @@ public class Gadgets extends AppCompatActivity
                 if(e == null){
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("Gadgets", "createGadgetCallback Server Response = " + element.toString());
-                    JsonObject gadget = element.getAsJsonObject();
+                    JsonObject obj = element.getAsJsonObject();
 
-                    int id = gadget.get("id").getAsInt();
-                    String trustNumber = gadget.get("trustNo").getAsString();
-                    String name = gadget.get("name").getAsString();
-                    if(trustNumber.charAt(0) == '2') {        // SocketBoard
-                        int rewardiPerHour = gadget.get("rewardiPerHour").getAsInt();
-                        int maxTime = gadget.get("maxTime").getAsInt();
-                        boolean isActive = false;
-                        String activeSince = null;
-                        if(gadget.get("usedSince").isJsonNull() == false){
-                            isActive = true;
-                            activeSince = gadget.get("usedSince").getAsString();
-                        }
-                        SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive, activeSince);
+                    SocketBoard socketBoard = SocketBoard.parseObject(obj);
+                    if(socketBoard != null) {
                         listAdapter.addItem(socketBoard);
-                        listAdapter.notifyDataSetChanged();
                     }
-                    else if(trustNumber.charAt(0) == '1') {   // Box
-                        int rewardiPerOpen = gadget.get("rewardiPerOpen").getAsInt();
-                        boolean isLocked = gadget.get("getIsLocked").getAsBoolean();
-                        Box box = new Box(id, trustNumber, name, rewardiPerOpen, isLocked);
-                        listAdapter.addItem(box);
-                        listAdapter.notifyDataSetChanged();
+                    else {
+                        Box box = Box.parseObject(obj);
+                        if(box != null) {
+                            listAdapter.addItem(box);
+                        }
                     }
+                    listAdapter.notifyDataSetChanged();
                 }
                 else{
                     Log.d("Gadgets", "createGadgetCallback Server Response Error = " + e.toString());
@@ -206,9 +182,9 @@ public class Gadgets extends AppCompatActivity
                     // HN-CHECK -> check if response is 200 -> then remove activity from list
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("Gadgets", "deleteGadgetCallback Server Response = " + element.toString());
-                    JsonObject activityObj = element.getAsJsonObject();
+                    JsonObject obj = element.getAsJsonObject();
 
-                    listAdapter.removeGadget(activityObj.get("id").getAsInt());
+                    listAdapter.removeGadget(obj.get("id").getAsInt());
                     listAdapter.notifyDataSetChanged();
                     showDeleteMenu(false);
                 }

@@ -1,5 +1,7 @@
 package me.rewardi;
 
+import com.google.gson.JsonObject;
+
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
@@ -50,4 +52,31 @@ public class User {
     public void setSupervisorMailAddress(String supervisorMailAddress) { this.supervisorMailAddress = supervisorMailAddress; }
     public supervisorStatusTypes getSupervisorStatus() { return supervisorStatus; }
     public void setSupervisorStatus(supervisorStatusTypes supervisorStatus) { this.supervisorStatus = supervisorStatus; }
+
+    public static User parseObject(JsonObject obj) {
+        int userId = obj.get("id").getAsInt();
+        String firebaseInstanceId = obj.get("instanceId").getAsString();
+        double rewardi = obj.get("totalRewardi").getAsDouble();
+        int fkPartnerUserId = 0;
+        String partnerUserName = "";
+        String partnerMailAddress = "";
+        User.supervisorStatusTypes supervisorStatus = User.supervisorStatusTypes.NONE;
+        if(obj.get("fkSupervisorUserId").isJsonNull() == false){
+            fkPartnerUserId = obj.get("fkSupervisorUserId").getAsInt();
+            partnerUserName = obj.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+            partnerMailAddress = obj.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
+            int status = obj.get("supervisorStatus").getAsInt();
+            switch(status){
+                case 1: { supervisorStatus = User.supervisorStatusTypes.LINK_PENDING; break; }
+                case 2: { supervisorStatus = User.supervisorStatusTypes.LINKED; break; }
+                case 3: { supervisorStatus = User.supervisorStatusTypes.UNLINK_PENDING; break; }
+                default:{ supervisorStatus = User.supervisorStatusTypes.NONE; break; }
+            }
+        }
+        String userName = obj.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
+        String email = obj.get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
+
+        User user = new User(userId, firebaseInstanceId, rewardi,fkPartnerUserId, userName, email, partnerUserName, partnerMailAddress, supervisorStatus);
+        return user;
+    }
 }

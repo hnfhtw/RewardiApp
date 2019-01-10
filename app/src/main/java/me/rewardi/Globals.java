@@ -35,31 +35,9 @@ public class Globals extends Application {
             if(e == null){
                 JsonElement element = new JsonParser().parse(result.getResult());
                 Log.d("Globals", "getUserDataCallback Server Response = " + element.toString());
-                JsonObject object = element.getAsJsonObject();
+                JsonObject obj = element.getAsJsonObject();
 
-                int userId = object.get("id").getAsInt();
-                String firebaseInstanceId = object.get("instanceId").getAsString();
-                double rewardi = object.get("totalRewardi").getAsDouble();
-                int fkPartnerUserId = 0;
-                String partnerUserName = "";
-                String partnerMailAddress = "";
-                User.supervisorStatusTypes supervisorStatus = User.supervisorStatusTypes.NONE;
-                if(object.get("fkSupervisorUserId").isJsonNull() == false){
-                    fkPartnerUserId = object.get("fkSupervisorUserId").getAsInt();
-                    partnerUserName = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
-                    partnerMailAddress = object.get("fkSupervisorUser").getAsJsonObject().get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
-                    int status = object.get("supervisorStatus").getAsInt();
-                    switch(status){
-                        case 1: { supervisorStatus = User.supervisorStatusTypes.LINK_PENDING; break; }
-                        case 2: { supervisorStatus = User.supervisorStatusTypes.LINKED; break; }
-                        case 3: { supervisorStatus = User.supervisorStatusTypes.UNLINK_PENDING; break; }
-                        default:{ supervisorStatus = User.supervisorStatusTypes.NONE; break; }
-                    }
-                }
-                String userName = object.get("fkAspNetUsers").getAsJsonObject().get("userName").getAsString();
-                String email = object.get("fkAspNetUsers").getAsJsonObject().get("email").getAsString();
-
-                User user = new User(userId, firebaseInstanceId, rewardi,fkPartnerUserId, userName, email, partnerUserName, partnerMailAddress, supervisorStatus);
+                User user = User.parseObject(obj);
                 setUser(user);
                 if(userDataListener != null){
                     userDataListener.onUserDataUpdate(user);

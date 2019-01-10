@@ -2,6 +2,8 @@ package me.rewardi;
 
 import android.util.Log;
 
+import com.google.gson.JsonObject;
+
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
@@ -32,4 +34,25 @@ public class SocketBoard extends Gadget {
     public void setIsActive(boolean active) { isActive = active; }
     public String getActiveSince() { return activeSince; }
     public void setActiveSince(String activeSince) { this.activeSince = activeSince; }
+
+    public static SocketBoard parseObject(JsonObject obj) {
+        int id = obj.get("id").getAsInt();
+        String trustNumber = obj.get("trustNo").getAsString();
+        String name = obj.get("name").getAsString();
+        if (trustNumber.charAt(0) == '2') {        // SocketBoard
+            int rewardiPerHour = obj.get("rewardiPerHour").getAsInt();
+            int maxTime = obj.get("maxTime").getAsInt();
+            boolean isActive = false;
+            String activeSince = null;
+            if (obj.get("usedSince").isJsonNull() == false) {
+                isActive = true;
+                activeSince = obj.get("usedSince").getAsString();
+            }
+
+            SocketBoard socketBoard = new SocketBoard(id, trustNumber, name, rewardiPerHour, maxTime, isActive, activeSince);
+            return socketBoard;
+        } else {
+            return null;
+        }
+    }
 }

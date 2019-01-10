@@ -19,6 +19,7 @@ import com.koushikdutta.ion.Response;
 
 import org.parceler.Parcels;
 
+import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -115,7 +116,7 @@ public class SocketBoardDialogFragment extends DialogFragment {
         startStopSocketBoardCallback = new FutureCallback<Response<String>>() {
             @Override
             public void onCompleted(Exception e, Response<String> result) {
-                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200) ) {
+                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {
                     JsonElement element = new JsonParser().parse(result.getResult());
                     Log.d("SocketBoard", "startStopSocketBoardCallback - Element = " + element.toString());
                     if (element.isJsonNull()) {   // no data in STOP SOCKETBOARD message -> stop timer and set TextView appropriately - then return.
@@ -133,22 +134,10 @@ public class SocketBoardDialogFragment extends DialogFragment {
                         JsonObject obj = element.getAsJsonObject();
                         Log.d("SocketBoard", "startStopSocketBoardCallback Response Object = " + obj.toString());
 
-                        int id = obj.get("id").getAsInt();
-                        String trustNumber = obj.get("trustNo").getAsString();
-                        String socketBoardName = obj.get("name").getAsString();
-                        int rewardiPerHour = obj.get("rewardiPerHour").getAsInt();
-                        int maxTime = obj.get("maxTime").getAsInt();
-
-                        boolean isActive = false;
-                        String activeSince = null;
-                        if (obj.get("usedSince").isJsonNull() == false) {
-                            isActive = true;
-                            activeSince = obj.get("usedSince").getAsString();
-                        }
-                        socketBoard = new SocketBoard(id, trustNumber, socketBoardName, rewardiPerHour, maxTime, isActive, activeSince);
+                        socketBoard = SocketBoard.parseObject(obj);
 
                         if (socketBoard.getIsActive()) {
-                            String actSince = activeSince.substring(0, 19);
+                            String actSince = socketBoard.getActiveSince().substring(0, 19);
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                             long startValueMilis = 0;
                             try {
