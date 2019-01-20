@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class ActivityTimer extends CountDownTimer {
     private long totalSeconds;
     private long intervalSeconds;
-    private TextView outputText;
+    private TextView outputTextView;
     private long startValueMilis;
     private int idOfActivity;
 
@@ -17,7 +17,7 @@ public class ActivityTimer extends CountDownTimer {
         this.totalSeconds = totalSeconds;
         this.intervalSeconds = intervalSeconds;
         this.startValueMilis = startValueMilis;
-        this.outputText = null;
+        this.outputTextView = null;
         this.idOfActivity = idOfActivity;
     }
 
@@ -33,8 +33,8 @@ public class ActivityTimer extends CountDownTimer {
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
 
-        if(outputText != null) {
-            outputText.setText("Active since: " + hms);
+        if(outputTextView != null) {
+            outputTextView.setText("Active since: " + hms);
         }
     }
 
@@ -53,10 +53,10 @@ public class ActivityTimer extends CountDownTimer {
     public void setIntervalSeconds(long intervalSeconds) {
         this.intervalSeconds = intervalSeconds;
     }
-    public TextView getOutputText() {
-        return outputText;
+    public TextView getOutputTextView() {
+        return outputTextView;
     }
-    public void setOutputText(TextView outputText) { this.outputText = outputText; }
+    public void setOutputTextView(TextView outputTextView) { this.outputTextView = outputTextView; }
     public long getStartValueMilis() {
         return startValueMilis;
     }
@@ -65,4 +65,9 @@ public class ActivityTimer extends CountDownTimer {
     }
     public int getIdOfActivity() { return idOfActivity; }
     public void setIdOfActivity(int idOfActivity) { this.idOfActivity = idOfActivity; }
+    public void setOutputText(String outputText){
+        if(outputTextView != null) {
+            outputTextView.setText(outputText);
+        }
+    }
 }

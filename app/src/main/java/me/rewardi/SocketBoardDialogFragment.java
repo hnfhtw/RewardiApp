@@ -19,7 +19,6 @@ import com.koushikdutta.ion.Response;
 
 import org.parceler.Parcels;
 
-import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -84,7 +83,7 @@ public class SocketBoardDialogFragment extends DialogFragment {
             }
         }
         socketBoardTimer = new ActivityTimer(6000000,1, startValueMilis, socketBoard.getId());
-        socketBoardTimer.setOutputText(textViewActive);
+        socketBoardTimer.setOutputTextView(textViewActive);
         if(socketBoard.getIsActive()) {
             socketBoardTimer.start();
             btnStartStop.setChecked(true);
@@ -100,6 +99,7 @@ public class SocketBoardDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(btnStartStop.isChecked()){
+                    btnStartStop.setChecked(false);
                     JsonObject data = new JsonObject();
                     data.addProperty("maxTime", socketBoard.getMaxTimeSec());
                     appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_START, socketBoard.getId(),data, startStopSocketBoardCallback);
@@ -137,6 +137,7 @@ public class SocketBoardDialogFragment extends DialogFragment {
                         socketBoard = SocketBoard.parseObject(obj);
 
                         if (socketBoard.getIsActive()) {
+                            btnStartStop.setChecked(true);
                             String actSince = socketBoard.getActiveSince().substring(0, 19);
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                             long startValueMilis = 0;

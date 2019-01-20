@@ -87,7 +87,7 @@ class CustomListAdapterActivities extends BaseAdapter {
         textViewActive = (TextView) convertView.findViewById(R.id.textViewActive);
         final ActivityTimer timer = getTimer(activity.getId());
         if(timer != null){
-            timer.setOutputText(textViewActive);
+            timer.setOutputTextView(textViewActive);
         }
 
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
