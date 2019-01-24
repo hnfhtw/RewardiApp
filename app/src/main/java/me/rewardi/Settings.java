@@ -83,8 +83,14 @@ public class Settings extends AppCompatActivity
             textViewPartner.setText(partnerUserName + " / " +  partnerMailAddress);
             textViewSupervisorStatus.setText("Supervisor (pending): ");
         }
-
-        appState = ((Globals)getApplicationContext());
+        else if(supervisorStatus == User.supervisorStatusTypes.UNLINK_PENDING){   // desired supervisor has not yet confirmed
+            editTextPartnerUserName.setText(partnerMailAddress);
+            buttonSetPartner.setEnabled(false);
+            buttonRemovePartner.setEnabled(true);
+            textViewSupervisorTitle.setText("Cancel pending unlink request");
+            textViewPartner.setText(partnerUserName + " / " +  partnerMailAddress);
+            textViewSupervisorStatus.setText("Supervisor (unlink pending): ");
+        }
 
         buttonSetPartner.setOnClickListener(
                 new View.OnClickListener() {
@@ -163,12 +169,12 @@ public class Settings extends AppCompatActivity
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && result.getHeaders().code() == 204) {
-                    editTextPartnerUserName.setText("Enter new supervisor mail address");
-                    buttonSetPartner.setEnabled(true);
-                    buttonRemovePartner.setEnabled(false);
-                    textViewSupervisorTitle.setText("Request new Rewardi Supervisor");
-                    textViewPartner.setText("not set");
-                    textViewSupervisorStatus.setText("Current supervisor: ");
+                    //editTextPartnerUserName.setText("Enter new supervisor mail address");
+                    buttonSetPartner.setEnabled(false);
+                    buttonRemovePartner.setEnabled(true);
+                    textViewSupervisorTitle.setText("Cancel pending unlink request");
+                    //textViewPartner.setText("not set");
+                    textViewSupervisorStatus.setText("Supervisor (unlink pending): ");
                 }
                 else{
                     Log.d("Settings", "removeSupervisorCallback Server Response Status Code = " + Integer.toString(result.getHeaders().code()));

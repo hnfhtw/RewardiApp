@@ -25,6 +25,7 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
     private ToggleButton m_btnStartStop;
     private Globals m_appState;
     FutureCallback<Response<String>> startStopSocketBoardCallback;
+    FutureCallback<Response<String>> lockBoxCallback;
 
     public GadgetOnButtonClickListener(CustomListAdapterGadgets adapter, Gadget gadget, TextView textView, ToggleButton btn, Globals appState){
         m_customListAdapterGadgets = adapter;
@@ -98,15 +99,31 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
                 }
             }
         };
+
+        lockBoxCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {
+                    ((Box) m_gadget).setIsLocked(true);
+                    m_btnStartStop.setEnabled(false);
+                    m_btnStartStop.setChecked(true);
+                    m_outputTextView.setText("Box locked!");
+                }
+                else{
+
+                }
+            }
+        };
     }
 
     @Override
     public void onClick(View view) {
         if(m_gadget instanceof Box) {
             if(m_btnStartStop.isChecked()){
-                m_btnStartStop.setEnabled(false);
-                m_appState.sendMessageToServer(Globals.messageID.BOX_LOCK, ((Box)m_gadget).getId(),null, null);
-                ((Box)m_gadget).setIsLocked(true);
+                m_btnStartStop.setChecked(false);
+                //m_btnStartStop.setEnabled(false);
+                m_appState.sendMessageToServer(Globals.messageID.BOX_LOCK, ((Box)m_gadget).getId(),null, lockBoxCallback);
+                //((Box)m_gadget).setIsLocked(true);
             }
         }
         else if(m_gadget instanceof SocketBoard){

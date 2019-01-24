@@ -10,12 +10,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Response;
+
 import org.parceler.Parcels;
 
 public class BoxDialogFragment extends DialogFragment {
 
     private Context context;
     Globals appState;
+    FutureCallback<Response<String>> lockBoxCallback;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -33,7 +38,7 @@ public class BoxDialogFragment extends DialogFragment {
         Log.d("BoxDialog", "Box Name = " + box.getName());
         TextView textViewGadgetName = (TextView) view.findViewById(R.id.textViewGadgetName);
         TextView textViewRewardi = (TextView) view.findViewById(R.id.textViewRewardi);
-        TextView textViewActive = (TextView) view.findViewById(R.id.textViewActive);
+        final TextView textViewActive = (TextView) view.findViewById(R.id.textViewActive);
         final ToggleButton btnStartStop = (ToggleButton) view.findViewById(R.id.btnStartStop);
         textViewGadgetName.setText(box.getName());
         btnStartStop.setText("Lock Box");
@@ -56,12 +61,28 @@ public class BoxDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                     if(btnStartStop.isChecked()){
-                        btnStartStop.setEnabled(false);
-                        appState.sendMessageToServer(Globals.messageID.BOX_LOCK, box.getId(),null, null);
-                        box.setIsLocked(true);
+                        btnStartStop.setChecked(false);
+                        //btnStartStop.setEnabled(false);
+                        appState.sendMessageToServer(Globals.messageID.BOX_LOCK, box.getId(),null, lockBoxCallback);
+                        //box.setIsLocked(true);
                     }
                 }
         });
+
+        lockBoxCallback = new FutureCallback<Response<String>>() {
+            @Override
+            public void onCompleted(Exception e, Response<String> result) {
+                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {
+                    box.setIsLocked(true);
+                    btnStartStop.setEnabled(false);
+                    btnStartStop.setChecked(true);
+                    textViewActive.setText("Box locked!");
+                }
+                else{
+
+                }
+            }
+        };
 
         return builder.create();
         }
