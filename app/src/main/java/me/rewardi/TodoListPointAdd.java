@@ -15,6 +15,7 @@ public class TodoListPointAdd extends AppCompatActivity {
     private EditText editTextName;
     private EditText editTextRewardi;
     private TodoListPoint point;
+    private Button buttonAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,7 @@ public class TodoListPointAdd extends AppCompatActivity {
         editTextName = findViewById(R.id.editTextName);
         editTextRewardi = findViewById(R.id.editTextRewardi);
 
-        Button buttonAdd = findViewById(R.id.buttonAdd);
+        buttonAdd = findViewById(R.id.buttonAdd);
         buttonAdd.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -96,6 +97,12 @@ public class TodoListPointAdd extends AppCompatActivity {
             point = Parcels.unwrap(getIntent().getExtras().getParcelable("todoListPoint"));
             editTextName.setText(point.getName());
             editTextRewardi.setText(Integer.toString(point.getRewardi()));
+            setTitle("Edit Todo List Point");
+            buttonAdd.setText("Edit");
+        }
+        else{
+            setTitle("Add new Todo List Point");
+            buttonAdd.setText("Add");
         }
     }
 

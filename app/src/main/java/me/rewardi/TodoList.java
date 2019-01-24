@@ -1,9 +1,11 @@
 package me.rewardi;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -39,6 +41,7 @@ public class TodoList extends AppCompatActivity
     FutureCallback<Response<String>> editTodoListPointCallback;
     private TodoListPoint editTodoListPoint;    // server does not send whole object as payload if the todo list point is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
     private TextView toolbarRewardi;
+    private BroadcastReceiver currentActivityReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,8 +192,26 @@ public class TodoList extends AppCompatActivity
 
         appState = ((Globals)getApplicationContext());
         appState.setUserDataListener(this);
+        appState.requestUserDataUpdate();
         appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
-        toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+        //toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        currentActivityReceiver = new CurrentActivityReceiver(this);
+        LocalBroadcastManager.getInstance(this).
+                registerReceiver(currentActivityReceiver, CurrentActivityReceiver.CURRENT_ACTIVITY_RECEIVER_FILTER);
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).
+                unregisterReceiver(currentActivityReceiver);
+        currentActivityReceiver = null;
+        super.onPause();
     }
 
     @Override

@@ -25,12 +25,20 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Random;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -74,6 +82,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String notificationMessage = "";
             String notificationMessageTitle = "";
 
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            Date date = null;
+
             switch(fcmMessageType){
                 case 200:   {   // SOCKET_PROXIMATE_TIMEOUT_WARNING
                     String socketBoardName = entity.get("Name").getAsString();
@@ -82,8 +93,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String usedSince = entity.get("UsedSince").getAsString();
                     int socketBoardId = entity.get("Id").getAsInt();
 
+                    try {
+                        date = format.parse(usedSince);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
                     notificationMessageTitle = "Socket Board Max Time Expiring";
-                    notificationMessage = "Socket board \"" + socketBoardName + "\" max time expires in " + Integer.toString(maxTime/10) + " seconds. It is switched on since " + usedSince + ", do you want to extend max time?";
+                    notificationMessage = "Socket board \"" + socketBoardName + "\" max time expires in " + Integer.toString(maxTime/10) + " seconds. It is switched on since " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date) + ", do you want to extend max time?";
                     break;
                 }
                 case 2100:  {   // TODOHISTORY_GRANT_REQUEST
@@ -93,8 +110,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String timestamp = entity.get("Timestamp").getAsString();
                     int todoHistoryId = entity.get("Id").getAsInt();
 
+                    try {
+                        date = format.parse(timestamp);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
                     notificationMessageTitle = "Todo List Point Finished";
-                    notificationMessage = "User \"" + userName + "\" finished todo list point \"" + todoListPointName + "\" and earned " + Integer.toString(acquiredRewardi) + " Rewardi on " + timestamp + ". Please confirm in Rewardi app.";
+                    notificationMessage = "User \"" + userName + "\" finished todo list point \"" + todoListPointName + "\" and earned " + Integer.toString(acquiredRewardi) + " Rewardi on " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date) + ". Please confirm in Rewardi app.";
                     break;
                 }
                 case 2000:  {   // ACTIVITYHISTORY_GRANT_REQUEST
@@ -105,8 +128,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String timestamp = entity.get("Timestamp").getAsString();
                     int activityHistoryId = entity.get("Id").getAsInt();
 
+                    try {
+                        date = format.parse(timestamp);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
                     notificationMessageTitle = "Activity Performed";
-                    notificationMessage = "User \"" + userName + "\" performed activity \"" + activityName + "\" for " + Integer.toString(duration) + " seconds and earned " + Double.toString(acquiredRewardi) + " Rewardi on " + timestamp + ". Please confirm in Rewardi app.";
+                    notificationMessage = "User \"" + userName + "\" performed activity \"" + activityName + "\" for " + Integer.toString(duration) + " seconds and earned " + Double.toString(acquiredRewardi) + " Rewardi on " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date) + ". Please confirm in Rewardi app.";
                     break;
                 }
                 case 1000:  {   // SUPERVISOR_LINK_REQUEST
@@ -132,12 +161,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String timestamp = entity.get("Timestamp").getAsString();
                     boolean granted = entity.get("Granted").getAsBoolean();
 
+                    try {
+                        date = format.parse(timestamp);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
                     notificationMessageTitle = "Todo List Point Finished - Supervisor Response";
                     if(granted){
-                        notificationMessage = "Congratulations, you earned " + Integer.toString(acquiredRewardi) + " Rewardi! Your supervisor \"" + supervisorName + "\" confirmed your finished todo list point \"" + todoListPointName + "\" on " + timestamp + ".";
+                        notificationMessage = "Congratulations, you earned " + Integer.toString(acquiredRewardi) + " Rewardi! Your supervisor \"" + supervisorName + "\" confirmed your finished todo list point \"" + todoListPointName + "\" on " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date) + ".";
                     }
                     else{
-                        notificationMessage = "Sorry - no Rewardi this time. Your supervisor \"" + supervisorName + "\" denied your finished todo list point \"" + todoListPointName + "\" on " + timestamp + ".";
+                        notificationMessage = "Sorry - no Rewardi this time. Your supervisor \"" + supervisorName + "\" denied your finished todo list point \"" + todoListPointName + "\" on " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date) + ".";
                     }
                     break;
                 }
@@ -149,12 +184,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String timestamp = entity.get("Timestamp").getAsString();
                     boolean granted = entity.get("Granted").getAsBoolean();
 
+                    try {
+                        date = format.parse(timestamp);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
                     notificationMessageTitle = "Activity Performed - Supervisor Response";
                     if(granted){
-                        notificationMessage = "Congratulations, you earned " + Double.toString(acquiredRewardi) + " Rewardi! Your supervisor \"" + supervisorName + "\" confirmed your performed activity \"" + activityName + "\" (" + Integer.toString(duration) + " seconds) on " + timestamp + ".";
+                        notificationMessage = "Congratulations, you earned " + Double.toString(acquiredRewardi) + " Rewardi! Your supervisor \"" + supervisorName + "\" confirmed your performed activity \"" + activityName + "\" (" + Integer.toString(duration) + " seconds) on " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date) + ".";
                     }
                     else{
-                        notificationMessage = "Sorry - no Rewardi this time. Your supervisor \"" + supervisorName + "\" denied your performed activity \"" + activityName + "\" (" + Integer.toString(duration) + " seconds) on " + timestamp + ".";
+                        notificationMessage = "Sorry - no Rewardi this time. Your supervisor \"" + supervisorName + "\" denied your performed activity \"" + activityName + "\" (" + Integer.toString(duration) + " seconds) on " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date) + ".";
                     }
                     break;
                 }
@@ -199,6 +240,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             sendNotification(notificationMessage, notificationMessageTitle);
         }
+
+        Intent localMessage = new Intent(CurrentActivityReceiver.CURRENT_ACTIVITY_ACTION);
+        LocalBroadcastManager.getInstance(this).
+                sendBroadcast(localMessage);
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
@@ -279,6 +324,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(channel);
         }
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify(new Random().nextInt() /* ID of notification */, notificationBuilder.build());
     }
 }

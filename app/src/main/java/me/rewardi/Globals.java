@@ -16,6 +16,11 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Globals extends Application {
 
     enum messageID {ACTIVITY_GET_ALL, ACTIVITY_GET, ACTIVITY_CREATE, ACTIVITY_EDIT, ACTIVITY_DELETE, ACTIVITY_START, ACTIVITY_STOP,
@@ -60,6 +65,24 @@ public class Globals extends Application {
 
     public void requestUserDataUpdate(){
         sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
+    }
+
+    public String parseServerTimeStampToLocalTimeFormat(String timestamp){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        Date date = null;
+        try {
+            date = format.parse(timestamp);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        String output = null;
+        if(date == null){
+            output = timestamp;     // parsing failed
+        }
+        else{
+            output = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date);
+        }
+        return output;
     }
 
     public void sendMessageToServer(messageID msgID, int deviceId, JsonObject sendObj, FutureCallback<Response<String>> callBack){

@@ -1,8 +1,10 @@
 package me.rewardi;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,12 +24,20 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
 
 public class Settings extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
 
     Globals appState;
     FutureCallback<Response<String>> changePasswordCallback;
     FutureCallback<Response<String>> setSupervisorCallback;
     FutureCallback<Response<String>> removeSupervisorCallback;
+    private TextView toolbarRewardi;
+    private BroadcastReceiver currentActivityReceiver;
+    private EditText editTextPartnerUserName;
+    private TextView textViewPartner;
+    private Button buttonSetPartner;
+    private Button buttonRemovePartner;
+    private TextView textViewSupervisorTitle;
+    private TextView textViewSupervisorStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +45,7 @@ public class Settings extends AppCompatActivity
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
+        toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -46,14 +56,16 @@ public class Settings extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         appState = ((Globals)getApplicationContext());
-        toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+        appState.setUserDataListener(this);
+        appState.requestUserDataUpdate();
+        //toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
 
-        final EditText editTextPartnerUserName = (EditText) findViewById(R.id.editTextPartnerUserName);
-        final TextView textViewPartner = (TextView) findViewById(R.id.textViewPartner);
-        final Button buttonSetPartner = (Button) findViewById(R.id.buttonSetPartner);
-        final Button buttonRemovePartner = (Button) findViewById(R.id.buttonRemovePartner);
-        final TextView textViewSupervisorTitle = (TextView) findViewById(R.id.textViewSupervisorTitle);
-        final TextView textViewSupervisorStatus = (TextView) findViewById(R.id.textViewSupervisorStatus);
+        editTextPartnerUserName = (EditText) findViewById(R.id.editTextPartnerUserName);
+        textViewPartner = (TextView) findViewById(R.id.textViewPartner);
+        buttonSetPartner = (Button) findViewById(R.id.buttonSetPartner);
+        buttonRemovePartner = (Button) findViewById(R.id.buttonRemovePartner);
+        textViewSupervisorTitle = (TextView) findViewById(R.id.textViewSupervisorTitle);
+        textViewSupervisorStatus = (TextView) findViewById(R.id.textViewSupervisorStatus);
 
         String partnerUserName = appState.getUser().getSupervisorName();
         String partnerMailAddress = appState.getUser().getSupervisorMailAddress();
@@ -184,6 +196,23 @@ public class Settings extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        currentActivityReceiver = new CurrentActivityReceiver(this);
+        LocalBroadcastManager.getInstance(this).
+                registerReceiver(currentActivityReceiver, CurrentActivityReceiver.CURRENT_ACTIVITY_RECEIVER_FILTER);
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).
+                unregisterReceiver(currentActivityReceiver);
+        currentActivityReceiver = null;
+        super.onPause();
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -236,5 +265,49 @@ public class Settings extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onUserDataUpdate(User user) {
+        if(toolbarRewardi != null){
+            toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
+        }
+
+        String partnerUserName = appState.getUser().getSupervisorName();
+        String partnerMailAddress = appState.getUser().getSupervisorMailAddress();
+        User.supervisorStatusTypes supervisorStatus = appState.getUser().getSupervisorStatus();
+
+        if(supervisorStatus == User.supervisorStatusTypes.NONE){        // user has no supervisor
+            editTextPartnerUserName.setText("Enter new supervisor mail address");
+            buttonSetPartner.setEnabled(true);
+            buttonRemovePartner.setEnabled(false);
+            textViewSupervisorTitle.setText("Request new Rewardi Supervisor");
+            textViewPartner.setText("not set");
+            textViewSupervisorStatus.setText("Current supervisor: ");
+        }
+        else if(supervisorStatus == User.supervisorStatusTypes.LINKED){  // user has a linked supervisor
+            editTextPartnerUserName.setText(partnerMailAddress);
+            buttonSetPartner.setEnabled(false);
+            buttonRemovePartner.setEnabled(true);
+            textViewSupervisorTitle.setText("Remove current Supervisor to set a new one");
+            textViewPartner.setText(partnerUserName + " / " +  partnerMailAddress);
+            textViewSupervisorStatus.setText("Current supervisor: ");
+        }
+        else if(supervisorStatus == User.supervisorStatusTypes.LINK_PENDING){   // desired supervisor has not yet confirmed
+            editTextPartnerUserName.setText(partnerMailAddress);
+            buttonSetPartner.setEnabled(false);
+            buttonRemovePartner.setEnabled(true);
+            textViewSupervisorTitle.setText("Cancel pending link request to set a new Supervisor");
+            textViewPartner.setText(partnerUserName + " / " +  partnerMailAddress);
+            textViewSupervisorStatus.setText("Supervisor (pending): ");
+        }
+        else if(supervisorStatus == User.supervisorStatusTypes.UNLINK_PENDING){   // desired supervisor has not yet confirmed
+            editTextPartnerUserName.setText(partnerMailAddress);
+            buttonSetPartner.setEnabled(false);
+            buttonRemovePartner.setEnabled(true);
+            textViewSupervisorTitle.setText("Cancel pending unlink request");
+            textViewPartner.setText(partnerUserName + " / " +  partnerMailAddress);
+            textViewSupervisorStatus.setText("Supervisor (unlink pending): ");
+        }
     }
 }

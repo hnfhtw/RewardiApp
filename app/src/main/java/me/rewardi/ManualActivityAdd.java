@@ -15,6 +15,7 @@ public class ManualActivityAdd extends AppCompatActivity {
     private EditText editTextName;
     private EditText editTextRewardiPerHour;
     private ManualActivity act;
+    private Button buttonAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,7 @@ public class ManualActivityAdd extends AppCompatActivity {
         editTextName = findViewById(R.id.editTextName);
         editTextRewardiPerHour = findViewById(R.id.editTextRewardiPerHour);
 
-        Button buttonAdd = findViewById(R.id.buttonAdd);
+        buttonAdd = findViewById(R.id.buttonAdd);
         buttonAdd.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -96,6 +97,12 @@ public class ManualActivityAdd extends AppCompatActivity {
             act = Parcels.unwrap(getIntent().getExtras().getParcelable("act"));
             editTextName.setText(act.getName());
             editTextRewardiPerHour.setText(Integer.toString(act.getRewardiPerHour()));
+            setTitle("Edit Activity");
+            buttonAdd.setText("Edit");
+        }
+        else{
+            setTitle("Add new Activity");
+            buttonAdd.setText("Add");
         }
     }
 

@@ -1,8 +1,10 @@
 package me.rewardi;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,11 +21,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Messages extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
 
     Globals appState;
     private CustomListAdapterMessages listAdapter;
@@ -31,6 +38,8 @@ public class Messages extends AppCompatActivity
     FutureCallback<Response<String>> getPendingActivityHistoryItemsCallback;
     FutureCallback<Response<String>> getPendingLinkRequestsCallback;
     FutureCallback<Response<String>> getPendingUnlinkRequestsCallback;
+    private TextView toolbarRewardi;
+    private BroadcastReceiver currentActivityReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +47,7 @@ public class Messages extends AppCompatActivity
         setContentView(R.layout.activity_messages);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final TextView toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
+        toolbarRewardi = (TextView) toolbar.findViewById(R.id.textViewRewardiAccountBalanceHeader);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -76,7 +85,7 @@ public class Messages extends AppCompatActivity
                         String timestamp = pendingTodoListHistoryItem.get("Timestamp").getAsString();
 
                         String messageTitle = "Todo List Point Finished";
-                        String messageText = "User \"" + userName + "\" finished todo list point \"" + todoListPointName + "\" and earned " + Integer.toString(acquiredRewardi) + " Rewardi on " + timestamp + ".";
+                        String messageText = "User \"" + userName + "\" finished todo list point \"" + todoListPointName + "\" and earned " + Integer.toString(acquiredRewardi) + " Rewardi on " + appState.parseServerTimeStampToLocalTimeFormat(timestamp) + ".";
 
                         Message msg = new Message(Message.messageTypes.TODO_HISTORY_GRANT_REQUEST, messageTitle, messageText, pendingTodoListHistoryItem, id);
                         listAdapter.addItem(msg);
@@ -111,7 +120,7 @@ public class Messages extends AppCompatActivity
                         String timestamp = pendingActivityHistoryItem.get("Timestamp").getAsString();
 
                         String messageTitle = "Activity Performed";
-                        String messageText = "User \"" + userName + "\" performed activity \"" + activityName + "\" for " + Integer.toString(duration) + " seconds and earned " + Double.toString(acquiredRewardi) + " Rewardi on " + timestamp + ".";
+                        String messageText = "User \"" + userName + "\" performed activity \"" + activityName + "\" for " + Integer.toString(duration) + " seconds and earned " + Double.toString(acquiredRewardi) + " Rewardi on " + appState.parseServerTimeStampToLocalTimeFormat(timestamp) + ".";
 
                         Message msg = new Message(Message.messageTypes.ACTIVITY_HISTORY_GRANT_REQUEST, messageTitle, messageText, pendingActivityHistoryItem, id);
                         listAdapter.addItem(msg);
@@ -187,13 +196,30 @@ public class Messages extends AppCompatActivity
                 }
             }
         };
-
         appState = ((Globals)getApplicationContext());
+        appState.setUserDataListener(this);
+        appState.requestUserDataUpdate();
         appState.sendMessageToServer(Globals.messageID.SUPERVISOR_TODO_HISTORY_PENDING_GET_ALL, 0,null, getPendingTodoListHistoryItemsCallback);
         appState.sendMessageToServer(Globals.messageID.SUPERVISOR_ACTIVITY_HISTORY_PENDING_GET_ALL, 0,null, getPendingActivityHistoryItemsCallback);
         appState.sendMessageToServer(Globals.messageID.SUPERVISOR_LINK_REQUEST_PENDING_GET_ALL, 0,null, getPendingLinkRequestsCallback);
         appState.sendMessageToServer(Globals.messageID.SUPERVISOR_UNLINK_REQUEST_PENDING_GET_ALL, 0,null, getPendingUnlinkRequestsCallback);
-        toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        currentActivityReceiver = new CurrentActivityReceiver(this);
+        LocalBroadcastManager.getInstance(this).
+                registerReceiver(currentActivityReceiver, CurrentActivityReceiver.CURRENT_ACTIVITY_RECEIVER_FILTER);
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).
+                unregisterReceiver(currentActivityReceiver);
+        currentActivityReceiver = null;
+        super.onPause();
     }
 
     @Override
@@ -250,5 +276,12 @@ public class Messages extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onUserDataUpdate(User user) {
+        if(toolbarRewardi != null){
+            toolbarRewardi.setText(Double.toString(user.getTotalRewardi()));
+        }
     }
 }

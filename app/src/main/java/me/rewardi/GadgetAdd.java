@@ -24,6 +24,7 @@ public class GadgetAdd extends AppCompatActivity {
     private TextView textViewRewardi;
     private TextView textViewMaxTime;
     private TextView textViewGadgetName;
+    private Button buttonAdd;
 
     private SocketBoard socketBoard;
     private Box box;
@@ -48,7 +49,7 @@ public class GadgetAdd extends AppCompatActivity {
 
         editTextTrustNumber.addTextChangedListener(filterTextWatcher);
 
-        Button buttonAdd = findViewById(R.id.buttonAdd);
+        buttonAdd = findViewById(R.id.buttonAdd);
         buttonAdd.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -182,6 +183,8 @@ public class GadgetAdd extends AppCompatActivity {
                 editTextTrustNumber.setText(socketBoard.getTrustNumber());
                 editTextRewardi.setText(Integer.toString(socketBoard.getRewardiPerHour()));
                 editTextMaxTime.setText(Integer.toString(socketBoard.getMaxTimeSec()));
+                setTitle("Edit Rewardi Gadget");
+                buttonAdd.setText("Edit");
                 return;
             }
             if(isSocketBoard == false){
@@ -191,6 +194,10 @@ public class GadgetAdd extends AppCompatActivity {
                 editTextTrustNumber.setText(box.getTrustNumber());
                 editTextRewardi.setText(Integer.toString(box.getRewardiPerOpen()));
             }
+        }
+        else{
+            setTitle("Add new Rewardi Gadget");
+            buttonAdd.setText("Add");
         }
     }
 
