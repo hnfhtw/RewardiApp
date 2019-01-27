@@ -13,6 +13,7 @@ import java.util.List;
 class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
     private List<HistoryItemEarnedRewardi> earnedRewardiHistoryList;
     private Context context;
+    Globals appState;
 
     public CustomListAdapterEarnedRewardiHistory(Context context, List<HistoryItemEarnedRewardi> earnedRewardiHistoryList) {
         this.earnedRewardiHistoryList = earnedRewardiHistoryList;
@@ -43,6 +44,7 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
         convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_history_earned_rewardi, null);
         final HistoryItemEarnedRewardi historyItemEarnedRewardi = earnedRewardiHistoryList.get(position);
 
+        appState = ((Globals)context.getApplicationContext());
         TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
         TextView textViewType = (TextView) convertView.findViewById(R.id.textViewType);
         TextView textViewDate = (TextView) convertView.findViewById(R.id.textViewDate);
@@ -56,7 +58,7 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
         if(historyItemEarnedRewardi instanceof HistoryItemTodoListPoint){
             HistoryItemTodoListPoint historyItemTodoListPoint = (HistoryItemTodoListPoint) historyItemEarnedRewardi;
             textViewName.setText(historyItemTodoListPoint.getTodoListPoint().getName());
-            textViewDate.setText(historyItemTodoListPoint.getTimestamp());
+            textViewDate.setText(appState.parseServerTimeStampToLocalTimeFormat(historyItemTodoListPoint.getTimestamp()));
             textViewDuration.setVisibility(View.INVISIBLE);
             int acquiredRewardi = historyItemTodoListPoint.getAcquiredRewardi();
             if(granted){
@@ -87,7 +89,7 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
         else if(historyItemEarnedRewardi instanceof  HistoryItemManualActivity){
             HistoryItemManualActivity historyItemManualActivity = (HistoryItemManualActivity) historyItemEarnedRewardi;
             textViewName.setText(historyItemManualActivity.getActivity().getName());
-            textViewDate.setText(historyItemManualActivity.getTimestamp());
+            textViewDate.setText(appState.parseServerTimeStampToLocalTimeFormat(historyItemManualActivity.getTimestamp()));
             textViewDuration.setVisibility(View.VISIBLE);
             textViewDuration.setText(Double.toString(historyItemManualActivity.getDuration()/60) + "min");
             double acquiredRewardi = historyItemManualActivity.getAcquiredRewardi();

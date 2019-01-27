@@ -11,6 +11,7 @@ import java.util.List;
 class CustomListAdapterTodoListHistory extends BaseAdapter {
     private List<HistoryItemTodoListPoint> todoListHistoryList;
     private Context context;
+    Globals appState;
 
     public CustomListAdapterTodoListHistory(Context context, List<HistoryItemTodoListPoint> todoListHistoryList) {
         this.todoListHistoryList = todoListHistoryList;
@@ -41,11 +42,12 @@ class CustomListAdapterTodoListHistory extends BaseAdapter {
         convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_history_todolist, null);
         final HistoryItemTodoListPoint todoListHistoryItem = todoListHistoryList.get(position);
 
+        appState = ((Globals)context.getApplicationContext());
         TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
         TextView textViewDate = (TextView) convertView.findViewById(R.id.textViewDate);
         TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
         textViewName.setText(todoListHistoryItem.getTodoListPoint().getName());
-        textViewDate.setText(todoListHistoryItem.getTimestamp());
+        textViewDate.setText(appState.parseServerTimeStampToLocalTimeFormat(todoListHistoryItem.getTimestamp()));
         textViewRewardi.setText(Integer.toString(todoListHistoryItem.getAcquiredRewardi()));
 
         return convertView;

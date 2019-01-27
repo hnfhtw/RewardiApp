@@ -120,7 +120,7 @@ public class Gadgets extends AppCompatActivity
         getAllGadgetsCallback = new FutureCallback<Response<String>>() {
             @Override
             public void onCompleted(Exception e, Response<String> result) {
-                if(e == null){
+                if(e == null && result.getHeaders().code() == 200){
                     JsonElement element = new JsonParser().parse(result.getResult());
                     Log.d("Gadgets", "getAllGadgetsCallback Server Response = " + element.toString());
                     JsonArray array = element.getAsJsonArray();
@@ -145,7 +145,7 @@ public class Gadgets extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Gadgets", "getAllGadgetsCallback Server Response Error = " + e.toString());
+
                 }
             }
         };
@@ -154,7 +154,7 @@ public class Gadgets extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                if(e == null){
+                if(e == null && res.getHeaders().code() == 201){
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("Gadgets", "createGadgetCallback Server Response = " + element.toString());
                     JsonObject obj = element.getAsJsonObject();
@@ -172,7 +172,7 @@ public class Gadgets extends AppCompatActivity
                     listAdapter.notifyDataSetChanged();
                 }
                 else{
-                    Log.d("Gadgets", "createGadgetCallback Server Response Error = " + e.toString());
+
                 }
             }
         };
@@ -181,8 +181,7 @@ public class Gadgets extends AppCompatActivity
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
-                if(e == null){
-                    // HN-CHECK -> check if response is 200 -> then remove activity from list
+                if(e == null && res.getHeaders().code() == 200){
                     JsonElement element = new JsonParser().parse(res.getResult());
                     Log.d("Gadgets", "deleteGadgetCallback Server Response = " + element.toString());
                     JsonObject obj = element.getAsJsonObject();
@@ -192,7 +191,7 @@ public class Gadgets extends AppCompatActivity
                     showDeleteMenu(false);
                 }
                 else{
-                    Log.d("Gadgets", "deleteGadgetCallback Server Response Error = " + e.toString());
+
                 }
             }
         };
@@ -208,7 +207,7 @@ public class Gadgets extends AppCompatActivity
                     }
                 }
                 else{
-                    Log.d("Gadgets", "editGadgetCallback Server Response Error = " + e.toString());
+
                 }
             }
         };

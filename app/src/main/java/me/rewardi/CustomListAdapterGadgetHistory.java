@@ -12,6 +12,7 @@ import java.util.List;
 class CustomListAdapterGadgetHistory extends BaseAdapter {
     private List<HistoryItemGadget> gadgetHistoryList;
     private Context context;
+    Globals appState;
 
     public CustomListAdapterGadgetHistory(Context context, List<HistoryItemGadget> gadgetHistoryList) {
         this.gadgetHistoryList = gadgetHistoryList;
@@ -48,11 +49,13 @@ class CustomListAdapterGadgetHistory extends BaseAdapter {
         TextView textViewDuration = (TextView) convertView.findViewById(R.id.textViewDuration);
         TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
 
+        appState = ((Globals)context.getApplicationContext());
+
         if(historyItemGadget instanceof HistoryItemBox){
             HistoryItemBox historyItemBox = (HistoryItemBox) historyItemGadget;
             textViewName.setText(historyItemBox.getBox().getName());
             textViewGadgetType.setText("Box");
-            textViewDate.setText(historyItemBox.getTimestamp());
+            textViewDate.setText(appState.parseServerTimeStampToLocalTimeFormat(historyItemBox.getTimestamp()));
             textViewDuration.setVisibility(View.INVISIBLE);
             textViewRewardi.setText("-" + Integer.toString(historyItemBox.getUsedRewardi()));
         }
@@ -60,7 +63,7 @@ class CustomListAdapterGadgetHistory extends BaseAdapter {
             HistoryItemSocketBoard historyItemSocketBoard = (HistoryItemSocketBoard) historyItemGadget;
             textViewName.setText(historyItemSocketBoard.getSocketBoard().getName());
             textViewGadgetType.setText("Socket Board");
-            textViewDate.setText(historyItemSocketBoard.getTimestamp());
+            textViewDate.setText(appState.parseServerTimeStampToLocalTimeFormat(historyItemSocketBoard.getTimestamp()));
             textViewDuration.setVisibility(View.VISIBLE);
             textViewDuration.setText(Double.toString(historyItemSocketBoard.getDuration()/60) + "min");
             textViewRewardi.setText("-" + Double.toString(historyItemSocketBoard.getUsedRewardi()));

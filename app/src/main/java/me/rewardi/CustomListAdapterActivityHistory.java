@@ -11,6 +11,7 @@ import java.util.List;
 class CustomListAdapterActivityHistory extends BaseAdapter {
     private List<HistoryItemManualActivity> activityHistoryList;
     private Context context;
+    Globals appState;
 
     public CustomListAdapterActivityHistory(Context context, List<HistoryItemManualActivity> activityHistoryList) {
         this.activityHistoryList = activityHistoryList;
@@ -41,12 +42,13 @@ class CustomListAdapterActivityHistory extends BaseAdapter {
         convertView = LayoutInflater.from(context).inflate(R.layout.custom_row_history_activities, null);
         final HistoryItemManualActivity activityHistoryItem = activityHistoryList.get(position);
 
+        appState = ((Globals)context.getApplicationContext());
         TextView textViewName = (TextView) convertView.findViewById(R.id.textViewName);
         TextView textViewDate = (TextView) convertView.findViewById(R.id.textViewDate);
         TextView textViewDuration = (TextView) convertView.findViewById(R.id.textViewDuration);
         TextView textViewRewardi = (TextView) convertView.findViewById(R.id.textViewRewardi);
         textViewName.setText(activityHistoryItem.getActivity().getName());
-        textViewDate.setText(activityHistoryItem.getTimestamp());
+        textViewDate.setText(appState.parseServerTimeStampToLocalTimeFormat(activityHistoryItem.getTimestamp()));
         textViewDuration.setText(Integer.toString(activityHistoryItem.getDuration()/60) + "min");
         textViewRewardi.setText(Double.toString(activityHistoryItem.getAcquiredRewardi()));
 
