@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Messages.java
+ * Purpose    : List the received and unhandled messages of the current user;
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.BroadcastReceiver;
@@ -22,11 +32,7 @@ import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class Messages extends AppCompatActivity
@@ -34,10 +40,10 @@ public class Messages extends AppCompatActivity
 
     Globals appState;
     private CustomListAdapterMessages listAdapter;
-    FutureCallback<Response<String>> getPendingTodoListHistoryItemsCallback;
-    FutureCallback<Response<String>> getPendingActivityHistoryItemsCallback;
-    FutureCallback<Response<String>> getPendingLinkRequestsCallback;
-    FutureCallback<Response<String>> getPendingUnlinkRequestsCallback;
+    FutureCallback<Response<String>> getPendingTodoListHistoryItemsCallback;    // callback function that is called on server response to the request "get all Pending TodoList History Items (that require supervisor confirmation) of the current user (if he is supervisor)"
+    FutureCallback<Response<String>> getPendingActivityHistoryItemsCallback;    // callback function that is called on server response to the request "get all Pending Activity History Items (that require supervisor confirmation) of the current user (if he is supervisor)"
+    FutureCallback<Response<String>> getPendingLinkRequestsCallback;            // callback function that is called on server response to the request "get all Pending Supervisor Link Request Items (that require supervisor confirmation) of the current user (if he is supervisor)"
+    FutureCallback<Response<String>> getPendingUnlinkRequestsCallback;          // callback function that is called on server response to the request "get all Pending Supervisor Unlink Request Items (that require supervisor confirmation) of the current user (if he is supervisor)"
     private TextView toolbarRewardi;
     private BroadcastReceiver currentActivityReceiver;
 
@@ -64,7 +70,7 @@ public class Messages extends AppCompatActivity
         ListView listview1 = (ListView) findViewById(R.id.listview1);
         listview1.setAdapter(listAdapter);
 
-        getPendingTodoListHistoryItemsCallback = new FutureCallback<Response<String>>() {
+        getPendingTodoListHistoryItemsCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "get all Pending TodoList History Items (that require supervisor confirmation) of the current user (if he is supervisor)"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -98,7 +104,7 @@ public class Messages extends AppCompatActivity
             }
         };
 
-        getPendingActivityHistoryItemsCallback = new FutureCallback<Response<String>>() {
+        getPendingActivityHistoryItemsCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "get all Pending Activity History Items (that require supervisor confirmation) of the current user (if he is supervisor)"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -133,7 +139,7 @@ public class Messages extends AppCompatActivity
             }
         };
 
-        getPendingLinkRequestsCallback = new FutureCallback<Response<String>>() {
+        getPendingLinkRequestsCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "get all Pending Supervisor Link Request Items (that require supervisor confirmation) of the current user (if he is supervisor)"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -165,7 +171,7 @@ public class Messages extends AppCompatActivity
             }
         };
 
-        getPendingUnlinkRequestsCallback = new FutureCallback<Response<String>>() {
+        getPendingUnlinkRequestsCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "get all Pending Supervisor Unlink Request Items (that require supervisor confirmation) of the current user (if he is supervisor)"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -197,12 +203,12 @@ public class Messages extends AppCompatActivity
             }
         };
         appState = ((Globals)getApplicationContext());
-        appState.setUserDataListener(this);
-        appState.requestUserDataUpdate();
-        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_TODO_HISTORY_PENDING_GET_ALL, 0,null, getPendingTodoListHistoryItemsCallback);
-        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_ACTIVITY_HISTORY_PENDING_GET_ALL, 0,null, getPendingActivityHistoryItemsCallback);
-        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_LINK_REQUEST_PENDING_GET_ALL, 0,null, getPendingLinkRequestsCallback);
-        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_UNLINK_REQUEST_PENDING_GET_ALL, 0,null, getPendingUnlinkRequestsCallback);
+        appState.setUserDataListener(this); // ensure that this activity is informed when new user data is received from the server
+        appState.requestUserDataUpdate();   // request new user data from the server
+        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_TODO_HISTORY_PENDING_GET_ALL, 0,null, getPendingTodoListHistoryItemsCallback);        // send request: "get all Pending TodoList History Items (that require supervisor confirmation) of the current user (if he is supervisor)"
+        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_ACTIVITY_HISTORY_PENDING_GET_ALL, 0,null, getPendingActivityHistoryItemsCallback);    // send request: "get all Pending Activity History Items (that require supervisor confirmation) of the current user (if he is supervisor)"
+        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_LINK_REQUEST_PENDING_GET_ALL, 0,null, getPendingLinkRequestsCallback);                // send request: "get all Pending Supervisor Link Request Items (that require supervisor confirmation) of the current user (if he is supervisor)"
+        appState.sendMessageToServer(Globals.messageID.SUPERVISOR_UNLINK_REQUEST_PENDING_GET_ALL, 0,null, getPendingUnlinkRequestsCallback);            // send request: "get all Pending Supervisor Unlink Request Items (that require supervisor confirmation) of the current user (if he is supervisor)"
     }
 
     @Override

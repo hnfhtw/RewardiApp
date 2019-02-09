@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Message.java
+ * Purpose    : Representation of a message that is received by a Rewardi supervisor
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import com.google.gson.JsonObject;

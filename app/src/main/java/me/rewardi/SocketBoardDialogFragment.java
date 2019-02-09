@@ -1,3 +1,15 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : SocketBoardDialogFragment.java
+ * Purpose    : Fragment opened if a SocketBoard item is clicked in the Home activity;
+ *              Shows SocketBoard information (name, switched on/off, run-time, rewardi per hour)
+ *              and allows to switch on/off the SocketBoard
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.app.Dialog;
@@ -28,7 +40,7 @@ public class SocketBoardDialogFragment extends DialogFragment {
 
     private Context context;
     Globals appState;
-    FutureCallback<Response<String>> startStopSocketBoardCallback;
+    FutureCallback<Response<String>> startStopSocketBoardCallback;  // callback function that is called on server response to the request "start SocketBoard" or "stop SocketBoard"
     SocketBoard socketBoard;
     ActivityTimer socketBoardTimer;
     private SocketBoardDialogListener listener;
@@ -113,7 +125,7 @@ public class SocketBoardDialogFragment extends DialogFragment {
             }
         });
 
-        startStopSocketBoardCallback = new FutureCallback<Response<String>>() {
+        startStopSocketBoardCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "start SocketBoard" or "stop SocketBoard"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {

@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : History.java
+ * Purpose    : List the Rewardi (spent/earned) history of the current user;
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.BroadcastReceiver;
@@ -33,9 +43,9 @@ public class History extends AppCompatActivity
     Globals appState;
     private CustomListAdapterGadgetHistory listAdapterGadgets;
     private CustomListAdapterEarnedRewardiHistory listAdapterEarnedRewardiHistory;
-    FutureCallback<Response<String>> getFullGadgetHistoryCallback;
-    FutureCallback<Response<String>> getFullActivityHistoryCallback;
-    FutureCallback<Response<String>> getFullTodoListHistoryCallback;
+    FutureCallback<Response<String>> getFullGadgetHistoryCallback;      // callback function that is called on server response to the request "get full Rewardi Gadget History of the current user"
+    FutureCallback<Response<String>> getFullActivityHistoryCallback;    // callback function that is called on server response to the request "get full Rewardi Activity History of the current user"
+    FutureCallback<Response<String>> getFullTodoListHistoryCallback;    // callback function that is called on server response to the request "get full Rewardi TodoList History of the current user"
     private ListView listViewGadgets;
     private ListView listViewEarnedRewardi;
     private TextView toolbarRewardi;
@@ -63,7 +73,7 @@ public class History extends AppCompatActivity
         appState = ((Globals)getApplicationContext());
         toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
 
-        buttonEarnedRewardi.setOnClickListener(
+        buttonEarnedRewardi.setOnClickListener( // switch to Earned Rewardi History view -> hide listViewGadgets, show listViewEarnedRewardi
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -74,7 +84,7 @@ public class History extends AppCompatActivity
                     }
                 });
 
-        buttonSpentRewardi.setOnClickListener(
+        buttonSpentRewardi.setOnClickListener(  // switch to Spent Rewardi History view -> show listViewGadgets, hide listViewEarnedRewardi
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -97,7 +107,7 @@ public class History extends AppCompatActivity
         listViewEarnedRewardi = (ListView) findViewById(R.id.listViewEarnedRewardiHistory);
         listViewEarnedRewardi.setAdapter(listAdapterEarnedRewardiHistory);
 
-        getFullGadgetHistoryCallback = new FutureCallback<Response<String>>() {
+        getFullGadgetHistoryCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "get full Rewardi Gadget History of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -129,7 +139,7 @@ public class History extends AppCompatActivity
             }
         };
 
-        getFullActivityHistoryCallback = new FutureCallback<Response<String>>() {
+        getFullActivityHistoryCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "get full Rewardi Activity History of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -156,7 +166,7 @@ public class History extends AppCompatActivity
             }
         };
 
-        getFullTodoListHistoryCallback = new FutureCallback<Response<String>>() {
+        getFullTodoListHistoryCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "get full Rewardi TodoList History of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -186,12 +196,12 @@ public class History extends AppCompatActivity
         buttonEarnedRewardi.setBackgroundColor(Color.GREEN);
         buttonSpentRewardi.setBackgroundColor(Color.GRAY);
 
-        appState.setUserDataListener(this);
-        appState.requestUserDataUpdate();
-        appState.sendMessageToServer(Globals.messageID.BOX_HISTORY_GET_ALL, 0,null, getFullGadgetHistoryCallback);
-        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_HISSTORY_GET_ALL, 0,null, getFullGadgetHistoryCallback);
-        appState.sendMessageToServer(Globals.messageID.ACTIVITY_HISTORY_GET_ALL, 0,null, getFullActivityHistoryCallback);
-        appState.sendMessageToServer(Globals.messageID.TODO_HISTORY_GET_ALL, 0,null, getFullTodoListHistoryCallback);
+        appState.setUserDataListener(this); // ensure that this activity is informed when new user data is received from the server
+        appState.requestUserDataUpdate();   // request new user data from the server
+        appState.sendMessageToServer(Globals.messageID.BOX_HISTORY_GET_ALL, 0,null, getFullGadgetHistoryCallback);          // send request to server: "get all Rewardi Box History events of the current user"
+        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_HISSTORY_GET_ALL, 0,null, getFullGadgetHistoryCallback); // send request to server: "get all Rewardi SocketBoard History events of the current user"
+        appState.sendMessageToServer(Globals.messageID.ACTIVITY_HISTORY_GET_ALL, 0,null, getFullActivityHistoryCallback);   // send request to server: "get all Rewardi Activity History events of the current user"
+        appState.sendMessageToServer(Globals.messageID.TODO_HISTORY_GET_ALL, 0,null, getFullTodoListHistoryCallback);       // send request to server: "get all Rewardi TodoList History events of the current user"
     }
 
     @Override

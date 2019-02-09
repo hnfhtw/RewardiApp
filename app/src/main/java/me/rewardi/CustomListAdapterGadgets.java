@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : CustomListAdapterGadgets.java
+ * Purpose    : The activity Gadgets lists all Gadgets of the current user in a ListView.
+ *              This ListView ist managed by a CustomListAdapterGadgets.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -9,12 +20,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Response;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,17 +28,14 @@ import java.util.Date;
 import java.util.List;
 
 class CustomListAdapterGadgets extends BaseAdapter {
-    private List<Gadget> listGadgetsSelected;//keep track of selected objects
-    private List<View> listSelectedRows;//keep track of selected rows
-    private List<Gadget> listGadgets;
-    private List<ActivityTimer> listTimers;
+    private List<Gadget> listGadgetsSelected;   // keep track of selected Gadget objects
+    private List<View> listSelectedRows;        // keep track of selected rows
+    private List<Gadget> listGadgets;           // list containing all Gadget objects of the current user
+    private List<ActivityTimer> listTimers;     // list containing an Activity timer for each switched-on SocketBoard
     private Context context;
     Globals appState;
-    //FutureCallback<Response<String>> startStopSocketBoardCallback;
     TextView textViewActive;
     ActivityTimer timer;
-    Gadget buttonClickedGadget;
-    TextView buttonClickedTextview;
 
     public CustomListAdapterGadgets(Context context, List<Gadget> listGadgets) {
         this.listGadgets = listGadgets;
@@ -62,13 +64,13 @@ class CustomListAdapterGadgets extends BaseAdapter {
 
     public void addItem(Box box){
         listGadgets.add(box);
-    }
+    }   // add a Box to the ListView
 
-    public void addItem(SocketBoard socketBoard){
+    public void addItem(SocketBoard socketBoard){   // add a SocketBoard to the ListView
         listGadgets.add(socketBoard);
 
         long startValueMilis = 0;
-        if(socketBoard.getIsActive()){
+        if(socketBoard.getIsActive()){  // check if the SocketBoard is currently switched on -> if yes, preload and start the ActivityTimer to show the run-time in the corresponding UI element
             String activeSince = socketBoard.getActiveSince().substring(0,18);
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -95,7 +97,7 @@ class CustomListAdapterGadgets extends BaseAdapter {
         textViewActive = (TextView) convertView.findViewById(R.id.textViewActive);
         final ToggleButton btnStartStop = (ToggleButton) convertView.findViewById(R.id.btnStartStop);
         Log.d("getViewSocketBoard", "getView gadget name = " + gadget.getName());
-        if(gadget instanceof Box) {
+        if(gadget instanceof Box) { // send UI elements correctly depending on type of Gadget
             btnStartStop.setText("Lock Box");
             btnStartStop.setTextOff("Lock Box");
             btnStartStop.setTextOn("Box Locked");
@@ -147,107 +149,13 @@ class CustomListAdapterGadgets extends BaseAdapter {
 
         appState = ((Globals)context.getApplicationContext());
         btnStartStop.setOnClickListener(new GadgetOnButtonClickListener(this,gadget,textViewActive, btnStartStop, appState));
-        /*btnStartStop.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                buttonClickedGadget = gadget;
-                buttonClickedTextview = textViewActive;
-                Log.d("btnStartStopGadgets", "btnStartStop gadget name = " + gadget.getName());
-                if(gadget instanceof Box) {
-                    if(btnStartStop.isChecked()){
-                        btnStartStop.setEnabled(false);
-                        appState.sendMessageToServer(Globals.messageID.BOX_LOCK, ((Box)gadget).getId(),null, null);
-                        ((Box)gadget).setIsLocked(true);
-                    }
-                }
-                else if(gadget instanceof SocketBoard){
-                    if(btnStartStop.isChecked()){
-                        JsonObject data = new JsonObject();
-                        data.addProperty("maxTime", ((SocketBoard)gadget).getMaxTimeSec());
-                        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_START, ((SocketBoard)gadget).getId(),data, startStopSocketBoardCallback);
-                        //((SocketBoard)gadget).setIsActive(true);
-                    }
-                    else{
-                        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_STOP, ((SocketBoard)gadget).getId(),null, startStopSocketBoardCallback);
-                        //((SocketBoard)gadget).setIsActive(false);
-                        textViewActive.setText("Socket Board switched OFF");
-                    }
-                }
-                //notifyDataSetChanged();
-            }
-        });*/
 
         textViewGadgetName.setText(gadget.getName());
-
-        /*startStopSocketBoardCallback = new FutureCallback<Response<String>>() {
-            @Override
-            public void onCompleted(Exception e, Response<String> result) {
-                if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {
-                    JsonElement element = new JsonParser().parse(result.getResult());
-                    Log.d("SocketBoard", "startStopSocketBoardCallback Element = " + element.toString());
-                    Log.d("SocketBoard", "startStopSocketBoardCallback Header = " + result.getHeaders().code());
-                    if (element == null || element.isJsonNull()) {   // no data in STOP SOCKETBOARD message -> stop timer and set TextView appropriately - then return.
-                        appState.requestUserDataUpdate();
-                        ((SocketBoard) gadget).setIsActive(false);
-                        textViewActive.setText("Socket Board switched OFF");
-                        ActivityTimer tim1 = getTimer(((SocketBoard) gadget).getId());
-                        if (tim1 != null) {
-                            tim1.cancel();
-                            tim1.setOutputText("Socket Board switched OFF");
-                            tim1.setStartValueMilis(0);
-                        }
-                        return;
-                    } else {                       // if response contains payload it is a START SOCKETBOARD message -> parse object values (not really necessary actually), update object, start timer and set TextView appropriately
-                        JsonObject obj = element.getAsJsonObject();
-                        Log.d("SocketBoard", "startStopSocketBoardCallback Response Object = " + obj.toString());
-
-                        SocketBoard socketBoard = SocketBoard.parseObject(obj);
-                        setItem((Gadget) socketBoard);
-                        ActivityTimer tim = getTimer(socketBoard.getId());
-
-                        if (socketBoard.getIsActive()) {
-                            String actSince = socketBoard.getActiveSince().substring(0, 19);
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                            long startValueMilis = 0;
-                            try {
-                                Date date = format.parse(actSince);
-                                Date currentTime = Calendar.getInstance().getTime();
-                                startValueMilis = currentTime.getTime() - date.getTime();
-                                Log.d("SocketBoard", "ActSince = " + actSince);
-                                Log.d("SocketBoard", "Current Time = " + currentTime);
-                                Log.d("SocketBoard", "Start Value in ms = " + startValueMilis);
-                            } catch (ParseException ex) {
-                                ex.printStackTrace();
-                            }
-                            if (startValueMilis < 0) {
-                                startValueMilis = 0;
-                            }
-
-                            if (tim != null) {
-                                tim.setStartValueMilis(startValueMilis);
-                                tim.start();
-                            }
-
-                        } else {
-                            textViewActive.setText("Socket Board switched OFF");
-                            if (tim != null) {
-                                tim.cancel();
-                                tim.setStartValueMilis(0);
-                            }
-                        }
-                        notifyDataSetChanged();
-                    }
-                }
-                else{
-
-                }
-            }
-        };*/
 
         return convertView;
     }
 
-    public void handleLongPress(int position, View view){
+    public void handleLongPress(int position, View view){   // on a long press the ListView rows are highlighted -> the can then either be unselected with another long press or deleted by the Delete button
         if(listSelectedRows.contains(view)){
             listSelectedRows.remove(view);
             listGadgetsSelected.remove(listGadgets.get(position));

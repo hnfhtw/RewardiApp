@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : GadgetOnButtonClickListener.java
+ * Purpose    : Used to react on button presses in the Gadgets activity. The listener is set by
+ *              the CustomListAdapterGadgets.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.util.Log;
@@ -34,7 +45,7 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
         m_btnStartStop = btn;
         m_appState = appState;
 
-        startStopSocketBoardCallback = new FutureCallback<Response<String>>() {
+        startStopSocketBoardCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "start SocketBoard" or "stop SocketBoard"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {
@@ -44,7 +55,6 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
                     if (element == null || element.isJsonNull()) {   // no data in STOP SOCKETBOARD message -> stop timer and set TextView appropriately - then return.
                         m_appState.requestUserDataUpdate();
                         ((SocketBoard) m_gadget).setIsActive(false);
-                        //m_outputTextView.setText("Socket Board switched OFF");
                         ActivityTimer tim1 = m_customListAdapterGadgets.getTimer(((SocketBoard) m_gadget).getId());
                         if (tim1 != null) {
                             tim1.cancel();
@@ -91,7 +101,6 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
                                 tim.setStartValueMilis(0);
                             }
                         }
-                        //m_customListAdapterGadgets.notifyDataSetChanged();
                     }
                 }
                 else{
@@ -110,7 +119,6 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
                     m_outputTextView.setText("Box locked!");
                 }
                 else{
-
                 }
             }
         };
@@ -121,9 +129,7 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
         if(m_gadget instanceof Box) {
             if(m_btnStartStop.isChecked()){
                 m_btnStartStop.setChecked(false);
-                //m_btnStartStop.setEnabled(false);
                 m_appState.sendMessageToServer(Globals.messageID.BOX_LOCK, ((Box)m_gadget).getId(),null, lockBoxCallback);
-                //((Box)m_gadget).setIsLocked(true);
             }
         }
         else if(m_gadget instanceof SocketBoard){
@@ -132,12 +138,9 @@ public class GadgetOnButtonClickListener implements View.OnClickListener {
                 JsonObject data = new JsonObject();
                 data.addProperty("maxTime", ((SocketBoard)m_gadget).getMaxTimeSec());
                 m_appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_START, ((SocketBoard)m_gadget).getId(),data, startStopSocketBoardCallback);
-                //((SocketBoard)gadget).setIsActive(true);
             }
             else{
                 m_appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_STOP, ((SocketBoard)m_gadget).getId(),null, startStopSocketBoardCallback);
-                //((SocketBoard)gadget).setIsActive(false);
-                //m_outputTextView.setText("Socket Board switched OFF");
             }
         }
 

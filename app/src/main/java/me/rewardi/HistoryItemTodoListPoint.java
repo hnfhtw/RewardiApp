@@ -1,3 +1,15 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : HistoryItemTodoListPoint.java
+ * Purpose    : Representation of a TodoList History item (information when a certain TodoList point
+ *              was finished, how many Rewardi were earned, etc...);
+ *              Inherits from super class HistoryItemEarnedRewardi
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import com.google.gson.JsonObject;
@@ -5,7 +17,7 @@ import com.google.gson.JsonObject;
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
-@Parcel(Parcel.Serialization.BEAN)
+@Parcel(Parcel.Serialization.BEAN)  // to serialize HistoryItemTodoListPoint object for passing it between activities via intents
 public class HistoryItemTodoListPoint extends HistoryItemEarnedRewardi {
     private TodoListPoint todoListPoint;
     private int acquiredRewardi;
@@ -30,7 +42,7 @@ public class HistoryItemTodoListPoint extends HistoryItemEarnedRewardi {
         this.acquiredRewardi = acquiredRewardi;
     }
 
-    public static HistoryItemTodoListPoint parseObject(JsonObject obj) {
+    public static HistoryItemTodoListPoint parseObject(JsonObject obj) {    // parse a JsonObject received from the server to a HistoryItemTodoListPoint object
         int id = obj.get("id").getAsInt();
         JsonObject todoListPointObj = obj.get("fkToDo").getAsJsonObject();
         String name = todoListPointObj.get("name").getAsString();

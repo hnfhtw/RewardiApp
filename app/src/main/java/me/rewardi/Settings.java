@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Settings.java
+ * Purpose    : Add/remove supervisor; Change password (not yet supported by server)
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.BroadcastReceiver;
@@ -27,9 +37,9 @@ public class Settings extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, UpdateUserdata {
 
     Globals appState;
-    FutureCallback<Response<String>> changePasswordCallback;
-    FutureCallback<Response<String>> setSupervisorCallback;
-    FutureCallback<Response<String>> removeSupervisorCallback;
+    FutureCallback<Response<String>> changePasswordCallback;    // callback function that is called on server response to the request "change password of the current user" (not yet supported)
+    FutureCallback<Response<String>> setSupervisorCallback;     // callback function that is called on server response to the request "set new supervisor for the current user"
+    FutureCallback<Response<String>> removeSupervisorCallback;  // callback function that is called on server response to the request "remove supervisor from current user"
     private TextView toolbarRewardi;
     private BroadcastReceiver currentActivityReceiver;
     private EditText editTextPartnerUserName;
@@ -56,9 +66,8 @@ public class Settings extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         appState = ((Globals)getApplicationContext());
-        appState.setUserDataListener(this);
-        appState.requestUserDataUpdate();
-        //toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+        appState.setUserDataListener(this); // ensure that this activity is informed when new user data is received from the server
+        appState.requestUserDataUpdate();   // request new user data from the server
 
         editTextPartnerUserName = (EditText) findViewById(R.id.editTextPartnerUserName);
         textViewPartner = (TextView) findViewById(R.id.textViewPartner);
@@ -147,7 +156,7 @@ public class Settings extends AppCompatActivity
                 });
 
 
-        changePasswordCallback = new FutureCallback<Response<String>>() {
+        changePasswordCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "change password of the current user" (not yet supported)
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -160,7 +169,7 @@ public class Settings extends AppCompatActivity
             }
         };
 
-        setSupervisorCallback = new FutureCallback<Response<String>>() {
+        setSupervisorCallback = new FutureCallback<Response<String>>() {    // callback function that is called on server response to the request "set new supervisor for the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && result.getHeaders().code() == 204) {
@@ -177,7 +186,7 @@ public class Settings extends AppCompatActivity
             }
         };
 
-        removeSupervisorCallback = new FutureCallback<Response<String>>() {
+        removeSupervisorCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "remove supervisor from current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && result.getHeaders().code() == 204) {

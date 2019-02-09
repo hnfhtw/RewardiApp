@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : CustomListAdapterMessages.java
+ * Purpose    : The activity Messages lists all received messages of the current user in a ListView.
+ *              This ListView ist managed by a CustomListAdapterMessages.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -11,7 +22,7 @@ import com.google.gson.JsonObject;
 import java.util.List;
 
 class CustomListAdapterMessages extends BaseAdapter {
-    private List<Message> listMessages;
+    private List<Message> listMessages; // list containing all Message objects of the current user
     private Context context;
     Globals appState;
     private int layoutResId;
@@ -37,7 +48,7 @@ class CustomListAdapterMessages extends BaseAdapter {
         return 0;
     }
 
-    public void addItem(Message msg){
+    public void addItem(Message msg){   // add a Message item to the ListView
         listMessages.add(msg);
     }
 
@@ -64,7 +75,7 @@ class CustomListAdapterMessages extends BaseAdapter {
         }
 
 
-        buttonDeleteMessage.setOnClickListener(new View.OnClickListener(){
+        buttonDeleteMessage.setOnClickListener(new View.OnClickListener(){  // delete message button is currently not used -> it is there for messages that may be added in the future (messages that don't require deny/confirm but are only informative)
             @Override
             public void onClick(View v) {
                 // do something
@@ -73,7 +84,7 @@ class CustomListAdapterMessages extends BaseAdapter {
 
         final int idx = position;
 
-        buttonDenyRequest.setOnClickListener(new View.OnClickListener(){
+        buttonDenyRequest.setOnClickListener(new View.OnClickListener(){    // if the deny button was clicked -> send the corresponding server request to inform that supervisor denied the request
             @Override
             public void onClick(View v) {
                 JsonObject sendObj = new JsonObject();
@@ -100,7 +111,7 @@ class CustomListAdapterMessages extends BaseAdapter {
             }
         });
 
-        buttonConfirmRequest.setOnClickListener(new View.OnClickListener(){
+        buttonConfirmRequest.setOnClickListener(new View.OnClickListener(){ // if the confirm button was clicked -> send the corresponding server request to inform that supervisor confirmed the request
             @Override
             public void onClick(View v) {
                 JsonObject sendObj = new JsonObject();

@@ -1,3 +1,15 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : HistoryItemManualActivity.java
+ * Purpose    : Representation of a Activity History item (information when a certain activity
+ *              was performed, for how long, how many Rewardi were earned, etc...);
+ *              Inherits from super class HistoryItemEarnedRewardi
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import com.google.gson.JsonObject;
@@ -5,7 +17,7 @@ import com.google.gson.JsonObject;
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
-@Parcel(Parcel.Serialization.BEAN)
+@Parcel(Parcel.Serialization.BEAN)  // to serialize HistoryItemManualActivity object for passing it between activities via intents
 public class HistoryItemManualActivity extends HistoryItemEarnedRewardi {
     private ManualActivity activity;
     private int duration;
@@ -38,7 +50,7 @@ public class HistoryItemManualActivity extends HistoryItemEarnedRewardi {
     }
     public void setAcquiredRewardi(double acquiredRewardi) { this.acquiredRewardi = acquiredRewardi; }
 
-    public static HistoryItemManualActivity parseObject(JsonObject obj) {
+    public static HistoryItemManualActivity parseObject(JsonObject obj) {   // parse a JsonObject received from the server to a HistoryItemManualActivity object
         int id = obj.get("id").getAsInt();
         JsonObject activityObj = obj.get("fkActivity").getAsJsonObject();
         int activityId = activityObj.get("id").getAsInt();

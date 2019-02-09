@@ -1,9 +1,19 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Gadget.java
+ * Purpose    : Representation of a Rewardi Gadget;
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
-@Parcel(Parcel.Serialization.BEAN)
+@Parcel(Parcel.Serialization.BEAN)  // to serialize Gadget object for passing it between activities via intents
 public class Gadget {
     private int id;
     private String trustNumber;

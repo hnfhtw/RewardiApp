@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : BoxDialogFragment.java
+ * Purpose    : Fragment opened if a Box item is clicked in the Home activity;
+ *              Shows Box information (name, locked/unlocked, rewardi per open) and allows to lock box
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.app.Dialog;
@@ -20,7 +31,7 @@ public class BoxDialogFragment extends DialogFragment {
 
     private Context context;
     Globals appState;
-    FutureCallback<Response<String>> lockBoxCallback;
+    FutureCallback<Response<String>> lockBoxCallback;   // callback function that is called on server response to the request "lock Box"
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -46,7 +57,7 @@ public class BoxDialogFragment extends DialogFragment {
         btnStartStop.setTextOn("Box Locked");
         textViewRewardi.setText("Cost: " + Integer.toString(box.getRewardiPerOpen()) + " Rewardi / open");
 
-        if(box.getIsLocked()){
+        if(box.getIsLocked()){  // set UI elements correctly depending on lock status of box
             btnStartStop.setChecked(true);
             btnStartStop.setEnabled(false);
             textViewActive.setText("Box locked!");
@@ -59,17 +70,15 @@ public class BoxDialogFragment extends DialogFragment {
         appState = ((Globals)context.getApplicationContext());
         btnStartStop.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) {   // if btnStartStop is clicked and Box is not yet locked -> send lock request to server
                     if(btnStartStop.isChecked()){
                         btnStartStop.setChecked(false);
-                        //btnStartStop.setEnabled(false);
                         appState.sendMessageToServer(Globals.messageID.BOX_LOCK, box.getId(),null, lockBoxCallback);
-                        //box.setIsLocked(true);
                     }
                 }
         });
 
-        lockBoxCallback = new FutureCallback<Response<String>>() {
+        lockBoxCallback = new FutureCallback<Response<String>>() {  // callback function that is called on server response to the request "lock Box"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200 || result.getHeaders().code() == 202 || result.getHeaders().code() == 203) ) {

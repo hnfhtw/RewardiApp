@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Home.java
+ * Purpose    : List all gadgets, activities and todo list points of the current user
+ *              Lock box; Switch on/off socketboard; start/stop activities; finish todo list points
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.app.NotificationChannel;
@@ -44,9 +55,9 @@ public class Home extends AppCompatActivity
     private CustomListAdapterTodoList listAdapterTodoList;
     private CustomListAdapterActivities listAdapterActivities;
     private CustomGridViewActivity adapterViewAndroid;
-    FutureCallback<Response<String>> getAllGadgetsCallback;
-    FutureCallback<Response<String>> getAllTodoListPointsCallback;
-    FutureCallback<Response<String>> getAllActivitiesCallback;
+    FutureCallback<Response<String>> getAllGadgetsCallback;         // callback function that is called on server response to the request "get all Rewardi Gadgets of the current user"
+    FutureCallback<Response<String>> getAllTodoListPointsCallback;  // callback function that is called on server response to the request "get all Rewardi TodoListPoints of the current user"
+    FutureCallback<Response<String>> getAllActivitiesCallback;      // callback function that is called on server response to the request "get all Rewardi Activities of the current user"
     private TextView toolbarRewardi;
     private TextView textViewRewardiAccountBalance;
     private BroadcastReceiver currentActivityReceiver;
@@ -98,7 +109,7 @@ public class Home extends AppCompatActivity
         ListView listViewActivities = (ListView) findViewById(R.id.listviewActivities);
         listViewActivities.setAdapter(listAdapterActivities);
 
-        getAllGadgetsCallback = new FutureCallback<Response<String>>() {
+        getAllGadgetsCallback = new FutureCallback<Response<String>>() {    // callback function that is called on server response to the request "get all Rewardi Gadgets of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -131,7 +142,7 @@ public class Home extends AppCompatActivity
             }
         };
 
-        getAllTodoListPointsCallback = new FutureCallback<Response<String>>() {
+        getAllTodoListPointsCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "get all Rewardi TodoListPoints of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -156,7 +167,7 @@ public class Home extends AppCompatActivity
             }
         };
 
-        getAllActivitiesCallback = new FutureCallback<Response<String>>() {
+        getAllActivitiesCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "get all Rewardi Activities of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -228,12 +239,12 @@ public class Home extends AppCompatActivity
                     }
                 });
 
-        appState.setUserDataListener(this);
-        appState.requestUserDataUpdate();
-        appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
-        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
-        appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
-        appState.sendMessageToServer(Globals.messageID.ACTIVITY_GET_ALL, 0,null, getAllActivitiesCallback);
+        appState.setUserDataListener(this); // ensure that this activity is informed when new user data is received from the server
+        appState.requestUserDataUpdate();   // request new user data from the server
+        appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);         // send request to server: "get all Rewardi Boxes of the current user"
+        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback); // send request to server: "get all Rewardi SocketBoards of the current user"
+        appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback); // send request to server: "get all Rewardi TodoListPoints of the current user"
+        appState.sendMessageToServer(Globals.messageID.ACTIVITY_GET_ALL, 0,null, getAllActivitiesCallback); // send request to server: "get all Rewardi Activities of the current user"
     }
 
     @Override

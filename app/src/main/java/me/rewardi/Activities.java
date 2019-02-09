@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Activities.java
+ * Purpose    : List the activities of the current user; add/edit/delete/start/stop activities
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.BroadcastReceiver;
@@ -35,10 +45,10 @@ public class Activities extends AppCompatActivity
     private MenuItem menuItemDelete;
     private CustomListAdapterActivities listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
-    FutureCallback<Response<String>> getAllActivitiesCallback;
-    FutureCallback<Response<String>> createActivityCallback;
-    FutureCallback<Response<String>> deleteActivityCallback;
-    FutureCallback<Response<String>> editActivityCallback;
+    FutureCallback<Response<String>> getAllActivitiesCallback;  // callback function that is called on server response to the request "get all Rewardi Activities of the current user"
+    FutureCallback<Response<String>> createActivityCallback;    // callback function that is called on server response to the request "create a new Rewardi Activity for the current user"
+    FutureCallback<Response<String>> deleteActivityCallback;    // callback function that is called on server response to the request "delete a Rewardi Activity of the current user"
+    FutureCallback<Response<String>> editActivityCallback;      // callback function that is called on server response to the request "edit a Rewardi Activity of the current user"
     private ManualActivity editActivity;    // server does not send whole object as payload if the activity is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
     private TextView toolbarRewardi;
     private BroadcastReceiver currentActivityReceiver;
@@ -61,7 +71,7 @@ public class Activities extends AppCompatActivity
 
         floatingActionButtonAdd = findViewById(R.id.floatingActionButtonAdd);
 
-        floatingActionButtonAdd.setOnClickListener(
+        floatingActionButtonAdd.setOnClickListener(     // button to add new activity -> start ManualActivityAdd activity on click
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -82,7 +92,7 @@ public class Activities extends AppCompatActivity
                 new AdapterView.OnItemClickListener()
                 {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {      // if a ListView entry (row) is clicked, the corresponding Rewardi Activity can be edit -> put the object to an intent, start the ManualActivityAdd activity and pass the intent
                         ManualActivity item = (ManualActivity) parent.getItemAtPosition(position);
                         Intent intent = new Intent(view.getContext(), ManualActivityAdd.class);
                         Bundle bundle = new Bundle();
@@ -97,7 +107,7 @@ public class Activities extends AppCompatActivity
                 new AdapterView.OnItemLongClickListener()
                 {
                     @Override
-                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {   // on a long click on a ListView entry (row) the Delete button is shown -> the Rewardi Activity can be deleted
                         listAdapter.handleLongPress(position,view);
                         if(listAdapter.getListActivitiesSelected().size() > 0){
                             showDeleteMenu(true);
@@ -109,7 +119,7 @@ public class Activities extends AppCompatActivity
                 }
         );
 
-        getAllActivitiesCallback = new FutureCallback<Response<String>>() {
+        getAllActivitiesCallback = new FutureCallback<Response<String>>() {     // callback function that is called on server response to the request "get all Rewardi Activities of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -135,7 +145,7 @@ public class Activities extends AppCompatActivity
             }
         };
 
-        createActivityCallback = new FutureCallback<Response<String>>() {
+        createActivityCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "create a new Rewardi Activity for the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -154,7 +164,7 @@ public class Activities extends AppCompatActivity
             }
         };
 
-        deleteActivityCallback = new FutureCallback<Response<String>>() {
+        deleteActivityCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "delete a Rewardi Activity of the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -174,7 +184,7 @@ public class Activities extends AppCompatActivity
             }
         };
 
-        editActivityCallback = new FutureCallback<Response<String>>() {
+        editActivityCallback = new FutureCallback<Response<String>>() {     // callback function that is called on server response to the request "edit a Rewardi Activity of the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -191,10 +201,9 @@ public class Activities extends AppCompatActivity
         };
 
         appState = ((Globals)getApplicationContext());
-        appState.setUserDataListener(this);
-        appState.requestUserDataUpdate();
-        appState.sendMessageToServer(Globals.messageID.ACTIVITY_GET_ALL, 0,null, getAllActivitiesCallback);
-        //toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+        appState.setUserDataListener(this); // ensure that this activity is informed when new user data is received from the server
+        appState.requestUserDataUpdate();   // request new user data from the server
+        appState.sendMessageToServer(Globals.messageID.ACTIVITY_GET_ALL, 0,null, getAllActivitiesCallback); // send request to server: "get all Rewardi Activities of the current user"
     }
 
     @Override
@@ -233,7 +242,7 @@ public class Activities extends AppCompatActivity
         menuItemDelete.setOnMenuItemClickListener(
                 new MenuItem.OnMenuItemClickListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
+                    public boolean onMenuItemClick(MenuItem menuItem) {     // several ListView rows (=Rewardi Activities) can be highlighted and then deleted by clicking the Delete button -> send requests to the server to delete all these Rewardi Activities
                         List<ManualActivity> deleteList = listAdapter.getListActivitiesSelected();
                         for(int i = 0; i<deleteList.size(); ++i){
                             appState.sendMessageToServer(Globals.messageID.ACTIVITY_DELETE, deleteList.get(i).getId(),null, deleteActivityCallback);
@@ -288,7 +297,7 @@ public class Activities extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {     // called when ManualActivityAdd finishes -> either wenn new Rewardi Activity was added (requestCode == 101) or when an existing Rewardi Activity was edited (requestCode == 102)
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
             Bundle bundle = data.getExtras();

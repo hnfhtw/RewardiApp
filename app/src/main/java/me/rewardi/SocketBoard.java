@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : SocketBoard.java
+ * Purpose    : Representation of a Rewardi SocketBoard;
+ *              Inherits (properties ID, trustNumber and Name) from super class Gadget
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.util.Log;
@@ -35,7 +46,7 @@ public class SocketBoard extends Gadget {
     public String getActiveSince() { return activeSince; }
     public void setActiveSince(String activeSince) { this.activeSince = activeSince; }
 
-    public static SocketBoard parseObject(JsonObject obj) {
+    public static SocketBoard parseObject(JsonObject obj) { // parse a JsonObject received from the server to a SocketBoard object
         int id = obj.get("id").getAsInt();
         String trustNumber = obj.get("trustNo").getAsString();
         String name = obj.get("name").getAsString();

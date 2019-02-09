@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : GadgetAdd.java
+ * Purpose    : This activity is started from Gadgets activity if user wants to add or edit a
+ *              Rewardi gadget
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.DialogInterface;

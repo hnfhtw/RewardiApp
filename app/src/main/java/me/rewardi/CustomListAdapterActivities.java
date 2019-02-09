@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : CustomListAdapterActivities.java
+ * Purpose    : The activity Activities lists all activities of the current user in a ListView.
+ *              This ListView ist managed by a CustomListAdapterActivities.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -14,7 +25,6 @@ import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,10 +33,10 @@ import java.util.Date;
 import java.util.List;
 
 class CustomListAdapterActivities extends BaseAdapter {
-    private List<ManualActivity> listActivitiesSelected;//keep track of selected objects
-    private List<View> listSelectedRows;//keep track of selected rows
-    private List<ManualActivity> listActivities;
-    private List<ActivityTimer> listTimers;
+    private List<ManualActivity> listActivitiesSelected;    // keep track of selected ManualActivity objects
+    private List<View> listSelectedRows;                    // keep track of selected rows
+    private List<ManualActivity> listActivities;            // list containing all ManualActivity objects of the current user
+    private List<ActivityTimer> listTimers;                 // list containing an Activity timer for each running ManualActivity
     private Context context;
     Globals appState;
     private int layoutResId;
@@ -57,11 +67,11 @@ class CustomListAdapterActivities extends BaseAdapter {
         return 0;
     }
 
-    public void addItem(ManualActivity activity){
+    public void addItem(ManualActivity activity){   // add a ManualActivity to the ListView
         listActivities.add(activity);
 
         long startValueMilis = 0;
-        if(activity.getIsActive()){
+        if(activity.getIsActive()){ // check if the Rewardi Activity is currently active -> if yes, preload and start the ActivityTimer to show the run-time in the corresponding UI element
             String activeSince = activity.getActiveSince().substring(0,18);
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -120,7 +130,7 @@ class CustomListAdapterActivities extends BaseAdapter {
         appState = ((Globals)context.getApplicationContext());
         btnStartStop.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) {   // if btnStartStop is clicked and Activity is not yet running -> send start Rewardi Activity request to server, otherwise send stop Rewardi Activity request
                 if(btnStartStop.isChecked()){
                     appState.sendMessageToServer(Globals.messageID.ACTIVITY_START,activity.getId(),null, startStopActivityCallback);
                     activity.setIsActive(true);
@@ -135,7 +145,7 @@ class CustomListAdapterActivities extends BaseAdapter {
         textViewName.setText(activity.getName());
         textViewRewardi.setText("Earn: "+Integer.toString(activity.getRewardiPerHour())+" Rewardi / Hour");
 
-        startStopActivityCallback = new FutureCallback<Response<String>>() {
+        startStopActivityCallback = new FutureCallback<Response<String>>() {    // callback function that is called on server response to the request "start Rewardi Activity" or "stop Rewardi Activity"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200) ) {
@@ -195,7 +205,7 @@ class CustomListAdapterActivities extends BaseAdapter {
         return convertView;
     }
 
-    public void handleLongPress(int position, View view){
+    public void handleLongPress(int position, View view){   // on a long press the ListView rows are highlighted -> the can then either be unselected with another long press or deleted by the Delete button
         if(listSelectedRows.contains(view)){
             listSelectedRows.remove(view);
             listActivitiesSelected.remove(listActivities.get(position));

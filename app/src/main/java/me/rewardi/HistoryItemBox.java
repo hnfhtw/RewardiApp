@@ -1,3 +1,15 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : HistoryItemBox.java
+ * Purpose    : Representation of a Box History item (information when a certain box was opened,
+ *              how many Rewardi were spent, etc...);
+ *              Inherits from super class HistoryItemGadget (ID and timestamp of history item)
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import com.google.gson.JsonObject;
@@ -5,7 +17,7 @@ import com.google.gson.JsonObject;
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
-@Parcel(Parcel.Serialization.BEAN)
+@Parcel(Parcel.Serialization.BEAN)  // to serialize HistoryItemBox object for passing it between activities via intents
 public class HistoryItemBox extends HistoryItemGadget{
     private Box box;
     private int usedRewardi;
@@ -32,7 +44,7 @@ public class HistoryItemBox extends HistoryItemGadget{
         this.usedRewardi = usedRewardi;
     }
 
-    public static HistoryItemBox parseObject(JsonObject obj) {
+    public static HistoryItemBox parseObject(JsonObject obj) {  // parse a JsonObject received from the server to a HistoryItemBox object
         int id = obj.get("id").getAsInt();
         String timestamp = obj.get("timestamp").getAsString();
         if(obj.has("fkBox")) {   // Box

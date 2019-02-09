@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : IonSetSelfSignedSSL.java
+ * Purpose    : Used to allow usage of self signed server certificate -> tell TLS library to
+ *              trust the certificate that is added to assets/rewardi.cer
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -65,9 +76,6 @@ public class IonSetSelfSignedSSL {
             @Override
             public boolean verify(String hostname, SSLSession session) {
                 return true;
-                // or the following:
-                // HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-                // return hv.verify("www.yourserver.com", session);
             }
         };
     }

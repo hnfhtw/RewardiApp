@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Gadgets.java
+ * Purpose    : List the gadgets (Boxes, SocketBoards) of the current user;
+ *              add/edit/remove gadgets; switch on/off socketboard; lock box
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.BroadcastReceiver;
@@ -35,10 +46,10 @@ public class Gadgets extends AppCompatActivity
     private MenuItem menuItemDelete;
     private CustomListAdapterGadgets listAdapter;
     private FloatingActionButton floatingActionButtonAdd;
-    FutureCallback<Response<String>> getAllGadgetsCallback;
-    FutureCallback<Response<String>> createGadgetCallback;
-    FutureCallback<Response<String>> deleteGadgetCallback;
-    FutureCallback<Response<String>> editGadgetCallback;
+    FutureCallback<Response<String>> getAllGadgetsCallback; // callback function that is called on server response to the request "get all Rewardi Gadgets of the current user"
+    FutureCallback<Response<String>> createGadgetCallback;  // callback function that is called on server response to the request "link a new Rewardi Gadget to the current user"
+    FutureCallback<Response<String>> deleteGadgetCallback;  // callback function that is called on server response to the request "remove a Rewardi Gadget from the current user"
+    FutureCallback<Response<String>> editGadgetCallback;    // callback function that is called on server response to the request "edit a Rewardi Gadget of the current user"
     private Gadget editGadget;    // server does not send whole object as payload if the gadget is edited with PUT request -> so store the object that is to be edited here until server confirms with HTTP STATUS 204
     private TextView toolbarRewardi;
     private BroadcastReceiver currentActivityReceiver;
@@ -105,7 +116,7 @@ public class Gadgets extends AppCompatActivity
                 new AdapterView.OnItemLongClickListener()
                 {
                     @Override
-                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {   // show the Delete button if at least one ListView row is selected by long press
                         listAdapter.handleLongPress(position,view);
                         if(listAdapter.getListGadgetsSelected().size() > 0){
                             showDeleteMenu(true);
@@ -117,7 +128,7 @@ public class Gadgets extends AppCompatActivity
                 }
         );
 
-        getAllGadgetsCallback = new FutureCallback<Response<String>>() {
+        getAllGadgetsCallback = new FutureCallback<Response<String>>() {    // callback function that is called on server response to the request "get all Rewardi Gadgets of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null && result.getHeaders().code() == 200){
@@ -150,7 +161,7 @@ public class Gadgets extends AppCompatActivity
             }
         };
 
-        createGadgetCallback = new FutureCallback<Response<String>>() {
+        createGadgetCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "link a new Rewardi Gadget to the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -177,7 +188,7 @@ public class Gadgets extends AppCompatActivity
             }
         };
 
-        deleteGadgetCallback = new FutureCallback<Response<String>>() {
+        deleteGadgetCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "remove a Rewardi Gadget from the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -196,7 +207,7 @@ public class Gadgets extends AppCompatActivity
             }
         };
 
-        editGadgetCallback = new FutureCallback<Response<String>>() {
+        editGadgetCallback = new FutureCallback<Response<String>>() {   // callback function that is called on server response to the request "edit a Rewardi Gadget of the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -213,11 +224,10 @@ public class Gadgets extends AppCompatActivity
         };
 
         appState = ((Globals)getApplicationContext());
-        appState.setUserDataListener(this);
-        appState.requestUserDataUpdate();
-        appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback);
-        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback);
-        //toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+        appState.setUserDataListener(this); // ensure that this activity is informed when new user data is received from the server
+        appState.requestUserDataUpdate();   // request new user data from the server
+        appState.sendMessageToServer(Globals.messageID.BOX_GET_ALL, 0,null, getAllGadgetsCallback); // send request to server: "get all Rewardi Boxes of the current user"
+        appState.sendMessageToServer(Globals.messageID.SOCKETBOARD_GET_ALL, 0,null, getAllGadgetsCallback); // send request to server: "get all Rewardi SocketBoards of the current user"
     }
 
     @Override
@@ -256,7 +266,7 @@ public class Gadgets extends AppCompatActivity
         menuItemDelete.setOnMenuItemClickListener(
                 new MenuItem.OnMenuItemClickListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
+                    public boolean onMenuItemClick(MenuItem menuItem) { // several ListView rows (=Rewardi Gadgets) can be highlighted and then removed from the current user by clicking the Delete button -> send requests to the server to remove all these Rewardi Gadgets from the current user
                         List<Gadget> deleteList = listAdapter.getListGadgetsSelected();
                         for(int i = 0; i<deleteList.size(); ++i){
                             if(deleteList.get(i).getTrustNumber().charAt(0) == '2') {        // SocketBoard
@@ -316,7 +326,7 @@ public class Gadgets extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) { // called when GadgetAdd finishes -> either wenn new Rewardi Gadget was added (requestCode == 101) or when an existing Rewardi Gadget was edited (requestCode == 102)
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
             Bundle bundle = data.getExtras();

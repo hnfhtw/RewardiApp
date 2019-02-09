@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : CustomListAdapterGadgetHistory.java
+ * Purpose    : The activity History shows two different ListViews. One lists all spent Rewardi
+ *              events of the current user. This ListView ist managed by a CustomListAdapterGadgetHistory.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -10,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 class CustomListAdapterGadgetHistory extends BaseAdapter {
-    private List<HistoryItemGadget> gadgetHistoryList;
+    private List<HistoryItemGadget> gadgetHistoryList;  // list containing all HistoryItemGadget objects of the current user
     private Context context;
     Globals appState;
 
@@ -34,7 +45,7 @@ class CustomListAdapterGadgetHistory extends BaseAdapter {
         return 0;
     }
 
-    public void addItem(HistoryItemGadget historyItemGadget){
+    public void addItem(HistoryItemGadget historyItemGadget){   // add a HistoryItemGadget to the ListView
         gadgetHistoryList.add(0,historyItemGadget);
     }
 
@@ -51,7 +62,7 @@ class CustomListAdapterGadgetHistory extends BaseAdapter {
 
         appState = ((Globals)context.getApplicationContext());
 
-        if(historyItemGadget instanceof HistoryItemBox){
+        if(historyItemGadget instanceof HistoryItemBox){    // set UI elements correctly depending on type of HistoryItem
             HistoryItemBox historyItemBox = (HistoryItemBox) historyItemGadget;
             textViewName.setText(historyItemBox.getBox().getName());
             textViewGadgetType.setText("Box");

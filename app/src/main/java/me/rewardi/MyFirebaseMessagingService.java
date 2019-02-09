@@ -14,6 +14,22 @@
  * limitations under the License.
  */
 
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : MyFireBaseMessagingService.java
+ * Purpose    : Service that reacts to incoming FCM messages (from the server).
+ *              It shows a notification (+ a message text) in the Android status bar.
+ *              If the Rewardi app is not active and the notification is clicked the Rewardi
+ *              app is started.
+ *              If the Rewardi app is currently active, the active activity is reloaded to get
+ *              updated user data (these are re-requested from the server as the activity launches
+ *              freshly).
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.app.NotificationChannel;
@@ -36,7 +52,6 @@ import com.google.gson.JsonParser;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 

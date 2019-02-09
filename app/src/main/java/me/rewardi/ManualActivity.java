@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : ManualActivity.java
+ * Purpose    : Representation of a Rewardi Activity;
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import com.google.gson.JsonObject;
@@ -5,7 +15,7 @@ import com.google.gson.JsonObject;
 import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
-@Parcel(Parcel.Serialization.BEAN)
+@Parcel(Parcel.Serialization.BEAN)  // to serialize ManualActivity (=Rewardi Activity) object for passing it between activities via intents
 public class ManualActivity {
     private int id;
     private String name;
@@ -51,7 +61,7 @@ public class ManualActivity {
         this.activeSince = activeSince;
     }
 
-    public static ManualActivity parseObject(JsonObject obj) {
+    public static ManualActivity parseObject(JsonObject obj) {  // parse a JsonObject received from the server to a ManualActivity object
         int id = obj.get("id").getAsInt();
         String activityName = obj.get("name").getAsString();
         int rewardiPerHour = obj.get("rewardiPerHour").getAsInt();

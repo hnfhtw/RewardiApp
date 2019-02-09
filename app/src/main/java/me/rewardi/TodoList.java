@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : TodoList.java
+ * Purpose    : List the todo list points of the current user;
+ *              add/edit/delete/finish todo list points
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.BroadcastReceiver;
@@ -62,7 +73,7 @@ public class TodoList extends AppCompatActivity
 
         floatingActionButtonAdd = findViewById(R.id.floatingActionButtonAdd);
 
-        floatingActionButtonAdd.setOnClickListener(
+        floatingActionButtonAdd.setOnClickListener( // button to add new TodoList point -> start TodoListPointAdd activity on click
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -83,7 +94,7 @@ public class TodoList extends AppCompatActivity
                 new AdapterView.OnItemClickListener()
                 {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  // if a ListView entry (row) is clicked, the corresponding Rewardi TodoListPoint can be edit -> put the object to an intent, start the TodoListPointAdd activity and pass the intent
                         TodoListPoint item = (TodoListPoint) parent.getItemAtPosition(position);
                         Intent intent = new Intent(view.getContext(), TodoListPointAdd.class);
                         Bundle bundle = new Bundle();
@@ -98,7 +109,7 @@ public class TodoList extends AppCompatActivity
                 new AdapterView.OnItemLongClickListener()
                 {
                     @Override
-                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {   // on a long click on a ListView entry (row) the Delete button is shown -> the Rewardi TodoListPoint can be deleted
                         listAdapter.handleLongPress(position,view);
                         if(listAdapter.getListTodoListPointsSelected().size() > 0){
                             showDeleteMenu(true);
@@ -110,7 +121,7 @@ public class TodoList extends AppCompatActivity
                 }
         );
 
-        getAllTodoListPointsCallback = new FutureCallback<Response<String>>() {
+        getAllTodoListPointsCallback = new FutureCallback<Response<String>>() { // callback function that is called on server response to the request "get all Rewardi TodoListPoints of the current user"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if(e == null){
@@ -135,7 +146,7 @@ public class TodoList extends AppCompatActivity
             }
         };
 
-        createTodoListPointCallback = new FutureCallback<Response<String>>() {
+        createTodoListPointCallback = new FutureCallback<Response<String>>() {  // callback function that is called on server response to the request "create a new Rewardi TodoListPoint for the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -154,7 +165,7 @@ public class TodoList extends AppCompatActivity
             }
         };
 
-        deleteTodoListPointCallback = new FutureCallback<Response<String>>() {
+        deleteTodoListPointCallback = new FutureCallback<Response<String>>() {  // callback function that is called on server response to the request "delete a Rewardi TodoListPoint of the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -174,7 +185,7 @@ public class TodoList extends AppCompatActivity
             }
         };
 
-        editTodoListPointCallback = new FutureCallback<Response<String>>() {
+        editTodoListPointCallback = new FutureCallback<Response<String>>() {    // callback function that is called on server response to the request "edit a Rewardi TodoListPoint of the current user"
 
             @Override
             public void onCompleted(Exception e, Response<String> res) {
@@ -191,10 +202,9 @@ public class TodoList extends AppCompatActivity
         };
 
         appState = ((Globals)getApplicationContext());
-        appState.setUserDataListener(this);
-        appState.requestUserDataUpdate();
-        appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback);
-        //toolbarRewardi.setText(Double.toString(appState.getUser().getTotalRewardi()));
+        appState.setUserDataListener(this); // ensure that this activity is informed when new user data is received from the server
+        appState.requestUserDataUpdate();   // request new user data from the server
+        appState.sendMessageToServer(Globals.messageID.TODO_GET_ALL, 0,null, getAllTodoListPointsCallback); // send request to server: "get all Rewardi TodoListPoints of the current user"
     }
 
     @Override
@@ -233,7 +243,7 @@ public class TodoList extends AppCompatActivity
         menuItemDelete.setOnMenuItemClickListener(
                 new MenuItem.OnMenuItemClickListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
+                    public boolean onMenuItemClick(MenuItem menuItem) { // several ListView rows (=Rewardi TodoListPoints) can be highlighted and then deleted by clicking the Delete button -> send requests to the server to delete all these Rewardi TodoListPoints
                         List<TodoListPoint> deleteList = listAdapter.getListTodoListPointsSelected();
                         for(int i = 0; i<deleteList.size(); ++i){
                             appState.sendMessageToServer(Globals.messageID.TODO_DELETE, deleteList.get(i).getId(),null, deleteTodoListPointCallback);
@@ -288,7 +298,7 @@ public class TodoList extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) { // called when TodoListPointAdd finishes -> either wenn new Rewardi TodoListPoint was added (requestCode == 101) or when an existing Rewardi TodoListPoint was edited (requestCode == 102)
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
             Bundle bundle = data.getExtras();

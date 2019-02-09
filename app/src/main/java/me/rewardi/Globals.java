@@ -1,10 +1,16 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : Globals.java
+ * Purpose    : Provides functionality that is used from several different activities within the app.
+ *              It requests the user data (especially for the Rewardi account balance) from the server,
+ *              and it provides the central method that generates and sends requests to the server.
+ ********************************************************************************************/
+
 package me.rewardi;
-
-// Rewardi - Global variables to share data across activities
-// Version: V01_000
-// Last Modified: 04.12.2018
-// Author: HN
-
 
 import android.app.Application;
 import android.util.Log;
@@ -23,6 +29,7 @@ import java.util.Date;
 
 public class Globals extends Application {
 
+    // messages that specify all requests that are sent to the server
     enum messageID {ACTIVITY_GET_ALL, ACTIVITY_GET, ACTIVITY_CREATE, ACTIVITY_EDIT, ACTIVITY_DELETE, ACTIVITY_START, ACTIVITY_STOP,
         ACTIVITY_HISTORY_GET_ALL, BOX_GET_ALL, BOX_GET, BOX_CREATE, BOX_EDIT, BOX_DELETE, BOX_LOCK, BOX_UNLOCK, BOX_HISTORY_GET_ALL,
         SOCKETBOARD_GET_ALL, SOCKETBOARD_GET, SOCKETBOARD_CREATE, SOCKETBOARD_EDIT, SOCKETBOARD_DELETE, SOCKETBOARD_START, SOCKETBOARD_STOP, SOCKETBOARD_RESET, SOCKETBOARD_HISSTORY_GET_ALL,
@@ -34,7 +41,7 @@ public class Globals extends Application {
     private String sessionToken;
     private User user;
     private UpdateUserdata userDataListener;
-    FutureCallback<Response<String>> getUserDataCallback = new FutureCallback<Response<String>>() {
+    FutureCallback<Response<String>> getUserDataCallback = new FutureCallback<Response<String>>() { // calback function that is called when the user data is requested from the server
         @Override
         public void onCompleted(Exception e, Response<String> result) {
             if(e == null){
@@ -63,11 +70,11 @@ public class Globals extends Application {
     public UpdateUserdata getUserDataListener() { return userDataListener; }
     public void setUserDataListener(UpdateUserdata userDataListener) { this.userDataListener = userDataListener; }
 
-    public void requestUserDataUpdate(){
+    public void requestUserDataUpdate(){    // send a request "get user data" to the server
         sendMessageToServer(Globals.messageID.USER_GET, 0,null, getUserDataCallback);
     }
 
-    public String parseServerTimeStampToLocalTimeFormat(String timestamp){
+    public String parseServerTimeStampToLocalTimeFormat(String timestamp){  // parse a time stamp that is received from the server in the format of the current Android system
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Date date = null;
         try {
@@ -85,10 +92,10 @@ public class Globals extends Application {
         return output;
     }
 
-    public void sendMessageToServer(messageID msgID, int deviceId, JsonObject sendObj, FutureCallback<Response<String>> callBack){
+    public void sendMessageToServer(messageID msgID, int deviceId, JsonObject sendObj, FutureCallback<Response<String>> callBack){  // send a request to the server -> central method called from several activities of the app
         String endpoint;
         String method;
-        switch(msgID){
+        switch(msgID){  // set correct endpoint and HTTP method depending on the messageID
             case ACTIVITY_GET_ALL:{
                 endpoint = "https://37.60.168.102:443/api/Activities";
                 method = "GET";
@@ -327,7 +334,7 @@ public class Globals extends Application {
         Log.d("Globals", "Endpoint = " + endpoint);
         Log.d("Globals", "Method = " + method);
 
-        if(sendObj != null) {
+        if(sendObj != null) {   // build request and send it to the server, provide the callback function that is called when the server response is received
             Log.d("Globals", "Send Object = " + sendObj.toString());
             Ion.with(this)
                     .load(method, endpoint)

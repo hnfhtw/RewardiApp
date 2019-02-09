@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : CustomListAdapterTodoList.java
+ * Purpose    : The activity TodoList lists all TodoList points of the current user in a ListView.
+ *              This ListView ist managed by a CustomListAdapterTodoList.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -16,17 +27,13 @@ import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Response;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 class CustomListAdapterTodoList extends BaseAdapter {
-    private List<TodoListPoint> listTodoListPointsSelected;//keep track of selected objects
-    private List<View> listSelectedRows;//keep track of selected rows
-    private List<TodoListPoint> listTodoListPoints;
+    private List<TodoListPoint> listTodoListPointsSelected; // keep track of selected TodoListPoint objects
+    private List<View> listSelectedRows;                    // keep track of selected rows
+    private List<TodoListPoint> listTodoListPoints;         // list containing all TodoListPoint objects of the current user
     private Context context;
     Globals appState;
     private int layoutResId;
@@ -55,7 +62,7 @@ class CustomListAdapterTodoList extends BaseAdapter {
         return 0;
     }
 
-    public void addItem(TodoListPoint point){
+    public void addItem(TodoListPoint point){   // add a TodoListPoint item to the ListView
         listTodoListPoints.add(point);
     }
 
@@ -90,7 +97,7 @@ class CustomListAdapterTodoList extends BaseAdapter {
         textViewRewardi2.setText(Integer.toString(point.getRewardi()));
 
 
-        doneTodoListPointCallback = new FutureCallback<Response<String>>() {
+        doneTodoListPointCallback = new FutureCallback<Response<String>>() {    // callback function that is called on server response to the request "finish TodoListPoint"
             @Override
             public void onCompleted(Exception e, Response<String> result) {
                 if (e == null && (result.getHeaders().code() == 201 || result.getHeaders().code() == 204 || result.getHeaders().code() == 200) ) {
@@ -111,7 +118,7 @@ class CustomListAdapterTodoList extends BaseAdapter {
         return convertView;
     }
 
-    public void handleLongPress(int position, View view){
+    public void handleLongPress(int position, View view){   // on a long press the ListView rows are highlighted -> the can then either be unselected with another long press or deleted by the Delete button
         if(listSelectedRows.contains(view)){
             listSelectedRows.remove(view);
             listTodoListPointsSelected.remove(listTodoListPoints.get(position));

@@ -1,3 +1,15 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : ActivityTimer.java
+ * Purpose    : Timer class used to show the expired run-time of switched-on socket boards or
+ *              started activities; timer is preloaded depending on the "start time" that is
+ *              obtained from the server
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.os.CountDownTimer;
@@ -22,7 +34,7 @@ public class ActivityTimer extends CountDownTimer {
     }
 
     @Override
-    public void onTick(long l) {
+    public void onTick(long l) {    // on every timer tick, calculate the expired run-time and show it in the outputTextView
 
         long millis = (totalSeconds * 1000 - l) + startValueMilis;
 

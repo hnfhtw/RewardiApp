@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : CustomGridViewActivity.java
+ * Purpose    : The Home activity shows all gadgets of the current user in a GridView.
+ *              This GridView ist managed by a CustomGridViewActivity.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -64,7 +75,7 @@ public class CustomGridViewActivity extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View convertView, ViewGroup parent) {
+    public View getView(int i, View convertView, ViewGroup parent) {    // in the Home activity a GridView shows all gadgets of the current user with a small image (Box or SocketBoard) as well as the gadget name
         Log.d("GridView", "getView called");
 
         final Gadget gadget = listGadgets.get(i);

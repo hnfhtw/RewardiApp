@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : TodoListPoint.java
+ * Purpose    : Representation of a Rewardi TodoList Point;
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import com.google.gson.JsonObject;
@@ -43,7 +53,7 @@ public class TodoListPoint {
     public boolean getDone() { return done; }
     public void setDone(boolean done) { this.done = done; }
 
-    public static TodoListPoint parseObject(JsonObject obj) {
+    public static TodoListPoint parseObject(JsonObject obj) {   // parse a JsonObject received from the server to a TodoListPoint object
         int id = obj.get("id").getAsInt();
         String pointName = obj.get("name").getAsString();
         int rewardi = obj.get("rewardi").getAsInt();

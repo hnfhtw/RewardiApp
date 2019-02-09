@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : CustomListAdapterEarnedRewardiHistory.java
+ * Purpose    : The activity History shows two different ListViews. One lists all earned Rewardi
+ *              events of the current user. This ListView ist managed by a CustomListAdapterEarnedRewardiHistory.
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.Context;
@@ -11,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
-    private List<HistoryItemEarnedRewardi> earnedRewardiHistoryList;
+    private List<HistoryItemEarnedRewardi> earnedRewardiHistoryList;    // list containing all HistoryItemEarnedRewardi objects of the current user
     private Context context;
     Globals appState;
 
@@ -35,7 +46,7 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
         return 0;
     }
 
-    public void addItem(HistoryItemEarnedRewardi historyItemEarnedRewardi){
+    public void addItem(HistoryItemEarnedRewardi historyItemEarnedRewardi){ // add a HistoryItemEarnedRewardi to the ListView
         earnedRewardiHistoryList.add(0,historyItemEarnedRewardi);
     }
 
@@ -55,7 +66,7 @@ class CustomListAdapterEarnedRewardiHistory extends BaseAdapter {
         String supervisorName = historyItemEarnedRewardi.getSupervisorName();
         boolean granted = historyItemEarnedRewardi.getGranted();
 
-        if(historyItemEarnedRewardi instanceof HistoryItemTodoListPoint){
+        if(historyItemEarnedRewardi instanceof HistoryItemTodoListPoint){   // set UI elements correctly depending on type of HistoryItem
             HistoryItemTodoListPoint historyItemTodoListPoint = (HistoryItemTodoListPoint) historyItemEarnedRewardi;
             textViewName.setText(historyItemTodoListPoint.getTodoListPoint().getName());
             textViewDate.setText(appState.parseServerTimeStampToLocalTimeFormat(historyItemTodoListPoint.getTimestamp()));

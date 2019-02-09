@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : User.java
+ * Purpose    : Representation of a Rewardi user
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import com.google.gson.JsonObject;
@@ -53,7 +63,7 @@ public class User {
     public supervisorStatusTypes getSupervisorStatus() { return supervisorStatus; }
     public void setSupervisorStatus(supervisorStatusTypes supervisorStatus) { this.supervisorStatus = supervisorStatus; }
 
-    public static User parseObject(JsonObject obj) {
+    public static User parseObject(JsonObject obj) {    // parse a JsonObject received from the server to a User object
         int userId = obj.get("id").getAsInt();
         String firebaseInstanceId = obj.get("instanceId").getAsString();
         double rewardi = obj.get("totalRewardi").getAsDouble();

@@ -1,3 +1,14 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : ManualActivityAdd.java
+ * Purpose    : This activity is started from Activities activity if user wants to add or edit a
+ *              activity
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.content.DialogInterface;

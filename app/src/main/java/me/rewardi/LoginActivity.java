@@ -1,3 +1,13 @@
+/********************************************************************************************
+ * Project    : Rewardi
+ * Created on : 12/2018 - 01/2019
+ * Author     : Harald Netzer
+ * Version    : 001
+ *
+ * File       : LoginActivity.java
+ * Purpose    : Send login or registration request to server; get session token from server;
+ ********************************************************************************************/
+
 package me.rewardi;
 
 import android.animation.Animator;
@@ -43,12 +53,12 @@ public class LoginActivity extends AppCompatActivity {
     private TextView textViewRegister;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {    // this activity is started either at the start of the app, or if the user presses the Logout button in the menu (in this case an Intent with boolean extra isLogout = true is passed to LoginActivity)
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
         IonSetSelfSignedSSL selfSignedSSL = new IonSetSelfSignedSSL();
-        selfSignedSSL.setSelfSignedSSL(this,null);
+        selfSignedSSL.setSelfSignedSSL(this,null);  // ensure that self signed server certificate is trusted (it is stored in assets/rewardi.cer)
 
         // Set up the login form.
         mUserNameView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextViewUserName);
@@ -79,14 +89,14 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        SharedPreferences sharedPref = LoginActivity.this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = LoginActivity.this.getPreferences(Context.MODE_PRIVATE); // login data of last user is stored in SharedPreferences (to avoid manual login at each app start)
         String userName = "";
         String password = "";
 
         Intent intent = getIntent();
         boolean isLogout = intent.getBooleanExtra("logout", false);
 
-        if(isLogout){
+        if(isLogout){   // delete stored login data if LoginActivity is started after press on Logout button
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("userName", "");   // delete stored value
             editor.putString("password", "");   // delete stored value
@@ -128,7 +138,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void attemptLogin(String user, String pw, boolean silentLogin) {
+    private void attemptLogin(String user, String pw, boolean silentLogin) {    // send login request to server, silentLogin = true if the login data loaded from SharedPreferences is used (= auto login)
         if (!mLoginRegisterButton.isEnabled()) {
             return;
         }
@@ -181,7 +191,7 @@ public class LoginActivity extends AppCompatActivity {
             loginObject.addProperty("userName", userName);
             loginObject.addProperty("password", password);
 
-            Ion.with(this)
+            Ion.with(this)  // this sets the parameters for the login request (method, endpoint, body data format, desired result format and callback function that is called when server response is received -> asynchronous) and then sends the request
                     .load("POST", "https://37.60.168.102:443/api/auth/authenticate")
                     .setJsonObjectBody(loginObject)
                     .asString()
@@ -218,7 +228,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void attemptRegister() {
+    private void attemptRegister() {    // send register new account request -> if password is valid and user not already existing (user name, mail address) the server sends a confirmation email to the specified mail address -> the user needs to confirm the registration in the received mail -> then the new account can be used (login with user name + password)
         // Reset errors.
         mUserNameView.setError(null);
         mMailAddressView.setError(null);
@@ -270,7 +280,7 @@ public class LoginActivity extends AppCompatActivity {
             registerObject.addProperty("emailAddress", mailAddress);
             registerObject.addProperty("password", password);
 
-            Ion.with(this)
+            Ion.with(this)  // send registration request to server -> analog to login request described above
                     .load("POST", "https://37.60.168.102:443/api/auth/register")
                     .setJsonObjectBody(registerObject)
                     .asString()
